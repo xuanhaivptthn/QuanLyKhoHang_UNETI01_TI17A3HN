@@ -2,7 +2,9 @@ using Microsoft.EntityFrameworkCore;
 using QuanLyKhoHang_UNETI01_TI17A3HN.Data;
 
 var builder = WebApplication.CreateBuilder(args);
-var connectionString = builder.Configuration.GetConnectionString("QuanLyKhoHang_UNETI01_TI17A3HNContext") ?? throw new InvalidOperationException("Connection string 'QuanLyKhoHang_UNETI01_TI17A3HNContext' not found.");
+var connectionString = builder.Configuration.GetConnectionString("AppDbContext")
+    ?? builder.Configuration.GetConnectionString("QuanLyKhoHang_UNETI01_TI17A3HNContext")
+    ?? throw new InvalidOperationException("Connection string 'AppDbContext' not found.");
 
 builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(connectionString));
 

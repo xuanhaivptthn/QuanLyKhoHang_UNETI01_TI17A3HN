@@ -3,8 +3,12 @@ using QuanLyKhoHang_UNETI01_TI17A3HN.Models;
 
 namespace QuanLyKhoHang_UNETI01_TI17A3HN.Data
 {
-    public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
+    public class AppDbContext : DbContext
     {
+        public AppDbContext(DbContextOptions<AppDbContext> options)
+            : base(options)
+        {
+        }
         // Module 1: Tài khoản, Đăng nhập, Phân quyền, Loại hàng, Đơn vị tính
         public DbSet<TaiKhoan> TaiKhoans { get; set; } = default!;
         public DbSet<LoaiHang> LoaiHangs { get; set; } = default!;
