@@ -19,15 +19,15 @@ public class KhoesController : Controller
     }
 
     // GET: KHOS/Details/5
-    public async Task<IActionResult> Details(int? makho)
+    public async Task<IActionResult> Details(int? id)
     {
-        if (makho == null)
+        if (id == null)
         {
             return NotFound();
         }
 
         var kho = await _context.Kho
-            .FirstOrDefaultAsync(m => m.MaKho == makho);
+            .FirstOrDefaultAsync(m => m.MaKho == id);
         if (kho == null)
         {
             return NotFound();
@@ -59,14 +59,14 @@ public class KhoesController : Controller
     }
 
     // GET: KHOS/Edit/5
-    public async Task<IActionResult> Edit(int? makho)
+    public async Task<IActionResult> Edit(int? id)
     {
-        if (makho == null)
+        if (id == null)
         {
             return NotFound();
         }
 
-        var kho = await _context.Kho.FindAsync(makho);
+        var kho = await _context.Kho.FindAsync(id);
         if (kho == null)
         {
             return NotFound();
@@ -79,9 +79,9 @@ public class KhoesController : Controller
     // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int? makho, [Bind("MaKho,TenKho,DiaDiem,MoTa,TrangThai")] Kho kho)
+    public async Task<IActionResult> Edit(int? id, [Bind("MaKho,TenKho,DiaDiem,MoTa,TrangThai")] Kho kho)
     {
-        if (makho != kho.MaKho)
+        if (id != kho.MaKho)
         {
             return NotFound();
         }
@@ -110,15 +110,15 @@ public class KhoesController : Controller
     }
 
     // GET: KHOS/Delete/5
-    public async Task<IActionResult> Delete(int? makho)
+    public async Task<IActionResult> Delete(int? id)
     {
-        if (makho == null)
+        if (id == null)
         {
             return NotFound();
         }
 
         var kho = await _context.Kho
-            .FirstOrDefaultAsync(m => m.MaKho == makho);
+            .FirstOrDefaultAsync(m => m.MaKho == id);
         if (kho == null)
         {
             return NotFound();
@@ -130,20 +130,31 @@ public class KhoesController : Controller
     // POST: KHOS/Delete/5
     [HttpPost, ActionName("Delete")]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> DeleteConfirmed(int? makho)
+    public async Task<IActionResult> DeleteConfirmed(int? id)
     {
-        var kho = await _context.Kho.FindAsync(makho);
+        var targetId = id;
+        if (targetId == null && Request.HasFormContentType && int.TryParse(Request.Form["MaKho"], out int formId))
+        {
+            targetId = formId;
+        }
+
+        if (targetId == null)
+        {
+            return NotFound();
+        }
+
+        var kho = await _context.Kho.FindAsync(targetId);
         if (kho != null)
         {
             _context.Kho.Remove(kho);
+            await _context.SaveChangesAsync();
         }
 
-        await _context.SaveChangesAsync();
         return RedirectToAction(nameof(Index));
     }
 
-    private bool KhoExists(int? makho)
+    private bool KhoExists(int id)
     {
-        return _context.Kho.Any(e => e.MaKho == makho);
+        return _context.Kho.Any(e => e.MaKho == id);
     }
 }
