@@ -14,8 +14,11 @@ public class QuanLyKhoHang_UNETI01_TI17A3HNContext(DbContextOptions<QuanLyKhoHan
 
     // Module 4: Bộ phận nhận, Phiếu xuất, Chi tiết phiếu xuất
     public DbSet<BoPhanNhan> BoPhanNhans { get; set; } = default!;
+    public DbSet<BoPhanNhan> BoPhanNhan => BoPhanNhans;
     public DbSet<PhieuXuat> PhieuXuats { get; set; } = default!;
+    public DbSet<PhieuXuat> PhieuXuat => PhieuXuats;
     public DbSet<ChiTietPhieuXuat> ChiTietPhieuXuats { get; set; } = default!;
+    public DbSet<ChiTietPhieuXuat> ChiTietPhieuXuat => ChiTietPhieuXuats;
 
     // Module 5: Tồn kho, Lịch sử tồn kho
     public DbSet<TonKho> TonKhoes { get; set; } = default!;
