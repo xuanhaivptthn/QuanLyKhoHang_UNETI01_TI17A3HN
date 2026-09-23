@@ -3,19 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using QuanLyKhoHang_UNETI01_TI17A3HN.Data;
 
 #nullable disable
 
 namespace QuanLyKhoHang_UNETI01_TI17A3HN.Migrations
 {
-    [DbContext(typeof(QuanLyKhoHang_UNETI01_TI17A3HNContext))]
-    [Migration("20260923144133_Initial")]
-    partial class Initial
+    [DbContext(typeof(AppDbContext))]
+    partial class AppDbContextModelSnapshot : ModelSnapshot
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

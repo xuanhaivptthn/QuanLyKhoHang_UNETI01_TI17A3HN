@@ -1,13 +1,14 @@
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using QuanLyKhoHang_UNETI01_TI17A3HN.Data;
 using QuanLyKhoHang_UNETI01_TI17A3HN.Models;
 
 public class KhoesController : Controller
 {
-    private readonly QuanLyKhoHang_UNETI01_TI17A3HNContext _context;
+    private readonly AppDbContext _context;
 
-    public KhoesController(QuanLyKhoHang_UNETI01_TI17A3HNContext context)
+    public KhoesController(AppDbContext context)
     {
         _context = context;
     }
