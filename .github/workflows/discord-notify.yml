@@ -1,0 +1,60 @@
+name: Discord Push Notification
+
+on:
+  push:
+    branches:
+      - '**'
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Discord notification with Role Mention
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          DISCORD_ROLE_ID: ${{ secrets.DISCORD_ROLE_ID }}
+        run: |
+          if [ -z "$DISCORD_WEBHOOK" ]; then
+            echo "DISCORD_WEBHOOK secret is not set. Skipping notification."
+            exit 0
+          fi
+
+          AUTHOR="${{ github.actor }}"
+          BRANCH="${{ github.ref_name }}"
+          REPO="${{ github.repository }}"
+          COMMIT_HASH="${{ github.sha }}"
+          SHORT_SHA="${COMMIT_HASH:0:7}"
+          COMMIT_MSG=$(echo "${{ github.event.head_commit.message }}" | tr '\n' ' ' | sed 's/"/\\"/g')
+          COMMIT_URL="${{ github.event.head_commit.url }}"
+          
+          # Include role ping if DISCORD_ROLE_ID secret or variable is set
+          MENTION=""
+          if [ -n "$DISCORD_ROLE_ID" ]; then
+            MENTION="<@&${DISCORD_ROLE_ID}> "
+          fi
+
+          CONTENT="${MENTION}New commit pushed to **${REPO}** (\`${BRANCH}\`)"
+
+          curl -s -S -H "Content-Type: application/json" \
+               -X POST \
+               -d '{
+                 "content": "'"${CONTENT}"'",
+                 "embeds": [{
+                   "title": "['"${SHORT_SHA}"'] '"${COMMIT_MSG}"'",
+                   "url": "'"${COMMIT_URL}"'",
+                   "color": 3447003,
+                   "author": {
+                     "name": "'"${AUTHOR}"'",
+                     "url": "https://github.com/'"${AUTHOR}"'",
+                     "icon_url": "https://github.com/'"${AUTHOR}"'.png"
+                   },
+                   "fields": [
+                     {
+                       "name": "Branch",
+                       "value": "'"${BRANCH}"'",
+                       "inline": true
+                     }
+                   ]
+                 }]
+               }' \
+               "$DISCORD_WEBHOOK"
