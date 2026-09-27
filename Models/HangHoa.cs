@@ -6,42 +6,41 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Models
     public class HangHoa
     {
         [Key]
-        [Display(Name = "Mã hàng")]
-        public string MaHang { get; set; }
+        public int MaHang { get; set; }
 
-        [Required(ErrorMessage = "Tên hàng là bắt buộc")]
-        [StringLength(200)]
+        [Required(ErrorMessage = "Tên hàng không được để trống")]
+        [StringLength(150)]
         [Display(Name = "Tên hàng")]
-        public string TenHang { get; set; }
+        public string TenHang { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Mã loại hàng là bắt buộc")]
+        [Required]
         [Display(Name = "Loại hàng")]
-        public string MaLoaiHang { get; set; }
+        public int MaLoaiHang { get; set; }
+        [ForeignKey("MaLoaiHang")]
+        public LoaiHang? LoaiHang { get; set; }
 
-        [Required(ErrorMessage = "Mã đơn vị tính là bắt buộc")]
+        [Required]
         [Display(Name = "Đơn vị tính")]
-        public string MaDonViTinh { get; set; }
+        public int MaDonViTinh { get; set; }
+        [ForeignKey("MaDonViTinh")]
+        public DonViTinh? DonViTinh { get; set; }
 
-        [Required(ErrorMessage = "Giá nhập tham khảo là bắt buộc")]
         [Range(0, double.MaxValue, ErrorMessage = "Giá nhập tham khảo phải >= 0")]
+        [Column(TypeName = "decimal(18,2)")]
         [Display(Name = "Giá nhập tham khảo")]
         public decimal GiaNhapThamKhao { get; set; }
 
-        [Required(ErrorMessage = "Mức tồn tối thiểu là bắt buộc")]
         [Range(0, int.MaxValue, ErrorMessage = "Mức tồn tối thiểu phải >= 0")]
         [Display(Name = "Mức tồn tối thiểu")]
         public int MucTonToiThieu { get; set; }
 
-        [Display(Name = "Mô tả")]
-        public string MoTa { get; set; }
+        [StringLength(255)]
+        public string? MoTa { get; set; }
 
-        [Display(Name = "Trạng thái")]
-        public bool TrangThai { get; set; }
+        public bool TrangThai { get; set; } = true;
 
-        [ForeignKey("MaLoaiHang")]
-        public virtual LoaiHang LoaiHang { get; set; }
-
-        [ForeignKey("MaDonViTinh")]
-        public virtual DonViTinh DonViTinh { get; set; }
+        public ICollection<ChiTietPhieuNhap>? DanhSachChiTietNhap { get; set; }
+        public ICollection<ChiTietPhieuXuat>? DanhSachChiTietXuat { get; set; }
+        public ICollection<TonKho>? DanhSachTonKho { get; set; }
     }
 }
