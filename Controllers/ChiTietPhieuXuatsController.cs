@@ -2,12 +2,12 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using QuanLyKhoHang_UNETI01_TI17A3HN.Models;
-
+using QuanLyKhoHang_UNETI01_TI17A3HN.Data;
 public class ChiTietPhieuXuatsController : Controller
 {
-    private readonly QuanLyKhoHang_UNETI01_TI17A3HNContext _context;
+    private readonly AppDbContext _context;
 
-    public ChiTietPhieuXuatsController(QuanLyKhoHang_UNETI01_TI17A3HNContext context)
+    public ChiTietPhieuXuatsController(AppDbContext context)
     {
         _context = context;
     }
