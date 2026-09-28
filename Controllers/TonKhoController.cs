@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
 {
-    // Họ và tên: Nguyễn Văn Cường[cite: 1]
-    // Mã sinh viên: 23103100132[cite: 1]
-    // Nội dung thực hiện: Tồn kho, cảnh báo tồn, lịch sử nhập xuất, Dashboard và thống kê LINQ.[cite: 1]
+    // Họ và tên: Nguyễn Văn Cường
+    // Mã sinh viên: 23103100132
+    // Nội dung thực hiện: Tồn kho, cảnh báo tồn, lịch sử nhập xuất, Dashboard và thống kê LINQ.
     public class TonKhoController : Controller
     {
         private readonly AppDbContext _context;
