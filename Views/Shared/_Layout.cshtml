@@ -21,17 +21,31 @@
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                        <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Khoes" asp-action="Index">Kho</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="BoPhanNhans" asp-action="Index">Bộ phận nhận</a>
                         </li>
+                    </ul>
+                    <ul class="navbar-nav align-items-center">
+                        @if (Context.Session.GetInt32("MaTaiKhoan") != null)
+                        {
+                            <li class="nav-item me-2">
+                                <span class="text-dark me-2">
+                                    Xin chào: <strong>@Context.Session.GetString("HoTen")</strong>
+                                    <span class="badge bg-info text-dark ms-1">@Context.Session.GetString("VaiTro")</span>
+                                </span>
+                            </li>
+                            <li class="nav-item">
+                                <a class="btn btn-outline-danger btn-sm" asp-area="" asp-controller="TaiKhoan" asp-action="DangXuat">Đăng xuất</a>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="btn btn-outline-primary btn-sm" asp-area="" asp-controller="TaiKhoan" asp-action="DangNhap">Đăng nhập</a>
+                            </li>
+                        }
                     </ul>
                 </div>
             </div>
