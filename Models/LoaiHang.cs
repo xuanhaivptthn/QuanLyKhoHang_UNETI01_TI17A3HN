@@ -3,6 +3,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace QuanLyKhoHang_UNETI01_TI17A3HN.Models
 {
+    // Họ và tên: Trần Xuân Hải
+    // Mã sinh viên: 23103100135
+    // Tạo model LoaiHang
     [Table("LoaiHang")]
     public class LoaiHang
     {

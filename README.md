@@ -10,4 +10,3 @@
 ### Thủ tục mỗi khi làm
 - Fetch để lấy thông tin thay đổi
 - Pull để lấy code từ Github về
-- Chạy lệnh ``update-database`` trong ``Nuget Package Console``
