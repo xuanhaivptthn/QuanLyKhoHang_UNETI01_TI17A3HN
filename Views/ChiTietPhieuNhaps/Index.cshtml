@@ -12,38 +12,32 @@
 <table class="table">
     <thead>
         <tr>
+             <th>Mã chi tiết nhập</th>
             <th>
-                @Html.DisplayNameFor(model => model.MaPhieuNhap)
+                Mã phiếu nhập
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.MaHang)
+                Số lượng nhập
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.SoLuongNhap)
+                Đơn giá nhập
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.DonGiaNhap)
+                Thành tiền
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.ThanhTien)
+                Thông tin hàng hóa
             </th>
-            <th>
-                @Html.DisplayNameFor(model => model.PhieuNhap)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.HangHoa)
-            </th>
-            <th></th>
         </tr>
     </thead>
     <tbody>
 @foreach (var item in Model) {
         <tr>
             <td>
-                @Html.DisplayFor(model => item.MaPhieuNhap)
+                @Html.DisplayFor(model => item.MaChiTietNhap)
             </td>
             <td>
-                @Html.DisplayFor(model => item.MaHang)
+                @Html.DisplayFor(model => item.MaPhieuNhap)
             </td>
             <td>
                 @Html.DisplayFor(model => item.SoLuongNhap)
@@ -53,9 +47,6 @@
             </td>
             <td>
                 @Html.DisplayFor(model => item.ThanhTien)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.PhieuNhap)
             </td>
             <td>
                 @Html.DisplayFor(model => item.HangHoa)

@@ -26,6 +26,15 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="BoPhanNhans" asp-action="Index">Bộ phận nhận</a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="NhaCungCaps" asp-action="Index">Nhà cung cấp</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="PhieuNhaps" asp-action="Index">Phiếu nhập</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="ChiTietPhieuNhaps" asp-action="Index">Chi tiết phiếu nhập</a>
+                        </li>
                     </ul>
                     <ul class="navbar-nav align-items-center">
                         @if (Context.Session.GetInt32("MaTaiKhoan") != null)

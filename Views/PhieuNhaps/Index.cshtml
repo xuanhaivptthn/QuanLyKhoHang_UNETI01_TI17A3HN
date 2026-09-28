@@ -12,39 +12,39 @@
 <table class="table">
     <thead>
         <tr>
+            <th>Mã phiếu nhập</th>
             <th>
-                @Html.DisplayNameFor(model => model.MaNhaCungCap)
+                Mã nhà cung cấp
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.MaKho)
+                Mã kho
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.NgayNhap)
+                Ngày nhập
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.NguoiLap)
+                Người nhập
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.TrangThai)
+                Trạng thái
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.GhiChu)
+               Ghi chú
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.NhaCungCap)
+                Nhà cung cấp
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Kho)
+                Số lượng
             </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ChiTietPhieuNhaps)
-            </th>
-            <th></th>
         </tr>
     </thead>
     <tbody>
 @foreach (var item in Model) {
         <tr>
+            <td>
+                @Html.DisplayFor(model => item.MaPhieuNhap)
+            </td>
             <td>
                 @Html.DisplayFor(model => item.MaNhaCungCap)
             </td>
@@ -66,12 +66,10 @@
             <td>
                 @Html.DisplayFor(model => item.NhaCungCap)
             </td>
-            <td>
-                @Html.DisplayFor(model => item.Kho)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.ChiTietPhieuNhaps)
-            </td>
+             @foreach (var ct in item.ChiTietPhieuNhaps)
+            {
+                <td>@ct.SoLuongNhap</td>
+                }
             <td>
                 <a asp-action="Edit" asp-route-id="@item.MaPhieuNhap">Edit</a> |
                 <a asp-action="Details" asp-route-id="@item.MaPhieuNhap">Details</a> |

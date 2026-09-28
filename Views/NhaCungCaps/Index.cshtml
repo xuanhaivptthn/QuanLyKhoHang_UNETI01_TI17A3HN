@@ -13,26 +13,31 @@
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.TenNhaCungCap)
+                Mã nhà cung cấp 
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.SoDienThoai)
+                Tên nhà cung cấp
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Email)
+                Số điện thoại
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.DiaChi)
+                Email
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.TrangThai)
+                Địa chỉ
             </th>
-            <th></th>
+            <th>
+                Trạng thái
+            </th>
         </tr>
     </thead>
     <tbody>
 @foreach (var item in Model) {
         <tr>
+            <td>
+                @Html.DisplayFor(model=>item.MaNhaCungCap)
+            </td>
             <td>
                 @Html.DisplayFor(model => item.TenNhaCungCap)
             </td>
