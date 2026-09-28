@@ -29,7 +29,7 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Models
         [ForeignKey("MaKho")]
         public virtual Kho? Kho { get; set; }
 
-        // [ForeignKey("MaHang")]
-        // public virtual HangHoa? HangHoa { get; set; }
+        [ForeignKey("MaHang")]
+        public virtual HangHoa? HangHoa { get; set; }
     }
 }

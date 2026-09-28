@@ -570,7 +570,7 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Migrations
 
             modelBuilder.Entity("QuanLyKhoHang_UNETI01_TI17A3HN.Models.TonKho", b =>
                 {
-                    b.HasOne("QuanLyKhoHang_UNETI01_TI17A3HN.Models.HangHoa", null)
+                    b.HasOne("QuanLyKhoHang_UNETI01_TI17A3HN.Models.HangHoa", "HangHoa")
                         .WithMany("DanhSachTonKho")
                         .HasForeignKey("MaHang")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -581,6 +581,8 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Migrations
                         .HasForeignKey("MaKho")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("HangHoa");
 
                     b.Navigation("Kho");
                 });

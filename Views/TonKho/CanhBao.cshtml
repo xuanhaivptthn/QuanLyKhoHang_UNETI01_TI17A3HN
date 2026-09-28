@@ -1,0 +1,45 @@
+﻿@model IEnumerable<QuanLyKhoHang_UNETI01_TI17A3HN.Models.TonKho>
+
+@{
+    ViewData["Title"] = "Danh Sách Cảnh Báo Tồn Kho";
+}
+
+<h2 class="mt-4 text-danger"><i class="fas fa-exclamation-triangle"></i> Danh Sách Cảnh Báo Tồn Kho</h2>
+<p>Danh sách các mặt hàng đã hết hoặc chạm mức tồn tối thiểu cần nhập thêm.</p>
+
+<table class="table table-bordered table-striped mt-3">
+    <thead class="thead-dark">
+        <tr>
+            <th>Kho</th>
+            <th>Mã Hàng</th>
+            <th>Tên Hàng Hóa</th>
+            <th>Mức Tồn Tối Thiểu</th>
+            <th class="text-danger">Số Lượng Tồn Thực Tế</th>
+            <th>Trạng Thái</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Kho.TenKho</td>
+                <td>@item.MaHang</td>
+                <td>@item.HangHoa.TenHang</td>
+                <td>@item.HangHoa.MucTonToiThieu</td>
+                <td class="text-danger font-weight-bold">@item.SoLuongTon</td>
+                <td>
+                    @if (item.SoLuongTon == 0)
+                    {
+                        <span class="badge bg-danger">Hết hàng</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-warning text-dark">Sắp hết</span>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a href="/ThongKe/Dashboard" class="btn btn-secondary mt-3">Quay lại Dashboard</a>

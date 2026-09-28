@@ -64,26 +64,7 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
             ViewBag.TuNgay = tuNgay.Value.ToString("yyyy-MM-dd");
             ViewBag.DenNgay = denNgay.Value.ToString("yyyy-MM-dd");
 
-            // TODO (Module 3 & 2): Mở lại thống kê hàng nhập khi có ChiTietPhieuNhap và HangHoa
-            /*
-            var hangNhapNhieuNhat = await _context.ChiTietPhieuNhaps
-                .Include(c => c.PhieuNhap)
-                .Include(c => c.HangHoa)
-                .Where(c => c.PhieuNhap != null && c.HangHoa != null && c.PhieuNhap.NgayNhap >= tuNgay && c.PhieuNhap.NgayNhap <= denNgay && c.PhieuNhap.TrangThai == "Đã hoàn tất")
-                .GroupBy(c => new { c.MaHang, TenHang = c.HangHoa!.TenHang })
-                .Select(g => new
-                {
-                    TenHang = g.Key.TenHang,
-                    TongNhap = g.Sum(c => c.SoLuongNhap)
-                })
-                .OrderByDescending(x => x.TongNhap)
-                .Take(5)
-                .ToListAsync();
-
-            ViewBag.TopHangNhap = hangNhapNhieuNhat;
-            */
-
-            return View(); // Tạo một file View BaoCaoNhapXuat.cshtml tương ứng
+            return View();
         }
     }
 }
