@@ -22,7 +22,6 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Data
         public DbSet<QuanLyKhoHang_UNETI01_TI17A3HN.Models.PhieuNhap> PhieuNhap { get; set; } = default!;
         public DbSet<QuanLyKhoHang_UNETI01_TI17A3HN.Models.ChiTietPhieuNhap> ChiTietPhieuNhap { get; set; } = default!;
         public DbSet<QuanLyKhoHang_UNETI01_TI17A3HN.Models.NhaCungCap> NhaCungCap { get; set; } = default!;
-
         // Module 4: Bộ phận nhận, Phiếu xuất, Chi tiết phiếu xuất
         public DbSet<BoPhanNhan> BoPhanNhans { get; set; } = default!;
         public DbSet<PhieuXuat> PhieuXuats { get; set; } = default!;

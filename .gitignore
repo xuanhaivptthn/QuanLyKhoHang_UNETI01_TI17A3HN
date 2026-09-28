@@ -62,3 +62,6 @@ nunit-*.xml
 *.user
 *.userosscache
 *.suo
+
+# Ignore local migrations build
+Migrations/
