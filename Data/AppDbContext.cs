@@ -15,6 +15,7 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Data
         public DbSet<DonViTinh> DonViTinhs { get; set; } = default!;
 
         // Danh mục Kho (Đã có từ ban đầu)
+        public DbSet<HangHoa> HangHoa { get; set; } = default!;
         public DbSet<Kho> Kho { get; set; } = default!;
         public DbSet<Kho> Khoes => Kho;
 

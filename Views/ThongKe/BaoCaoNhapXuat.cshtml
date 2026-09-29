@@ -1,0 +1,59 @@
+﻿@{
+    ViewData["Title"] = "Báo Cáo Thống Kê LINQ";
+}
+
+<h2 class="mt-4"><i class="fas fa-chart-pie"></i> Báo Cáo Thống Kê Theo Thời Gian</h2>
+
+<!-- Yêu cầu 9.7: Chọn khoảng ngày -->
+<form asp-action="BaoCaoNhapXuat" method="get" class="form-inline mb-4 mt-3 bg-light p-3 border rounded">
+    <div class="row align-items-center">
+        <div class="col-auto">
+            <label class="fw-bold">Từ ngày:</label>
+            <input type="date" name="tuNgay" value="@ViewBag.TuNgay" class="form-control" />
+        </div>
+        <div class="col-auto">
+            <label class="fw-bold">Đến ngày:</label>
+            <input type="date" name="denNgay" value="@ViewBag.DenNgay" class="form-control" />
+        </div>
+        <div class="col-auto mt-4">
+            <button type="submit" class="btn btn-primary"><i class="fas fa-filter"></i> Thống kê bằng LINQ</button>
+        </div>
+    </div>
+</form>
+
+<div class="row">
+    <!-- Top Nhập -->
+    <div class="col-md-6">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-success text-white">Top 5 Hàng Nhập Nhiều Nhất</div>
+            <div class="card-body">
+                <table class="table table-bordered">
+                    <thead><tr><th>Tên Hàng</th><th>Tổng Số Nhập</th></tr></thead>
+                    <tbody>
+                        @foreach (var item in ViewBag.TopHangNhap)
+                        {
+                            <tr><td>@item.TenHang</td><td>@item.TongSo</td></tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <!-- Top Xuất -->
+    <div class="col-md-6">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-warning text-dark">Top 5 Hàng Xuất Nhiều Nhất</div>
+            <div class="card-body">
+                <table class="table table-bordered">
+                    <thead><tr><th>Tên Hàng</th><th>Tổng Số Xuất</th></tr></thead>
+                    <tbody>
+                        @foreach (var item in ViewBag.TopHangXuat)
+                        {
+                            <tr><td>@item.TenHang</td><td>@item.TongSo</td></tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

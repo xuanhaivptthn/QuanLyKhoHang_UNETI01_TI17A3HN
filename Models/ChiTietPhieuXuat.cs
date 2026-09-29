@@ -37,7 +37,7 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Models
         [ForeignKey(nameof(MaPhieuXuat))]
         public virtual PhieuXuat? PhieuXuat { get; set; }
 
-        // [ForeignKey(nameof(MaHang))]
-        // public virtual HangHoa? HangHoa { get; set; }
+        [ForeignKey(nameof(MaHang))]
+        public virtual HangHoa? HangHoa { get; set; }
     }
 }

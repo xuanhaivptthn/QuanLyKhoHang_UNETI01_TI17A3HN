@@ -46,9 +46,8 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Models
         [Display(Name = "Ghi chú")]
         public string? GhiChu { get; set; }
 
-        // Navigation Properties
-        // [ForeignKey("MaHang")]
-        // public virtual HangHoa? HangHoa { get; set; }
+        [ForeignKey("MaHang")]
+        public virtual HangHoa? HangHoa { get; set; }
 
         [ForeignKey("MaKho")]
         public virtual Kho? Kho { get; set; }
