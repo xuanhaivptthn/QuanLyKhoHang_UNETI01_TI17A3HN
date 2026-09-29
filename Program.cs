@@ -3,25 +3,23 @@ using QuanLyKhoHang_UNETI01_TI17A3HN.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var primaryConnection = builder.Configuration.GetConnectionString("RemoteDb")
-    ?? builder.Configuration.GetConnectionString("AzureConnection")
-    ?? builder.Configuration.GetConnectionString("AppDbContext");
+var primaryConnection = builder.Configuration.GetConnectionString("RemoteDb");
 
-var localDbConnection = builder.Configuration.GetConnectionString("LocalDb")
-    ?? builder.Configuration.GetConnectionString("QuanLyKhoHang_UNETI01_TI17A3HNContext");
+var localDbConnection = builder.Configuration.GetConnectionString("LocalDb");
 
 string connectionString;
 if (!string.IsNullOrWhiteSpace(primaryConnection) && !string.IsNullOrWhiteSpace(localDbConnection))
 {
     try
     {
-        var testBuilder = new Microsoft.Data.SqlClient.SqlConnectionStringBuilder(primaryConnection)
+        var testBuilder = new Microsoft.Data.SqlClient.SqlConnectionStringBuilder(primaryConnection);
+        if (testBuilder.ConnectTimeout < 60)
         {
-            ConnectTimeout = 5
-        };
+            testBuilder.ConnectTimeout = 60;
+        }
         using var testConn = new Microsoft.Data.SqlClient.SqlConnection(testBuilder.ConnectionString);
         testConn.Open();
-        connectionString = primaryConnection;
+        connectionString = testBuilder.ConnectionString;
     }
     catch (Exception ex)
     {
