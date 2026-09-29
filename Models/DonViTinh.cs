@@ -26,7 +26,6 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Models
         [Display(Name = "Trạng thái hoạt động")]
         public bool TrangThai { get; set; } = true;
 
-        // Navigation properties (Sẽ liên kết khi Module 2 Hàng Hóa được thêm)
-        // public virtual ICollection<HangHoa> HangHoas { get; set; } = new List<HangHoa>();
+        public virtual ICollection<HangHoa> HangHoas { get; set; } = new List<HangHoa>();
     }
 }
