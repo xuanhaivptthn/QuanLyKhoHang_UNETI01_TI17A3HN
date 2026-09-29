@@ -1,0 +1,85 @@
+﻿@model IEnumerable<QuanLyKhoHang_UNETI01_TI17A3HN.Models.LichSuTonKho>
+
+@{
+    ViewData["Title"] = "Lịch Sử Nhập Xuất";
+}
+
+<h2 class="mt-4"><i class="fas fa-history"></i> Lịch Sử Nhập Xuất Kho</h2>
+<p>Biến động tồn kho của tất cả các mặt hàng.</p>
+
+<!-- Form tìm kiếm theo Kho hoặc Hàng hóa -->
+<form asp-action="LichSu" method="get" class="mb-3">
+    <div class="input-group w-50">
+        <input type="text" name="timKiem" value="@ViewBag.TimKiem" class="form-control" placeholder="Nhập tên hàng hóa hoặc kho để lọc..." />
+        <button type="submit" class="btn btn-info">Tìm kiếm / Lọc</button>
+    </div>
+</form>
+
+<table class="table table-bordered table-striped mt-3">
+    <thead class="thead-dark">
+        <tr>
+            <th>Ngày Phát Sinh</th>
+            <th>Loại Giao Dịch</th>
+            <th>Mã Phiếu</th>
+            <th>Kho</th>
+            <th>Tên Hàng Hóa</th>
+            <th>Số Lượng</th>
+            <th>Tồn Sau Giao Dịch</th>
+            <th>Người Thực Hiện</th>
+            <th>Ghi Chú</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model != null && Model.Any())
+        {
+            foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.NgayPhatSinh.ToString("dd/MM/yyyy HH:mm")</td>
+                    <td>
+                        @if (item.LoaiGiaoDich == "Nhập")
+                        {
+                            <span class="badge bg-success">Nhập</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-danger">Xuất</span>
+                        }
+                    </td>
+                    <td>@item.MaPhieu</td>
+                    <td>@item.Kho.TenKho</td>
+                    <td>@item.HangHoa.TenHang</td>
+                    <td class="font-weight-bold @(item.LoaiGiaoDich == "Nhập" ? "text-success" : "text-danger")">
+                        @(item.LoaiGiaoDich == "Nhập" ? "+" : "-")@item.SoLuong
+                    </td>
+                    <td>@item.TonSauGiaoDich</td>
+                    <td>@item.NguoiThucHien</td>
+                    <td>@item.GhiChu</td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="9" class="text-center text-muted">Chưa có dữ liệu lịch sử nào.</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<!-- Giao diện Phân trang -->
+@if (ViewBag.TotalPages > 1)
+{
+    <nav>
+        <ul class="pagination">
+            @for (int i = 1; i <= ViewBag.TotalPages; i++)
+            {
+                <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
+                    <a class="page-link" href="/TonKho/LichSu?pageNumber=@i&timKiem=@ViewBag.TimKiem">@i</a>
+                </li>
+            }
+        </ul>
+    </nav>
+}
+
+<a href="/ThongKe/Dashboard" class="btn btn-secondary mt-3">Quay lại Dashboard</a>
