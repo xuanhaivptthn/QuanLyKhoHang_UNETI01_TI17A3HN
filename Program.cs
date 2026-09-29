@@ -31,9 +31,13 @@ if (!string.IsNullOrWhiteSpace(primaryConnection) && !string.IsNullOrWhiteSpace(
 }
 else
 {
-    connectionString = primaryConnection
-        ?? localDbConnection
-        ?? throw new InvalidOperationException("Connection string 'RemoteDb' or 'LocalDb' not found.");
+    // cuong moi sua o day
+    connectionString = string.IsNullOrWhiteSpace(primaryConnection) ? localDbConnection : primaryConnection;
+
+    if (string.IsNullOrWhiteSpace(connectionString))
+    {
+        throw new InvalidOperationException("Connection string 'RemoteDb' or 'LocalDb' not found.");
+    }
 }
 
 builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(connectionString));
