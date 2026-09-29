@@ -5,6 +5,9 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Models
 {
     public class PhieuNhap
     {
+        // Họ và tên: Lê Văn Hùng
+        // Mã sinh viên: 23103100177
+        // Phần này để quản lý các mặt hàng. 
         [Key]
         public int MaPhieuNhap { get; set; }
 

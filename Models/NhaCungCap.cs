@@ -5,6 +5,9 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Models
 {
     public class NhaCungCap
     {
+        // Họ và tên: Lê Văn Hùng
+        // Mã sinh viên: 23103100177
+        // Phần này để quản lý nguồn cung hàng hóa. 
         [Key]
         public int MaNhaCungCap { get; set; }
 
@@ -28,5 +31,6 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Models
 
         [Display(Name = "Trạng thái")]
         public bool TrangThai { get; set; } = true; // true = Hoạt động, false = Ngừng hoạt động
+        public virtual ICollection<PhieuNhap> PhieuNhaps { get; set; } = new List<PhieuNhap>();
     }
 }
