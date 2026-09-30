@@ -41,11 +41,17 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
                     .Where(t => t.SoLuongTon == 0)
                     .CountAsync(),
 
-                // Các chỉ số liên quan đến Module 2 (HangHoa) và Module 3 (PhieuNhap) sẽ mở lại khi 2 module này hoàn thành:
-                TongSoHangHoa = 0, // await _context.HangHoas.CountAsync(),
-                SoPhieuNhapTrongNgay = 0, // await _context.PhieuNhaps.Where(p => p.NgayNhap.Date == today).CountAsync(),
-                SoHangSapHet = 0,
-                TongSoLuongNhapTheoKy = 0
+                TongSoHangHoa = await _context.HangHoa.CountAsync(),
+
+                SoPhieuNhapTrongNgay = await _context.PhieuNhap
+                    .Where(p => p.NgayNhap.Date == today)
+                    .CountAsync(),
+
+                SoHangSapHet = await _context.TonKhoes
+                    .Include(t => t.HangHoa)
+                    // Hàng sắp hết là lớn hơn 0 và nhỏ hơn hoặc bằng mức tối thiểu
+                    .Where(t => t.SoLuongTon > 0 && t.SoLuongTon <= t.HangHoa.MucTonToiThieu)
+                    .CountAsync(),
             };
 
             return View(viewModel);
