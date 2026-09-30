@@ -52,12 +52,6 @@
                     <td class="font-weight-bold @(item.LoaiGiaoDich != null && item.LoaiGiaoDich.Contains("Nhập") ? "text-success" : "text-danger")">
                         @(item.LoaiGiaoDich != null && item.LoaiGiaoDich.Contains("Nhập") ? "+" : "-")@item.SoLuong
                     </td>
-                    <td>@item.MaPhieu</td>
-                    <td>@item.Kho.TenKho</td>
-                    <td>@item.HangHoa.TenHang</td>
-                    <td class="font-weight-bold @(item.LoaiGiaoDich == "Nhập" ? "text-success" : "text-danger")">
-                        @(item.LoaiGiaoDich == "Nhập" ? "+" : "-")@item.SoLuong
-                    </td>
                     <td>@item.TonSauGiaoDich</td>
                     <td>@item.NguoiThucHien</td>
                     <td>@item.GhiChu</td>
