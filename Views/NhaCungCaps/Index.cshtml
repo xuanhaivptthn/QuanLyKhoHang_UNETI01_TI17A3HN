@@ -13,7 +13,28 @@
 <form asp-action="Index" method="get">
     <p>
         Tìm kiếm: <input type="text" name="searchString" value="@ViewBag.SearchString" />
-        <input type="submit" value="Tìm kiếm" />
+        
+        Trạng thái: 
+        <select name="trangThai">
+            <option value="">-- Tất cả --</option>
+            @if (ViewBag.TrangThai == true)
+            {
+                <option value="true" selected>Hoạt động</option>
+                <option value="false">Ngừng hoạt động</option>
+            }
+            else if (ViewBag.TrangThai == false)
+            {
+                <option value="true">Hoạt động</option>
+                <option value="false" selected>Ngừng hoạt động</option>
+            }
+            else
+            {
+                <option value="true">Hoạt động</option>
+                <option value="false">Ngừng hoạt động</option>
+            }
+        </select>
+        
+        <input type="submit" value="Lọc & Tìm kiếm" />
     </p>
 </form>
 <table class="table">
@@ -63,7 +84,10 @@
             <td>
                 <a asp-action="Edit" asp-route-id="@item.MaNhaCungCap">Edit</a> |
                 <a asp-action="Details" asp-route-id="@item.MaNhaCungCap">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.MaNhaCungCap">Delete</a>
+                <a asp-action="Delete" asp-route-id="@item.MaNhaCungCap">Delete</a> |
+                <form asp-action="DoiTrangThai" asp-route-id="@item.MaNhaCungCap" method="post" style="display:inline;">
+                    <input type="submit" value="Đổi trạng thái" style="background:none; border:none; color:blue; text-decoration:underline; cursor:pointer;" />
+                </form>
             </td>
         </tr>
 }

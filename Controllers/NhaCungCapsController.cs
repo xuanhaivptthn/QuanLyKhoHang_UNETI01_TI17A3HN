@@ -15,7 +15,7 @@ public class NhaCungCapsController : Controller
     }
 
     // GET: NHACUNGCAPS
-    public async Task<IActionResult> Index(string searchString)    
+    public async Task<IActionResult> Index(string searchString, bool? trangThai)    
     {
         var query = _context.NhaCungCap.AsQueryable();
 
@@ -28,7 +28,13 @@ public class NhaCungCapsController : Controller
                 (n.Email != null && n.Email.Contains(searchString)));
         }
 
+        if (trangThai.HasValue)
+        {
+            query = query.Where(n => n.TrangThai == trangThai.Value);
+        }
+
         ViewBag.SearchString = searchString;
+        ViewBag.TrangThai = trangThai;
 
         return View(await query.ToListAsync());
     }
@@ -122,6 +128,27 @@ public class NhaCungCapsController : Controller
             return RedirectToAction(nameof(Index));
         }
         return View(nhacungcap);
+    }
+
+    // POST: NhaCungCaps/DoiTrangThai/5
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DoiTrangThai(int id)
+    {
+        var nhaCungCap = await _context.NhaCungCap.FindAsync(id);
+
+        if (nhaCungCap == null)
+        {
+            return NotFound();
+        }
+
+        // Đảo trạng thái
+        nhaCungCap.TrangThai = !nhaCungCap.TrangThai;
+
+        await _context.SaveChangesAsync();
+        TempData["Success"] = "Đã thay đổi trạng thái nhà cung cấp.";
+
+        return RedirectToAction(nameof(Index));
     }
 
     // GET: NHACUNGCAPS/Delete/5
