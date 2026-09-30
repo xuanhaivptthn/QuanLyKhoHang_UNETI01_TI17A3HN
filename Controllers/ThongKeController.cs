@@ -28,8 +28,7 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
 
             var viewModel = new DashboardViewModel
             {
-                // Tổng số kho
-                TongSoKho = await _context.Khoes.CountAsync(),
+                TongSoKho = await _context.Khoes.Where(k => k.TrangThai == true).CountAsync(),
 
                 // Số phiếu xuất trong ngày (LINQ: Where)
                 SoPhieuXuatTrongNgay = await _context.PhieuXuats
