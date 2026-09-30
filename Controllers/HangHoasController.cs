@@ -13,10 +13,11 @@ public class HangHoasController : Controller
         _context = context;
     }
 
-    // =========================================================
     // GET: HANGHOAS
-    // Danh sách + Tìm kiếm + Lọc + Sắp xếp + Phân trang
-    // =========================================================
+    //Họ và tên: Nguyễn Thị Cúc
+    //Mã sinh viên: 23103100178
+    //Nội dung: Danh sách + Tìm kiếm + Lọc
+ 
     public async Task<IActionResult> Index(
         string searchString,
         int? maLoaiHang,
@@ -42,10 +43,8 @@ public class HangHoasController : Controller
             .Include(h => h.DonViTinh)
             .AsQueryable();
 
-
-        // =====================================================
         // 1. TÌM KIẾM THEO MÃ HÀNG / TÊN HÀNG
-        // =====================================================
+        
         if (!string.IsNullOrWhiteSpace(searchString))
         {
             searchString = searchString.Trim();
@@ -55,40 +54,28 @@ public class HangHoasController : Controller
                 h.MaHang.ToString().Contains(searchString));
         }
 
-
-        // =====================================================
         // 2. LỌC THEO LOẠI HÀNG
-        // =====================================================
         if (maLoaiHang.HasValue)
         {
             query = query.Where(h =>
                 h.MaLoaiHang == maLoaiHang.Value);
         }
 
-
-        // =====================================================
         // 3. LỌC THEO ĐƠN VỊ TÍNH
-        // =====================================================
         if (maDonViTinh.HasValue)
         {
             query = query.Where(h =>
                 h.MaDonViTinh == maDonViTinh.Value);
         }
 
-
-        // =====================================================
         // 4. LỌC THEO TRẠNG THÁI
-        // =====================================================
         if (trangThai.HasValue)
         {
             query = query.Where(h =>
                 h.TrangThai == trangThai.Value);
         }
 
-
-        // =====================================================
-        // 5. LỌC THEO KHOẢNG GIÁ
-        // =====================================================
+        // 5.LỌC THEO KHOẢNG GIÁ
         if (giaTu.HasValue)
         {
             query = query.Where(h =>
@@ -101,10 +88,7 @@ public class HangHoasController : Controller
                 h.GiaNhapThamKhao <= giaDen.Value);
         }
 
-
-        // =====================================================
         // 6. SẮP XẾP
-        // =====================================================
         switch (sortOrder)
         {
             // Tên A -> Z
@@ -143,35 +127,23 @@ public class HangHoasController : Controller
                 break;
         }
 
-
-        // =====================================================
         // 7. ĐẾM TỔNG SỐ HÀNG HÓA
-        // =====================================================
         int totalItems = await query.CountAsync();
-
-        // Tính tổng số trang
         int totalPages =
             (int)Math.Ceiling(totalItems / (double)pageSize);
 
-        // Nếu số trang hiện tại vượt quá tổng số trang
         if (totalPages > 0 && page > totalPages)
         {
             page = totalPages;
         }
 
-
-        // =====================================================
         // 8. PHÂN TRANG
-        // =====================================================
         var hangHoas = await query
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync();
 
-
-        // =====================================================
         // 9. LOAD LOẠI HÀNG
-        // =====================================================
         ViewBag.LoaiHangs = new SelectList(
             await _context.LoaiHangs.ToListAsync(),
             "MaLoaiHang",
@@ -179,10 +151,7 @@ public class HangHoasController : Controller
             maLoaiHang
         );
 
-
-        // =====================================================
         // 10. LOAD ĐƠN VỊ TÍNH
-        // =====================================================
         ViewBag.DonViTinhs = new SelectList(
             await _context.DonViTinhs.ToListAsync(),
             "MaDonViTinh",
@@ -190,10 +159,7 @@ public class HangHoasController : Controller
             maDonViTinh
         );
 
-
-        // =====================================================
         // 11. GIỮ LẠI ĐIỀU KIỆN TÌM KIẾM / LỌC / SẮP XẾP
-        // =====================================================
         ViewBag.SearchString = searchString;
         ViewBag.MaLoaiHang = maLoaiHang;
         ViewBag.MaDonViTinh = maDonViTinh;
@@ -210,10 +176,7 @@ public class HangHoasController : Controller
         return View(hangHoas);
     }
 
-
-    // =========================================================
     // GET: HANGHOAS/Details/5
-    // =========================================================
     public async Task<IActionResult> Details(int? mahang)
     {
         if (mahang == null)
@@ -234,10 +197,7 @@ public class HangHoasController : Controller
         return View(hanghoa);
     }
 
-
-    // =========================================================
     // GET: HANGHOAS/Create
-    // =========================================================
     public async Task<IActionResult> Create()
     {
         await LoadDropdowns();
@@ -245,17 +205,13 @@ public class HangHoasController : Controller
         return View();
     }
 
-
-    // =========================================================
     // POST: HANGHOAS/Create
-    // =========================================================
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(
         [Bind("MaHang,TenHang,MaLoaiHang,MaDonViTinh,GiaNhapThamKhao,MucTonToiThieu,MoTa,TrangThai")]
         HangHoa hanghoa)
     {
-        // Kiểm tra tên hàng
         if (string.IsNullOrWhiteSpace(hanghoa.TenHang))
         {
             ModelState.AddModelError(
@@ -263,7 +219,6 @@ public class HangHoasController : Controller
                 "Tên hàng không được để trống.");
         }
 
-        // Giá nhập không âm
         if (hanghoa.GiaNhapThamKhao < 0)
         {
             ModelState.AddModelError(
@@ -271,7 +226,6 @@ public class HangHoasController : Controller
                 "Giá nhập tham khảo không được âm.");
         }
 
-        // Mức tồn tối thiểu không âm
         if (hanghoa.MucTonToiThieu < 0)
         {
             ModelState.AddModelError(
@@ -279,7 +233,6 @@ public class HangHoasController : Controller
                 "Mức tồn tối thiểu không được âm.");
         }
 
-        // Kiểm tra loại hàng có tồn tại
         var loaiHangExists = await _context.LoaiHangs
             .AnyAsync(x => x.MaLoaiHang == hanghoa.MaLoaiHang);
 
@@ -290,7 +243,6 @@ public class HangHoasController : Controller
                 "Loại hàng không tồn tại.");
         }
 
-        // Kiểm tra đơn vị tính có tồn tại
         var donViTinhExists = await _context.DonViTinhs
             .AnyAsync(x => x.MaDonViTinh == hanghoa.MaDonViTinh);
 
@@ -317,10 +269,7 @@ public class HangHoasController : Controller
         return View(hanghoa);
     }
 
-
-    // =========================================================
     // GET: HANGHOAS/Edit/5
-    // =========================================================
     public async Task<IActionResult> Edit(int? mahang)
     {
         if (mahang == null)
@@ -343,10 +292,7 @@ public class HangHoasController : Controller
         return View(hanghoa);
     }
 
-
-    // =========================================================
     // POST: HANGHOAS/Edit/5
-    // =========================================================
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(
@@ -354,13 +300,11 @@ public class HangHoasController : Controller
         [Bind("MaHang,TenHang,MaLoaiHang,MaDonViTinh,GiaNhapThamKhao,MucTonToiThieu,MoTa,TrangThai")]
         HangHoa hanghoa)
     {
-        // Kiểm tra mã hàng
         if (mahang != hanghoa.MaHang)
         {
             return NotFound();
         }
 
-        // Kiểm tra tên hàng
         if (string.IsNullOrWhiteSpace(hanghoa.TenHang))
         {
             ModelState.AddModelError(
@@ -368,7 +312,6 @@ public class HangHoasController : Controller
                 "Tên hàng không được để trống.");
         }
 
-        // Kiểm tra giá
         if (hanghoa.GiaNhapThamKhao < 0)
         {
             ModelState.AddModelError(
@@ -376,7 +319,6 @@ public class HangHoasController : Controller
                 "Giá nhập tham khảo không được âm.");
         }
 
-        // Kiểm tra mức tồn tối thiểu
         if (hanghoa.MucTonToiThieu < 0)
         {
             ModelState.AddModelError(
@@ -384,7 +326,6 @@ public class HangHoasController : Controller
                 "Mức tồn tối thiểu không được âm.");
         }
 
-        // Kiểm tra loại hàng
         var loaiHangExists = await _context.LoaiHangs
             .AnyAsync(x => x.MaLoaiHang == hanghoa.MaLoaiHang);
 
@@ -395,7 +336,6 @@ public class HangHoasController : Controller
                 "Loại hàng không tồn tại.");
         }
 
-        // Kiểm tra đơn vị tính
         var donViTinhExists = await _context.DonViTinhs
             .AnyAsync(x => x.MaDonViTinh == hanghoa.MaDonViTinh);
 
@@ -434,10 +374,7 @@ public class HangHoasController : Controller
         return View(hanghoa);
     }
 
-
-    // =========================================================
     // GET: HANGHOAS/Delete/5
-    // =========================================================
     public async Task<IActionResult> Delete(int? mahang)
     {
         if (mahang == null)
@@ -458,10 +395,7 @@ public class HangHoasController : Controller
         return View(hanghoa);
     }
 
-
-    // =========================================================
     // POST: HANGHOAS/Delete/5
-    // =========================================================
     [HttpPost, ActionName("Delete")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(int? mahang)
@@ -486,10 +420,7 @@ public class HangHoasController : Controller
         return RedirectToAction(nameof(Index));
     }
 
-
-    // =========================================================
     // ĐỔI TRẠNG THÁI HÀNG HÓA
-    // =========================================================
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DoiTrangThai(int id)
@@ -509,10 +440,7 @@ public class HangHoasController : Controller
         return RedirectToAction(nameof(Index));
     }
 
-
-    // =========================================================
     // LOAD DROPDOWN LOẠI HÀNG + ĐƠN VỊ TÍNH
-    // =========================================================
     private async Task LoadDropdowns(
         int? selectedLoaiHang = null,
         int? selectedDonViTinh = null)
@@ -532,10 +460,7 @@ public class HangHoasController : Controller
         );
     }
 
-
-    // =========================================================
     // KIỂM TRA HÀNG HÓA TỒN TẠI
-    // =========================================================
     private bool HangHoaExists(int mahang)
     {
         return _context.HangHoa

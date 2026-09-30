@@ -4,6 +4,11 @@ using Microsoft.EntityFrameworkCore;
 using QuanLyKhoHang_UNETI01_TI17A3HN.Data;
 using QuanLyKhoHang_UNETI01_TI17A3HN.Models;
 
+
+//Họ và tên: Nguyễn Thị Cúc
+//Mã sinh viên: 23103100178
+//Nội dung: thực hiện danh sách, chi tiết, thêm, sửa và thay đổi trạng thái
+
 public class KhoesController : Controller
 {
     private readonly AppDbContext _context;
@@ -34,11 +39,7 @@ public class KhoesController : Controller
 
         return View(khoes);
     }
-
-    // =========================================================
     // GET: Kho/Details/5
-    // Xem chi tiết kho
-    // =========================================================
     public async Task<IActionResult> Details(int? id)
     {
         if (id == null)
@@ -56,25 +57,17 @@ public class KhoesController : Controller
 
         return View(kho);
     }
-
-    // =========================================================
     // GET: Kho/Create
-    // Hiển thị form thêm kho
-    // =========================================================
     public IActionResult Create()
     {
         return View();
     }
 
-    // =========================================================
     // POST: Kho/Create
-    // Thêm kho
-    // =========================================================
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(Kho model)
     {
-        // Kiểm tra tên kho có bị trùng không
         bool trungTen = await _context.Khoes
             .AnyAsync(k => k.TenKho == model.TenKho);
 
@@ -99,10 +92,7 @@ public class KhoesController : Controller
         return RedirectToAction(nameof(Index));
     }
 
-    // =========================================================
     // GET: Kho/Edit/5
-    // Hiển thị form sửa kho
-    // =========================================================
     public async Task<IActionResult> Edit(int? id)
     {
         if (id == null)
@@ -120,10 +110,7 @@ public class KhoesController : Controller
         return View(kho);
     }
 
-    // =========================================================
     // POST: Kho/Edit/5
-    // Sửa kho
-    // =========================================================
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(int id, Kho model)
@@ -133,7 +120,6 @@ public class KhoesController : Controller
             return NotFound();
         }
 
-        // Kiểm tra tên kho trùng với kho khác
         bool trungTen = await _context.Khoes
             .AnyAsync(k =>
                 k.TenKho == model.TenKho &&
@@ -153,7 +139,6 @@ public class KhoesController : Controller
 
         try
         {
-            // Lấy kho hiện tại trong Database
             var kho = await _context.Khoes
                 .FirstOrDefaultAsync(k => k.MaKho == id);
 
@@ -162,7 +147,6 @@ public class KhoesController : Controller
                 return NotFound();
             }
 
-            // Chỉ cập nhật các trường cần thiết
             kho.TenKho = model.TenKho;
             kho.DiaDiem = model.DiaDiem;
             kho.MoTa = model.MoTa;
@@ -185,7 +169,6 @@ public class KhoesController : Controller
         return RedirectToAction(nameof(Index));
     }
 
-    // =========================================================
     // POST: Kho/DoiTrangThai/5
     // Bật / tắt trạng thái kho
     // Không xóa vật lý
@@ -217,10 +200,7 @@ public class KhoesController : Controller
 
         return RedirectToAction(nameof(Index));
     }
-
-    // =========================================================
     // Kiểm tra kho có tồn tại không
-    // =========================================================
     private bool KhoExists(int id)
     {
         return _context.Khoes.Any(e => e.MaKho == id);
