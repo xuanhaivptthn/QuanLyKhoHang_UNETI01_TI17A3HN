@@ -75,18 +75,19 @@ builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
-// Tự động kiểm tra Migration và Khởi tạo dữ liệu mẫu (Seed Data)
-using (var scope = app.Services.CreateScope())
+// Dữ liệu mẫu đã được nạp hoàn tất trên Database.
+// Tắt tự động nạp lại dữ liệu mỗi lần chạy ứng dụng (chỉ chạy khi truyền tham số: dotnet run -- --seed)
+if (args.Contains("--seed"))
 {
-    var services = scope.ServiceProvider;
+    using var scope = app.Services.CreateScope();
     try
     {
-        var context = services.GetRequiredService<AppDbContext>();
+        var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         DbInitializer.Initialize(context);
     }
     catch (Exception ex)
     {
-        var logger = services.GetRequiredService<ILogger<Program>>();
+        var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
         logger.LogError(ex, "Lỗi trong quá trình khởi tạo dữ liệu mẫu (DbInitializer).");
     }
 }
