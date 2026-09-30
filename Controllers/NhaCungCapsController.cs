@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using QuanLyKhoHang_UNETI01_TI17A3HN.Models;
 using QuanLyKhoHang_UNETI01_TI17A3HN.Data;
 
+
 public class NhaCungCapsController : Controller
 {
     private readonly AppDbContext _context;
@@ -14,9 +15,22 @@ public class NhaCungCapsController : Controller
     }
 
     // GET: NHACUNGCAPS
-    public async Task<IActionResult> Index()    
+    public async Task<IActionResult> Index(string searchString)    
     {
-        return View(await _context.NhaCungCap.ToListAsync());
+        var query = _context.NhaCungCap.AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(searchString))
+        {
+            query = query.Where(n =>
+                n.TenNhaCungCap.Contains(searchString) ||
+                n.MaNhaCungCap.ToString().Contains(searchString) ||
+                (n.SoDienThoai != null && n.SoDienThoai.Contains(searchString)) ||
+                (n.Email != null && n.Email.Contains(searchString)));
+        }
+
+        ViewBag.SearchString = searchString;
+
+        return View(await query.ToListAsync());
     }
 
     // GET: NHACUNGCAPS/Details/5
