@@ -16,13 +16,17 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Data
 
         // Danh mục Kho (Đã có từ ban đầu)
         public DbSet<HangHoa> HangHoa { get; set; } = default!;
+        public DbSet<HangHoa> HangHoas => HangHoa;
         public DbSet<Kho> Kho { get; set; } = default!;
         public DbSet<Kho> Khoes => Kho;
 
         // Module 3: Nhà cung cấp, Phiếu nhập, Chi tiết phiếu nhập
         public DbSet<QuanLyKhoHang_UNETI01_TI17A3HN.Models.PhieuNhap> PhieuNhap { get; set; } = default!;
+        public DbSet<QuanLyKhoHang_UNETI01_TI17A3HN.Models.PhieuNhap> PhieuNhaps => PhieuNhap;
         public DbSet<QuanLyKhoHang_UNETI01_TI17A3HN.Models.ChiTietPhieuNhap> ChiTietPhieuNhap { get; set; } = default!;
+        public DbSet<QuanLyKhoHang_UNETI01_TI17A3HN.Models.ChiTietPhieuNhap> ChiTietPhieuNhaps => ChiTietPhieuNhap;
         public DbSet<QuanLyKhoHang_UNETI01_TI17A3HN.Models.NhaCungCap> NhaCungCap { get; set; } = default!;
+        public DbSet<QuanLyKhoHang_UNETI01_TI17A3HN.Models.NhaCungCap> NhaCungCaps => NhaCungCap;
         // Module 4: Bộ phận nhận, Phiếu xuất, Chi tiết phiếu xuất
         public DbSet<BoPhanNhan> BoPhanNhans { get; set; } = default!;
         public DbSet<PhieuXuat> PhieuXuats { get; set; } = default!;
@@ -32,6 +36,12 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Data
         // Module 5: Tồn kho, Lịch sử tồn kho
         public DbSet<TonKho> TonKhoes { get; set; } = default!;
         public DbSet<LichSuTonKho> LichSuTonKhoes { get; set; } = default!;
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            base.OnConfiguring(optionsBuilder);
+            optionsBuilder.ConfigureWarnings(w => w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning));
+        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

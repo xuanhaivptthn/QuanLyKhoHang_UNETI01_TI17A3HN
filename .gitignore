@@ -63,5 +63,5 @@ nunit-*.xml
 *.userosscache
 *.suo
 
-# Ignore local migrations build
-Migrations/
+# Note folder - Xuan Hai
+Markdown/
