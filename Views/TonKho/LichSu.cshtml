@@ -37,7 +37,7 @@
                 <tr>
                     <td>@item.NgayPhatSinh.ToString("dd/MM/yyyy HH:mm")</td>
                     <td>
-                        @if (item.LoaiGiaoDich == "Nhập")
+                        @if (item.LoaiGiaoDich != null && item.LoaiGiaoDich.Contains("Nhập"))
                         {
                             <span class="badge bg-success">Nhập</span>
                         }
@@ -45,6 +45,12 @@
                         {
                             <span class="badge bg-danger">Xuất</span>
                         }
+                    </td>
+                    <td>@item.MaPhieu</td>
+                    <td>@item.Kho.TenKho</td>
+                    <td>@item.HangHoa.TenHang</td>
+                    <td class="font-weight-bold @(item.LoaiGiaoDich != null && item.LoaiGiaoDich.Contains("Nhập") ? "text-success" : "text-danger")">
+                        @(item.LoaiGiaoDich != null && item.LoaiGiaoDich.Contains("Nhập") ? "+" : "-")@item.SoLuong
                     </td>
                     <td>@item.MaPhieu</td>
                     <td>@item.Kho.TenKho</td>
