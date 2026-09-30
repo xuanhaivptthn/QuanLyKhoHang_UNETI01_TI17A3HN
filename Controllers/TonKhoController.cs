@@ -24,9 +24,9 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
         {
             var danhSachCanhBao = await _context.TonKhoes
                 .Include(t => t.HangHoa)
-                .Include(t => t.Kho) // Join để lấy tên kho và tên hàng hóa ra hiển thị
+                .Include(t => t.Kho)
                 .Where(t => t.SoLuongTon <= t.HangHoa.MucTonToiThieu)
-                .OrderBy(t => t.SoLuongTon) // Sắp xếp tăng dần: những hàng bằng 0 lên đầu
+                .OrderByDescending(t => t.SoLuongTon)
                 .ToListAsync();
 
             return View(danhSachCanhBao);
