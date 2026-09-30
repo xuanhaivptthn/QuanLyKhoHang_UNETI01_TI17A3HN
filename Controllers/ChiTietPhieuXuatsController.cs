@@ -13,9 +13,15 @@ public class ChiTietPhieuXuatsController : Controller
     }
 
     // GET: CHITIETPHIEUXUATS
-    public async Task<IActionResult> Index()    
+    public async Task<IActionResult> Index(int? maPhieuXuat)
     {
-        return View(await _context.ChiTietPhieuXuats.ToListAsync());
+        var query = _context.ChiTietPhieuXuats.AsQueryable();
+        if (maPhieuXuat.HasValue)
+        {
+            query = query.Where(c => c.MaPhieuXuat == maPhieuXuat.Value);
+            ViewData["MaPhieuXuat"] = maPhieuXuat.Value;
+        }
+        return View(await query.ToListAsync());
     }
 
     // GET: CHITIETPHIEUXUATS/Details/5
@@ -37,9 +43,9 @@ public class ChiTietPhieuXuatsController : Controller
     }
 
     // GET: CHITIETPHIEUXUATS/Create
-    public IActionResult Create()
+    public IActionResult Create(int? maPhieuXuat)
     {
-        return View();
+        return View(new ChiTietPhieuXuat { MaPhieuXuat = maPhieuXuat ?? 0 });
     }
 
     // POST: CHITIETPHIEUXUATS/Create
