@@ -7,7 +7,7 @@ using QuanLyKhoHang_UNETI01_TI17A3HN.Models;
 
 //Họ và tên: Nguyễn Thị Cúc
 //Mã sinh viên: 23103100178
-//Nội dung: thực hiện danh sách, chi tiết, thêm, sửa và thay đổi trạng thái
+//Nội dung: chi tiết, thêm, sửa và thay đổi trạng thái, tìm kiếm tên kho
 
 public class KhoesController : Controller
 {
@@ -172,7 +172,6 @@ public class KhoesController : Controller
     // POST: Kho/DoiTrangThai/5
     // Bật / tắt trạng thái kho
     // Không xóa vật lý
-    // =========================================================
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DoiTrangThai(int id)

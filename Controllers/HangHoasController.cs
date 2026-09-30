@@ -4,6 +4,10 @@ using Microsoft.EntityFrameworkCore;
 using QuanLyKhoHang_UNETI01_TI17A3HN.Data;
 using QuanLyKhoHang_UNETI01_TI17A3HN.Models;
 
+//Họ và tên: Nguyễn Thị Cúc
+//Mã sinh viên: 23103100178
+//Nội dung: Danh sách + Tìm kiếm + Lọc
+
 public class HangHoasController : Controller
 {
     private readonly AppDbContext _context;
@@ -14,10 +18,7 @@ public class HangHoasController : Controller
     }
 
     // GET: HANGHOAS
-    //Họ và tên: Nguyễn Thị Cúc
-    //Mã sinh viên: 23103100178
-    //Nội dung: Danh sách + Tìm kiếm + Lọc
- 
+   
     public async Task<IActionResult> Index(
         string searchString,
         int? maLoaiHang,
@@ -28,23 +29,19 @@ public class HangHoasController : Controller
         string sortOrder,
         int page = 1)
     {
-        // Số hàng hóa trên mỗi trang
         int pageSize = 10;
 
-        // Không cho page nhỏ hơn 1
         if (page < 1)
         {
             page = 1;
         }
 
-        // Truy vấn bảng hàng hóa
         var query = _context.HangHoa
             .Include(h => h.LoaiHang)
             .Include(h => h.DonViTinh)
             .AsQueryable();
 
         // 1. TÌM KIẾM THEO MÃ HÀNG / TÊN HÀNG
-        
         if (!string.IsNullOrWhiteSpace(searchString))
         {
             searchString = searchString.Trim();
@@ -92,32 +89,32 @@ public class HangHoasController : Controller
         switch (sortOrder)
         {
             // Tên A -> Z
-            case "ten_asc":
+            case "ten_tang_dan":
                 query = query.OrderBy(h => h.TenHang);
                 break;
 
             // Tên Z -> A
-            case "ten_desc":
+            case "ten_giam_dan":
                 query = query.OrderByDescending(h => h.TenHang);
                 break;
 
             // Giá tăng dần
-            case "gia_asc":
+            case "gia_tang_dan":
                 query = query.OrderBy(h => h.GiaNhapThamKhao);
                 break;
 
             // Giá giảm dần
-            case "gia_desc":
+            case "gia_giam_dan":
                 query = query.OrderByDescending(h => h.GiaNhapThamKhao);
                 break;
 
             // Mức tồn tối thiểu tăng
-            case "ton_asc":
+            case "ton_tang":
                 query = query.OrderBy(h => h.MucTonToiThieu);
                 break;
 
             // Mức tồn tối thiểu giảm
-            case "ton_desc":
+            case "ton_giam":
                 query = query.OrderByDescending(h => h.MucTonToiThieu);
                 break;
 

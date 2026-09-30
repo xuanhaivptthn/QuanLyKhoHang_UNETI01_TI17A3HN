@@ -28,7 +28,7 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Models
         public bool TrangThai { get; set; } = true; // true: Đang hoạt động, false: Ngừng hoạt động
 
         // Quan hệ điều hướng (Navigation properties - ví dụ: Phiếu Nhập / Phiếu Xuất)
-        // public virtual ICollection<PhieuNhap> PhieuNhaps { get; set; } = new List<PhieuNhap>();
-        // public virtual ICollection<PhieuXuat> PhieuXuats { get; set; } = new List<PhieuXuat>();
+         public virtual ICollection<PhieuNhap> PhieuNhaps { get; set; } = new List<PhieuNhap>();
+         public virtual ICollection<PhieuXuat> PhieuXuats { get; set; } = new List<PhieuXuat>();
     }
 }
