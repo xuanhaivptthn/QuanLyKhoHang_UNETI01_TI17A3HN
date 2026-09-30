@@ -48,6 +48,7 @@ public class NhaCungCapsController : Controller
         }
 
         var nhacungcap = await _context.NhaCungCap
+            .Include(n=>n.PhieuNhaps)
             .FirstOrDefaultAsync(m => m.MaNhaCungCap == manhacungcap);
         if (nhacungcap == null)
         {
@@ -70,12 +71,22 @@ public class NhaCungCapsController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create([Bind("MaNhaCungCap,TenNhaCungCap,SoDienThoai,Email,DiaChi,TrangThai")] NhaCungCap nhacungcap)
     {
+        if(!string.IsNullOrEmpty(nhacungcap.Email)&& await _context.NhaCungCap.AnyAsync(n => n.Email == nhacungcap.Email))
+        {
+            ModelState.AddModelError("Email", "Email này đã tồn tại trong hệ thống!");
+        }
+        if(!string.IsNullOrEmpty(nhacungcap.SoDienThoai)&&await _context.NhaCungCap.AnyAsync(n => n.SoDienThoai == nhacungcap.SoDienThoai))
+        {
+            ModelState.AddModelError("SoDienThoai", "Số điện thoại này đã tồn tại trong hệ thống!");
+        }
         if (ModelState.IsValid)
         {
             _context.Add(nhacungcap);
             await _context.SaveChangesAsync();
+            TempData["Success"] = "Thêm mới nhà cung cấp thành công!";
             return RedirectToAction(nameof(Index));
         }
+        TempData["Error"] = "Vui lòng kiểm tra lại thông tin nhập!";
         return View(nhacungcap);
     }
 

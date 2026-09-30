@@ -41,6 +41,9 @@
     <thead>
         <tr>
             <th>
+                STT
+            </th>
+            <th>
                 Mã nhà cung cấp 
             </th>
             <th>
@@ -61,8 +64,12 @@
         </tr>
     </thead>
     <tbody>
+@{ int stt = 1; }
 @foreach (var item in Model) {
         <tr>
+            <td>
+                @(stt++)
+            </td>
             <td>
                 @Html.DisplayFor(model=>item.MaNhaCungCap)
             </td>
@@ -82,9 +89,9 @@
                 @(item.TrangThai ? "Đang hoạt động" : "Ngừng hoạt động")
             </td>
             <td>
-                <a asp-action="Edit" asp-route-id="@item.MaNhaCungCap">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.MaNhaCungCap">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.MaNhaCungCap">Delete</a> |
+                <a asp-action="Edit" asp-route-manhacungcap="@item.MaNhaCungCap">Edit</a> |
+                <a asp-action="Details" asp-route-manhacungcap="@item.MaNhaCungCap">Details</a> |
+                <a asp-action="Delete" asp-route-manhacungcap="@item.MaNhaCungCap">Delete</a> |
                 <form asp-action="DoiTrangThai" asp-route-id="@item.MaNhaCungCap" method="post" style="display:inline;" onsubmit="return confirm('Bạn có muốn thay đổi trạng thái hoạt động của nhà cung cấp này?');">
                     <input type="submit" value="Đổi trạng thái" style="background:none; border:none; color:blue; text-decoration:underline; cursor:pointer;" />
                 </form>

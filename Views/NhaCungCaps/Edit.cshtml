@@ -33,9 +33,12 @@
                 <input asp-for="DiaChi" class="form-control" />
                 <span asp-validation-for="DiaChi" class="text-danger"></span>
             </div>
-            <div class="form-group">
+            <div class="form-group mb-3">
                 <label asp-for="TrangThai" class="control-label"></label>
-                <input asp-for="TrangThai" class="form-check-input" />
+                <select asp-for="TrangThai" class="form-control">
+                    <option value="true">Đang hoạt động</option>
+                    <option value="false">Ngừng hoạt động</option>
+                </select>
                 <span asp-validation-for="TrangThai" class="text-danger"></span>
             </div>
             <div class="form-group">
