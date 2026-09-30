@@ -1,8 +1,10 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
-}
-
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+@{ ViewData["Title"] = "Tổng quan kho"; }
+<div class="page-heading"><div><div class="eyebrow">KHO VẬN</div><h1>Quản lý kho hàng</h1><p class="page-description">Chọn nghiệp vụ để tiếp tục công việc của bạn.</p></div></div>
+<div class="home-grid">
+    <a class="home-tile" asp-controller="ThongKe" asp-action="Dashboard"><span class="home-tile-icon">▦</span><span><strong>Bảng điều khiển</strong><small>Xem nhanh tình hình nhập xuất và tồn kho</small></span><span class="home-arrow">→</span></a>
+    <a class="home-tile" asp-controller="HangHoas" asp-action="Index"><span class="home-tile-icon">▤</span><span><strong>Danh mục hàng hóa</strong><small>Tìm kiếm, lọc và cập nhật mặt hàng</small></span><span class="home-arrow">→</span></a>
+    <a class="home-tile" asp-controller="TonKho" asp-action="CanhBao"><span class="home-tile-icon">◷</span><span><strong>Tồn kho & cảnh báo</strong><small>Kiểm tra mặt hàng sắp hết hoặc đã hết</small></span><span class="home-arrow">→</span></a>
+    <a class="home-tile" asp-controller="PhieuNhaps" asp-action="Index"><span class="home-tile-icon">↓</span><span><strong>Phiếu nhập</strong><small>Ghi nhận và theo dõi hàng nhập kho</small></span><span class="home-arrow">→</span></a>
+    <a class="home-tile" asp-controller="PhieuXuats" asp-action="Index"><span class="home-tile-icon">↑</span><span><strong>Phiếu xuất</strong><small>Quản lý yêu cầu xuất hàng</small></span><span class="home-arrow">→</span></a>
+    <a class="home-tile" asp-controller="Khoes" asp-action="Index"><span class="home-tile-icon">⌂</span><span><strong>Kho hàng</strong><small>Quản lý địa điểm lưu trữ</small></span><span class="home-arrow">→</span></a>
 </div>

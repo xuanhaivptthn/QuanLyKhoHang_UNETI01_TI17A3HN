@@ -1,101 +1,51 @@
 @model IEnumerable<QuanLyKhoHang_UNETI01_TI17A3HN.Models.HangHoa>
-
+@using Microsoft.AspNetCore.Http.Extensions
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Hàng hóa";
+    var page = (int)(ViewBag.CurrentPage ?? 1);
+    var totalPages = (int)(ViewBag.TotalPages ?? 0);
+    var totalItems = (int)(ViewBag.TotalItems ?? 0);
+    var start = totalItems == 0 ? 0 : (page - 1) * 10 + 1;
+    var end = Math.Min(page * 10, totalItems);
+    var query = Context.Request.Query;
+    string PageUrl(int target) => Url.Action("Index", new {
+        searchString = query["searchString"].ToString(), maLoaiHang = query["maLoaiHang"].ToString(),
+        maDonViTinh = query["maDonViTinh"].ToString(), trangThai = query["trangThai"].ToString(),
+        giaTu = query["giaTu"].ToString(), giaDen = query["giaDen"].ToString(),
+        sortOrder = query["sortOrder"].ToString(), page = target
+    })!;
 }
+<div class="page-heading">
+    <div><div class="eyebrow">QUẢN LÝ KHO</div><h1>Hàng hóa</h1><p class="page-description">Theo dõi danh mục và thông tin hàng hóa trong kho.</p></div>
+    <a class="btn btn-primary" asp-action="Create"><span aria-hidden="true">＋</span> Thêm hàng hóa</a>
+</div>
 
-<h1>Index</h1>
+<section class="filter-panel" aria-label="Tìm kiếm và lọc hàng hóa">
+    <form method="get" asp-action="Index">
+        <div class="filter-grid">
+            <div class="field search-field"><label for="searchString">Tìm hàng hóa</label><input class="form-control" type="search" id="searchString" name="searchString" value="@ViewBag.SearchString" placeholder="Nhập tên hoặc mã hàng..." /></div>
+            <div class="field"><label for="maLoaiHang">Loại hàng</label><select class="form-select" id="maLoaiHang" name="maLoaiHang"><option value="">Tất cả loại hàng</option>@foreach (var item in (IEnumerable<SelectListItem>)ViewBag.LoaiHangs) { <option value="@item.Value" selected="@item.Selected">@item.Text</option> }</select></div>
+            <div class="field"><label for="maDonViTinh">Đơn vị tính</label><select class="form-select" id="maDonViTinh" name="maDonViTinh"><option value="">Tất cả đơn vị</option>@foreach (var item in (IEnumerable<SelectListItem>)ViewBag.DonViTinhs) { <option value="@item.Value" selected="@item.Selected">@item.Text</option> }</select></div>
+            <div class="field"><label for="trangThai">Trạng thái</label><select class="form-select" id="trangThai" name="trangThai"><option value="">Tất cả trạng thái</option><option value="true" selected="@(ViewBag.TrangThai is true)">Đang kinh doanh</option><option value="false" selected="@(ViewBag.TrangThai is false)">Ngừng kinh doanh</option></select></div>
+        </div>
+        <div class="filter-bottom">
+            <div class="price-fields"><div class="field"><label for="giaTu">Giá nhập từ</label><input class="form-control" id="giaTu" name="giaTu" type="number" min="0" step="1000" value="@ViewBag.GiaTu" placeholder="0 đ" /></div><span class="price-separator" aria-hidden="true">–</span><div class="field"><label for="giaDen">Đến</label><input class="form-control" id="giaDen" name="giaDen" type="number" min="0" step="1000" value="@ViewBag.GiaDen" placeholder="Không giới hạn" /></div></div>
+            <div class="filter-actions"><button class="btn btn-primary" type="submit">Lọc kết quả</button><a class="btn btn-light" asp-action="Index">Xóa bộ lọc</a></div>
+        </div>
+    </form>
+</section>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.TenHang)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.MaLoaiHang)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.LoaiHang)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.MaDonViTinh)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.DonViTinh)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.GiaNhapThamKhao)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.MucTonToiThieu)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.MoTa)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.TrangThai)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.DanhSachChiTietNhap)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.DanhSachChiTietXuat)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.DanhSachTonKho)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
+<section class="data-panel" aria-labelledby="product-list-title">
+    <div class="table-toolbar"><div><h2 id="product-list-title">Danh sách hàng hóa</h2><span class="muted-text">@totalItems mặt hàng</span></div>
+        <form method="get" asp-action="Index" class="sort-form">
+            <input type="hidden" name="searchString" value="@ViewBag.SearchString" /><input type="hidden" name="maLoaiHang" value="@ViewBag.MaLoaiHang" /><input type="hidden" name="maDonViTinh" value="@ViewBag.MaDonViTinh" /><input type="hidden" name="trangThai" value="@ViewBag.TrangThai" /><input type="hidden" name="giaTu" value="@ViewBag.GiaTu" /><input type="hidden" name="giaDen" value="@ViewBag.GiaDen" />
+            <label for="sortOrder">Sắp xếp</label><select class="form-select" id="sortOrder" name="sortOrder" onchange="this.form.submit()"><option value="">Mã hàng tăng dần</option><option value="ten_tang_dan" selected="@(ViewBag.SortOrder as string == "ten_tang_dan")">Tên A–Z</option><option value="ten_giam_dan" selected="@(ViewBag.SortOrder as string == "ten_giam_dan")">Tên Z–A</option><option value="gia_tang_dan" selected="@(ViewBag.SortOrder as string == "gia_tang_dan")">Giá thấp đến cao</option><option value="gia_giam_dan" selected="@(ViewBag.SortOrder as string == "gia_giam_dan")">Giá cao đến thấp</option><option value="ton_tang" selected="@(ViewBag.SortOrder as string == "ton_tang")">Mức tồn thấp đến cao</option><option value="ton_giam" selected="@(ViewBag.SortOrder as string == "ton_giam")">Mức tồn cao đến thấp</option></select>
+        </form>
+    </div>
+    <div class="table-responsive"><table class="table inventory-table"><thead><tr><th scope="col">Mã hàng</th><th scope="col">Tên hàng hóa</th><th scope="col">Loại hàng</th><th scope="col">Đơn vị</th><th scope="col" class="text-end">Giá nhập tham khảo</th><th scope="col" class="text-end">Tồn tối thiểu</th><th scope="col">Trạng thái</th><th scope="col" class="text-end">Thao tác</th></tr></thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(model => item.TenHang)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.MaLoaiHang)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.LoaiHang)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.MaDonViTinh)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.DonViTinh)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.GiaNhapThamKhao)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.MucTonToiThieu)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.MoTa)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.TrangThai)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.DanhSachChiTietNhap)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.DanhSachChiTietXuat)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.DanhSachTonKho)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.MaHang">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.MaHang">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.MaHang">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+    @if (!Model.Any()) { <tr><td colspan="8"><div class="empty-state"><strong>Chưa tìm thấy hàng hóa</strong><span>Thử thay đổi từ khóa hoặc điều kiện lọc.</span></div></td></tr> }
+    else { foreach (var item in Model) { <tr><td><span class="item-code">HH-@item.MaHang.ToString("D4")</span></td><td><a class="item-name" asp-action="Details" asp-route-mahang="@item.MaHang">@item.TenHang</a>@if (!string.IsNullOrWhiteSpace(item.MoTa)) { <span class="item-description">@item.MoTa</span> }</td><td>@(item.LoaiHang?.TenLoaiHang ?? "Chưa phân loại")</td><td>@(item.DonViTinh?.TenDonViTinh ?? "—")</td><td class="text-end numeric">@item.GiaNhapThamKhao.ToString("N0") đ</td><td class="text-end numeric">@item.MucTonToiThieu</td><td><span class="status-pill @(item.TrangThai ? "status-active" : "status-inactive")">@(item.TrangThai ? "Đang kinh doanh" : "Ngừng kinh doanh")</span></td><td class="text-end"><div class="row-actions"><a asp-action="Edit" asp-route-mahang="@item.MaHang" aria-label="Sửa @item.TenHang">Sửa</a><a asp-action="Details" asp-route-mahang="@item.MaHang" aria-label="Xem @item.TenHang">Chi tiết</a></div></td></tr> } }
+    </tbody></table></div>
+    <div class="table-footer"><span>Hiển thị @start–@end trong @totalItems mặt hàng</span>@if (totalPages > 1) { <nav aria-label="Phân trang danh sách hàng hóa"><ul class="pagination"><li class="page-item @(page <= 1 ? "disabled" : "")"><a class="page-link" href="@(page <= 1 ? "#" : PageUrl(page - 1))" aria-label="Trang trước">‹</a></li>@for (var i = 1; i <= totalPages; i++) { <li class="page-item @(i == page ? "active" : "")"><a class="page-link" href="@PageUrl(i)" aria-current="@(i == page ? "page" : null)">@i</a></li> }<li class="page-item @(page >= totalPages ? "disabled" : "")"><a class="page-link" href="@(page >= totalPages ? "#" : PageUrl(page + 1))" aria-label="Trang sau">›</a></li></ul></nav> }</div>
+</section>

@@ -1,59 +1,7 @@
-@model IEnumerable<QuanLyKhoHang_UNETI01_TI17A3HN.Models.BoPhanNhan>
-
-@{
-    ViewData["Title"] = "Index";
-}
-
-<h1>Index</h1>
-
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.TenBoPhan)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.NguoiDaiDien)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.SoDienThoai)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.MoTa)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.TrangThai)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.TenBoPhan)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.NguoiDaiDien)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.SoDienThoai)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.MoTa)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.TrangThai)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.MaBoPhan">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.MaBoPhan">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.MaBoPhan">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+@model IEnumerable<BoPhanNhan>
+@{ ViewData["Title"] = "Bộ phận nhận"; }
+<div class="page-heading"><div><div class="eyebrow">DANH MỤC</div><h1>Bộ phận nhận</h1><p class="page-description">Quản lý các đơn vị nhận hàng xuất từ kho.</p></div><a class="btn btn-primary" asp-action="Create">＋ Thêm bộ phận</a></div>
+<section class="data-panel" aria-label="Danh sách bộ phận nhận"><div class="table-toolbar"><div><h2>Danh sách bộ phận</h2><span class="muted-text">@Model.Count() bộ phận</span></div></div><div class="table-responsive"><table class="table inventory-table"><thead><tr><th>Mã bộ phận</th><th>Tên bộ phận</th><th>Người đại diện</th><th>Số điện thoại</th><th>Mô tả</th><th>Trạng thái</th><th class="text-end">Thao tác</th></tr></thead><tbody>
+@if (!Model.Any()) { <tr><td colspan="7"><div class="empty-state"><strong>Chưa có bộ phận nhận</strong><span>Thêm bộ phận để ghi nhận phiếu xuất.</span></div></td></tr> }
+@foreach (var item in Model) { <tr><td><span class="item-code">BP-@item.MaBoPhan.ToString("D4")</span></td><td><span class="item-name">@item.TenBoPhan</span></td><td>@(item.NguoiDaiDien ?? "—")</td><td>@(item.SoDienThoai ?? "—")</td><td><span class="item-description">@(item.MoTa ?? "—")</span></td><td><span class="status-pill @(item.TrangThai ? "status-active" : "status-inactive")">@(item.TrangThai ? "Đang hoạt động" : "Ngừng hoạt động")</span></td><td><div class="row-actions"><a asp-action="Edit" asp-route-id="@item.MaBoPhan">Sửa</a><a asp-action="Details" asp-route-id="@item.MaBoPhan">Chi tiết</a><a asp-action="Delete" asp-route-id="@item.MaBoPhan">Xóa</a></div></td></tr> }
+</tbody></table></div></section>

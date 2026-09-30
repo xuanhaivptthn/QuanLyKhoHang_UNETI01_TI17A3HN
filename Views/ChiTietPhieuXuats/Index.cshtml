@@ -1,65 +1,7 @@
-@model IEnumerable<QuanLyKhoHang_UNETI01_TI17A3HN.Models.ChiTietPhieuXuat>
-
-@{
-    ViewData["Title"] = "Index";
-}
-
-<h1>Chi tiết phiếu xuất@(ViewData["MaPhieuXuat"] is int maPhieuXuat ? $" #{maPhieuXuat}" : "")</h1>
-
-<p>
-    <a asp-action="Create" asp-route-maPhieuXuat="@ViewData["MaPhieuXuat"]">Thêm chi tiết</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.MaPhieuXuat)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.MaHang)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.SoLuongXuat)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.DonGiaXuatThamChieu)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.GhiChu)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.PhieuXuat)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(model => item.MaPhieuXuat)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.MaHang)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.SoLuongXuat)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.DonGiaXuatThamChieu)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.GhiChu)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.PhieuXuat)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.MaChiTietXuat">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.MaChiTietXuat">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.MaChiTietXuat">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+@model IEnumerable<ChiTietPhieuXuat>
+@{ ViewData["Title"] = "Chi tiết phiếu xuất"; var maPhieuXuat = ViewData["MaPhieuXuat"] is int id ? id : (int?)null; }
+<div class="page-heading"><div><div class="eyebrow">GIAO DỊCH · XUẤT KHO</div><h1>Chi tiết phiếu xuất@(maPhieuXuat.HasValue ? $" #PX-{maPhieuXuat.Value:D5}" : "")</h1><p class="page-description">Danh sách mặt hàng và số lượng đã ghi nhận khi xuất kho.</p></div><a class="btn btn-primary" asp-action="Create" asp-route-maPhieuXuat="@maPhieuXuat">＋ Thêm mặt hàng</a></div>
+<section class="data-panel" aria-label="Chi tiết các phiếu xuất"><div class="table-toolbar"><div><h2>Mặt hàng đã xuất</h2><span class="muted-text">@Model.Count() dòng chi tiết</span></div></div><div class="table-responsive"><table class="table inventory-table"><thead><tr><th>Mã chi tiết</th><th>Mã phiếu xuất</th><th>Mã hàng</th><th class="text-end">Số lượng</th><th class="text-end">Đơn giá tham chiếu</th><th>Ghi chú</th><th class="text-end">Thao tác</th></tr></thead><tbody>
+@if (!Model.Any()) { <tr><td colspan="7"><div class="empty-state"><strong>Chưa có mặt hàng xuất</strong><span>Thêm hàng hóa vào phiếu xuất để xem chi tiết tại đây.</span></div></td></tr> }
+@foreach (var item in Model) { <tr><td><span class="item-code">CTX-@item.MaChiTietXuat.ToString("D5")</span></td><td><a class="item-name" asp-controller="PhieuXuats" asp-action="Details" asp-route-id="@item.MaPhieuXuat">PX-@item.MaPhieuXuat.ToString("D5")</a></td><td><span class="item-code">HH-@item.MaHang.ToString("D4")</span></td><td class="text-end numeric">@item.SoLuongXuat.ToString("N0")</td><td class="text-end numeric">@item.DonGiaXuatThamChieu.ToString("N0") đ</td><td><span class="item-description">@(item.GhiChu ?? "—")</span></td><td><div class="row-actions"><a asp-action="Edit" asp-route-id="@item.MaChiTietXuat">Sửa</a><a asp-action="Details" asp-route-id="@item.MaChiTietXuat">Chi tiết</a><a asp-action="Delete" asp-route-id="@item.MaChiTietXuat">Xóa</a></div></td></tr> }
+</tbody></table></div></section>

@@ -1,64 +1,7 @@
-@model IEnumerable<QuanLyKhoHang_UNETI01_TI17A3HN.Models.NhaCungCap>
-
-@{
-    ViewData["Title"] = "Index";
-}
-
-<h1>Index</h1>
-
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                Mã nhà cung cấp 
-            </th>
-            <th>
-                Tên nhà cung cấp
-            </th>
-            <th>
-                Số điện thoại
-            </th>
-            <th>
-                Email
-            </th>
-            <th>
-                Địa chỉ
-            </th>
-            <th>
-                Trạng thái
-            </th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(model=>item.MaNhaCungCap)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.TenNhaCungCap)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.SoDienThoai)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.Email)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.DiaChi)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.TrangThai)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.MaNhaCungCap">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.MaNhaCungCap">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.MaNhaCungCap">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+@model IEnumerable<NhaCungCap>
+@{ ViewData["Title"] = "Nhà cung cấp"; }
+<div class="page-heading"><div><div class="eyebrow">DANH MỤC</div><h1>Nhà cung cấp</h1><p class="page-description">Lưu thông tin liên hệ của các đối tác cung ứng.</p></div><a class="btn btn-primary" asp-action="Create">＋ Thêm nhà cung cấp</a></div>
+<section class="data-panel" aria-label="Danh sách nhà cung cấp"><div class="table-toolbar"><div><h2>Danh sách nhà cung cấp</h2><span class="muted-text">@Model.Count() nhà cung cấp</span></div></div><div class="table-responsive"><table class="table inventory-table"><thead><tr><th>Mã NCC</th><th>Tên nhà cung cấp</th><th>Số điện thoại</th><th>Email</th><th>Địa chỉ</th><th>Trạng thái</th><th class="text-end">Thao tác</th></tr></thead><tbody>
+@if (!Model.Any()) { <tr><td colspan="7"><div class="empty-state"><strong>Chưa có nhà cung cấp</strong><span>Thêm đối tác để thuận tiện lập phiếu nhập.</span></div></td></tr> }
+@foreach (var item in Model) { <tr><td><span class="item-code">NCC-@item.MaNhaCungCap.ToString("D4")</span></td><td><span class="item-name">@item.TenNhaCungCap</span></td><td>@(item.SoDienThoai ?? "—")</td><td>@(item.Email ?? "—")</td><td><span class="item-description">@(item.DiaChi ?? "—")</span></td><td><span class="status-pill @(item.TrangThai ? "status-active" : "status-inactive")">@(item.TrangThai ? "Đang hoạt động" : "Ngừng hoạt động")</span></td><td><div class="row-actions"><a asp-action="Edit" asp-route-id="@item.MaNhaCungCap">Sửa</a><a asp-action="Details" asp-route-id="@item.MaNhaCungCap">Chi tiết</a><a asp-action="Delete" asp-route-id="@item.MaNhaCungCap">Xóa</a></div></td></tr> }
+</tbody></table></div></section>

@@ -58,9 +58,10 @@
             @Html.DisplayFor(model => model.PhieuXuat)
         </dd>
     </dl>
-    <form asp-action="Delete">
+    <form asp-action="Delete" asp-route-id="@Model.MaChiTietXuat">
         <input type="hidden" asp-for="MaChiTietXuat" />
-        <input type="submit" value="Delete" class="btn btn-danger" /> |
-        <a asp-action="Index">Back to List</a>
+        <input type="hidden" name="id" value="@Model.MaChiTietXuat" />
+        <input type="submit" value="Xác nhận xóa" class="btn btn-danger" /> |
+        <a asp-action="Index">Quay lại danh sách</a>
     </form>
 </div>

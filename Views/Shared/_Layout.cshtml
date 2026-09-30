@@ -1,106 +1,53 @@
 @inject QuanLyKhoHang_UNETI01_TI17A3HN.Models.DatabaseInfo DbInfo
+@{
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - QuanLyKhoHang_UNETI01_TI17A3HN</title>
-    <script type="importmap"></script>
+    <title>@ViewData["Title"] · Kho Vận</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/QuanLyKhoHang_UNETI01_TI17A3HN.styles.css" asp-append-version="true" />
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand d-inline-flex align-items-center gap-2" asp-area="" asp-controller="Home" asp-action="Index">
-                    <span>QuanLyKhoHang_UNETI01_TI17A3HN</span>
-                    @if (DbInfo != null)
-                    {
-                        if (DbInfo.IsRemote)
-                        {
-                            <span class="badge rounded-pill bg-success text-white" style="font-size: 0.72rem; font-weight: 500;" title="Remote Database (Azure SQL): @DbInfo.ServerName (@DbInfo.DatabaseName)">
-                                Remote DB
-                            </span>
-                        }
-                        else
-                        {
-                            <span class="badge rounded-pill bg-secondary text-white" style="font-size: 0.72rem; font-weight: 500;" title="Local Database (LocalDB): @DbInfo.ServerName (@DbInfo.DatabaseName)">
-                                Local DB
-                            </span>
-                        }
-                    }
-                </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Khoes" asp-action="Index">Kho</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="HangHoas" asp-action="Index">Hàng hóa</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="BoPhanNhans" asp-action="Index">Bộ phận nhận</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="NhaCungCaps" asp-action="Index">Nhà cung cấp</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="PhieuNhaps" asp-action="Index">Phiếu nhập</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="ChiTietPhieuNhaps" asp-action="Index">Chi tiết phiếu nhập</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="ThongKe" asp-action="Dashboard">Dashboard Thống kê</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="TonKho" asp-action="CanhBao">Cảnh Báo Tồn</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="TonKho" asp-action="LichSu">Lịch Sử Nhập Xuất</a>
-                        </li>
-                    </ul>
-                    <ul class="navbar-nav align-items-center">
-                        @if (Context.Session.GetInt32("MaTaiKhoan") != null)
-                        {
-                            <li class="nav-item me-2">
-                                <span class="text-dark me-2">
-                                    Xin chào: <strong>@Context.Session.GetString("HoTen")</strong>
-                                    <span class="badge bg-info text-dark ms-1">@Context.Session.GetString("VaiTro")</span>
-                                </span>
-                            </li>
-                            <li class="nav-item">
-                                <a class="btn btn-outline-danger btn-sm" asp-area="" asp-controller="TaiKhoan" asp-action="DangXuat">Đăng xuất</a>
-                            </li>
-                        }
-                        else
-                        {
-                            <li class="nav-item">
-                                <a class="btn btn-outline-primary btn-sm" asp-area="" asp-controller="TaiKhoan" asp-action="DangNhap">Đăng nhập</a>
-                            </li>
-                        }
-                    </ul>
-                </div>
-            </div>
-        </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
-
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - QuanLyKhoHang_UNETI01_TI17A3HN - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+    <header class="topbar">
+        <a class="brand" asp-controller="Home" asp-action="Index" aria-label="Kho Vận, trang chủ">
+            <span class="brand-mark" aria-hidden="true">K</span><span>Kho Vận</span>
+        </a>
+        <div class="topbar-right">
+            <span class="connection"><span class="status-dot" aria-hidden="true"></span>@(DbInfo?.IsRemote == true ? "Đang kết nối" : "Cơ sở dữ liệu nội bộ")</span>
+            @if (Context.Session.GetInt32("MaTaiKhoan") != null)
+            {
+                <span class="user-name">@Context.Session.GetString("HoTen")</span>
+                <a class="btn btn-outline-secondary btn-sm" asp-controller="TaiKhoan" asp-action="DangXuat">Đăng xuất</a>
+            }
+            else
+            {
+                <a class="btn btn-outline-primary btn-sm" asp-controller="TaiKhoan" asp-action="DangNhap">Đăng nhập</a>
+            }
         </div>
-    </footer>
+    </header>
+    <div class="app-shell">
+        <aside class="sidebar" aria-label="Điều hướng chính">
+            <div class="nav-caption">TỔNG QUAN</div>
+            <a class="side-link @(currentController == "ThongKe" ? "selected" : "")" asp-controller="ThongKe" asp-action="Dashboard"><span aria-hidden="true">▦</span> Bảng điều khiển</a>
+            <div class="nav-caption">QUẢN LÝ KHO</div>
+            <a class="side-link @(currentController == "HangHoas" ? "selected" : "")" asp-controller="HangHoas" asp-action="Index"><span aria-hidden="true">▤</span> Hàng hóa</a>
+            <a class="side-link @(currentController == "Khoes" ? "selected" : "")" asp-controller="Khoes" asp-action="Index"><span aria-hidden="true">⌂</span> Kho hàng</a>
+            <a class="side-link @(currentController == "TonKho" ? "selected" : "")" asp-controller="TonKho" asp-action="CanhBao"><span aria-hidden="true">◷</span> Tồn kho & cảnh báo</a>
+            <div class="nav-caption">GIAO DỊCH</div>
+            <a class="side-link @(currentController == "PhieuNhaps" ? "selected" : "")" asp-controller="PhieuNhaps" asp-action="Index"><span aria-hidden="true">↓</span> Phiếu nhập</a>
+            <a class="side-link @(currentController == "PhieuXuats" ? "selected" : "")" asp-controller="PhieuXuats" asp-action="Index"><span aria-hidden="true">↑</span> Phiếu xuất</a>
+            <a class="side-link @(currentController == "ThongKe" && ViewContext.RouteData.Values["action"]?.ToString() == "BaoCaoNhapXuat" ? "selected" : "")" asp-controller="ThongKe" asp-action="BaoCaoNhapXuat"><span aria-hidden="true">▥</span> Báo cáo nhập xuất</a>
+            <div class="nav-caption">DANH MỤC</div>
+            <a class="side-link @(currentController == "NhaCungCaps" ? "selected" : "")" asp-controller="NhaCungCaps" asp-action="Index"><span aria-hidden="true">♧</span> Nhà cung cấp</a>
+            <a class="side-link @(currentController == "BoPhanNhans" ? "selected" : "")" asp-controller="BoPhanNhans" asp-action="Index"><span aria-hidden="true">♙</span> Bộ phận nhận</a>
+        </aside>
+        <main class="main-content" id="main-content" role="main">@RenderBody()</main>
+    </div>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>

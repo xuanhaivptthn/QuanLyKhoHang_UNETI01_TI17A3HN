@@ -1,66 +1,7 @@
-@model IEnumerable<QuanLyKhoHang_UNETI01_TI17A3HN.Models.PhieuXuat>
-
-@{
-    ViewData["Title"] = "Index";
-}
-
-<h1>Index</h1>
-
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.MaBoPhan)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.MaKho)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.NgayXuat)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.NguoiLap)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.TrangThai)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.GhiChu)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(model => item.MaBoPhan)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.MaKho)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.NgayXuat)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.NguoiLap)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.TrangThai)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.GhiChu)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.MaPhieuXuat">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.MaPhieuXuat">Details</a> |
-                <a asp-controller="ChiTietPhieuXuats" asp-action="Index" asp-route-maPhieuXuat="@item.MaPhieuXuat">Chi tiết phiếu xuất</a> |
-                <a asp-action="Delete" asp-route-id="@item.MaPhieuXuat">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+@model IEnumerable<PhieuXuat>
+@{ ViewData["Title"] = "Phiếu xuất"; string StatusName(TrangThaiPhieuXuat value) => value switch { TrangThaiPhieuXuat.Nhap => "Bản nháp", TrangThaiPhieuXuat.ChoXacNhan => "Chờ xác nhận", TrangThaiPhieuXuat.DaHoanTat => "Đã hoàn tất", TrangThaiPhieuXuat.DaHuy => "Đã hủy", _ => "Chưa xác định" }; string StatusClass(TrangThaiPhieuXuat value) => value switch { TrangThaiPhieuXuat.DaHoanTat => "status-active", TrangThaiPhieuXuat.DaHuy => "status-inactive", _ => "status-pending" }; }
+<div class="page-heading"><div><div class="eyebrow">GIAO DỊCH</div><h1>Phiếu xuất</h1><p class="page-description">Theo dõi yêu cầu xuất hàng đến các bộ phận.</p></div><a class="btn btn-primary" asp-action="Create">＋ Tạo phiếu xuất</a></div>
+<section class="data-panel" aria-label="Danh sách phiếu xuất"><div class="table-toolbar"><div><h2>Danh sách phiếu xuất</h2><span class="muted-text">@Model.Count() phiếu</span></div></div><div class="table-responsive"><table class="table inventory-table"><thead><tr><th>Mã phiếu</th><th>Bộ phận nhận</th><th>Kho xuất</th><th>Ngày xuất</th><th>Người lập</th><th>Trạng thái</th><th>Ghi chú</th><th class="text-end">Thao tác</th></tr></thead><tbody>
+@if (!Model.Any()) { <tr><td colspan="8"><div class="empty-state"><strong>Chưa có phiếu xuất</strong><span>Tạo phiếu để ghi nhận hàng hóa xuất kho.</span></div></td></tr> }
+@foreach (var item in Model) { <tr><td><span class="item-code">PX-@item.MaPhieuXuat.ToString("D5")</span></td><td>@(item.BoPhanNhan?.TenBoPhan ?? $"Bộ phận #{item.MaBoPhan}")</td><td>@(item.Kho?.TenKho ?? $"Kho #{item.MaKho}")</td><td class="numeric">@item.NgayXuat.ToString("dd/MM/yyyy")</td><td>@item.NguoiLap</td><td><span class="status-pill @StatusClass(item.TrangThai)">@StatusName(item.TrangThai)</span></td><td><span class="item-description">@(item.GhiChu ?? "—")</span></td><td><div class="row-actions"><a asp-action="Edit" asp-route-id="@item.MaPhieuXuat">Sửa</a><a asp-action="Details" asp-route-id="@item.MaPhieuXuat">Chi tiết</a><a asp-controller="ChiTietPhieuXuats" asp-action="Index" asp-route-maPhieuXuat="@item.MaPhieuXuat">Mặt hàng</a></div></td></tr> }
+</tbody></table></div></section>

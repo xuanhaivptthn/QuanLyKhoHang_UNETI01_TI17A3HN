@@ -1,53 +1,7 @@
-@model IEnumerable<QuanLyKhoHang_UNETI01_TI17A3HN.Models.Kho>
-
-@{
-    ViewData["Title"] = "Index";
-}
-
-<h1>Index</h1>
-
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.TenKho)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.DiaDiem)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.MoTa)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.TrangThai)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(model => item.TenKho)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.DiaDiem)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.MoTa)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.TrangThai)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.MaKho">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.MaKho">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.MaKho">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+@model IEnumerable<Kho>
+@{ ViewData["Title"] = "Kho hàng"; }
+<div class="page-heading"><div><div class="eyebrow">QUẢN LÝ KHO</div><h1>Kho hàng</h1><p class="page-description">Quản lý địa điểm lưu trữ và hoạt động kho.</p></div><a class="btn btn-primary" asp-action="Create">＋ Thêm kho</a></div>
+<section class="data-panel" aria-label="Danh sách kho hàng"><div class="table-toolbar"><div><h2>Danh sách kho</h2><span class="muted-text">@Model.Count() kho hàng</span></div></div><div class="table-responsive"><table class="table inventory-table"><thead><tr><th>Mã kho</th><th>Tên kho</th><th>Địa điểm</th><th>Mô tả</th><th>Trạng thái</th><th class="text-end">Thao tác</th></tr></thead><tbody>
+@if (!Model.Any()) { <tr><td colspan="6"><div class="empty-state"><strong>Chưa có kho hàng</strong><span>Tạo kho để bắt đầu quản lý hàng hóa.</span></div></td></tr> }
+@foreach (var item in Model) { <tr><td><span class="item-code">KHO-@item.MaKho.ToString("D4")</span></td><td><span class="item-name">@item.TenKho</span></td><td>@(item.DiaDiem ?? "—")</td><td><span class="item-description">@(item.MoTa ?? "—")</span></td><td><span class="status-pill @(item.TrangThai ? "status-active" : "status-inactive")">@(item.TrangThai ? "Đang hoạt động" : "Ngừng hoạt động")</span></td><td><div class="row-actions"><a asp-action="Edit" asp-route-id="@item.MaKho">Sửa</a><a asp-action="Details" asp-route-id="@item.MaKho">Chi tiết</a><a asp-action="Delete" asp-route-id="@item.MaKho">Xóa</a></div></td></tr> }
+</tbody></table></div></section>

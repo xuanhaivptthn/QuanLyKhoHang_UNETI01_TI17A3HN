@@ -14,21 +14,27 @@ public class ChiTietPhieuNhapsController : Controller
     }
 
     // GET: CHITIETPHIEUNHAPS
-    public async Task<IActionResult> Index()    
+    public async Task<IActionResult> Index(int? maPhieuNhap)
     {
-        return View(await _context.ChiTietPhieuNhap.ToListAsync());
+        var query = _context.ChiTietPhieuNhap.AsQueryable();
+        if (maPhieuNhap.HasValue)
+        {
+            query = query.Where(c => c.MaPhieuNhap == maPhieuNhap.Value);
+            ViewData["MaPhieuNhap"] = maPhieuNhap.Value;
+        }
+        return View(await query.ToListAsync());
     }
 
     // GET: CHITIETPHIEUNHAPS/Details/5
-    public async Task<IActionResult> Details(int? machitietnhap)
+    public async Task<IActionResult> Details(int? id)
     {
-        if (machitietnhap == null)
+        if (id == null)
         {
             return NotFound();
         }
 
         var chitietphieunhap = await _context.ChiTietPhieuNhap
-            .FirstOrDefaultAsync(m => m.MaChiTietNhap == machitietnhap);
+            .FirstOrDefaultAsync(m => m.MaChiTietNhap == id);
         if (chitietphieunhap == null)
         {
             return NotFound();
@@ -38,9 +44,9 @@ public class ChiTietPhieuNhapsController : Controller
     }
 
     // GET: CHITIETPHIEUNHAPS/Create
-    public IActionResult Create()
+    public IActionResult Create(int? maPhieuNhap)
     {
-        return View();
+        return View(new ChiTietPhieuNhap { MaPhieuNhap = maPhieuNhap ?? 0 });
     }
 
     // POST: CHITIETPHIEUNHAPS/Create
@@ -48,7 +54,7 @@ public class ChiTietPhieuNhapsController : Controller
     // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create([Bind("MaChiTietNhap,MaPhieuNhap,MaHang,SoLuongNhap,DonGiaNhap,ThanhTien,PhieuNhap,HangHoa")] ChiTietPhieuNhap chitietphieunhap)
+    public async Task<IActionResult> Create([Bind("MaPhieuNhap,MaHang,SoLuongNhap,DonGiaNhap")] ChiTietPhieuNhap chitietphieunhap)
     {
         if (ModelState.IsValid)
         {
@@ -60,14 +66,14 @@ public class ChiTietPhieuNhapsController : Controller
     }
 
     // GET: CHITIETPHIEUNHAPS/Edit/5
-    public async Task<IActionResult> Edit(int? machitietnhap)
+    public async Task<IActionResult> Edit(int? id)
     {
-        if (machitietnhap == null)
+        if (id == null)
         {
             return NotFound();
         }
 
-        var chitietphieunhap = await _context.ChiTietPhieuNhap.FindAsync(machitietnhap);
+        var chitietphieunhap = await _context.ChiTietPhieuNhap.FindAsync(id);
         if (chitietphieunhap == null)
         {
             return NotFound();
@@ -80,9 +86,9 @@ public class ChiTietPhieuNhapsController : Controller
     // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int? machitietnhap, [Bind("MaChiTietNhap,MaPhieuNhap,MaHang,SoLuongNhap,DonGiaNhap,ThanhTien,PhieuNhap,HangHoa")] ChiTietPhieuNhap chitietphieunhap)
+    public async Task<IActionResult> Edit(int? id, [Bind("MaChiTietNhap,MaPhieuNhap,MaHang,SoLuongNhap,DonGiaNhap")] ChiTietPhieuNhap chitietphieunhap)
     {
-        if (machitietnhap != chitietphieunhap.MaChiTietNhap)
+        if (id != chitietphieunhap.MaChiTietNhap)
         {
             return NotFound();
         }
@@ -111,15 +117,15 @@ public class ChiTietPhieuNhapsController : Controller
     }
 
     // GET: CHITIETPHIEUNHAPS/Delete/5
-    public async Task<IActionResult> Delete(int? machitietnhap)
+    public async Task<IActionResult> Delete(int? id)
     {
-        if (machitietnhap == null)
+        if (id == null)
         {
             return NotFound();
         }
 
         var chitietphieunhap = await _context.ChiTietPhieuNhap
-            .FirstOrDefaultAsync(m => m.MaChiTietNhap == machitietnhap);
+            .FirstOrDefaultAsync(m => m.MaChiTietNhap == id);
         if (chitietphieunhap == null)
         {
             return NotFound();
@@ -131,9 +137,9 @@ public class ChiTietPhieuNhapsController : Controller
     // POST: CHITIETPHIEUNHAPS/Delete/5
     [HttpPost, ActionName("Delete")]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> DeleteConfirmed(int? machitietnhap)
+    public async Task<IActionResult> DeleteConfirmed(int? id)
     {
-        var chitietphieunhap = await _context.ChiTietPhieuNhap.FindAsync(machitietnhap);
+        var chitietphieunhap = await _context.ChiTietPhieuNhap.FindAsync(id);
         if (chitietphieunhap != null)
         {
             _context.ChiTietPhieuNhap.Remove(chitietphieunhap);

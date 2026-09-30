@@ -1,62 +1,7 @@
-@model IEnumerable<QuanLyKhoHang_UNETI01_TI17A3HN.Models.ChiTietPhieuNhap>
-
-@{
-    ViewData["Title"] = "Index";
-}
-
-<h1>Index</h1>
-
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-             <th>Mã chi tiết nhập</th>
-            <th>
-                Mã phiếu nhập
-            </th>
-            <th>
-                Số lượng nhập
-            </th>
-            <th>
-                Đơn giá nhập
-            </th>
-            <th>
-                Thành tiền
-            </th>
-            <th>
-                Thông tin hàng hóa
-            </th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(model => item.MaChiTietNhap)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.MaPhieuNhap)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.SoLuongNhap)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.DonGiaNhap)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.ThanhTien)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.HangHoa)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.MaChiTietNhap">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.MaChiTietNhap">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.MaChiTietNhap">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+@model IEnumerable<ChiTietPhieuNhap>
+@{ ViewData["Title"] = "Chi tiết phiếu nhập"; var maPhieuNhap = ViewData["MaPhieuNhap"] is int id ? id : (int?)null; }
+<div class="page-heading"><div><div class="eyebrow">GIAO DỊCH · NHẬP KHO</div><h1>Chi tiết phiếu nhập@(maPhieuNhap.HasValue ? $" #PN-{maPhieuNhap.Value:D5}" : "")</h1><p class="page-description">Danh sách mặt hàng và số lượng đã ghi nhận khi nhập kho.</p></div><a class="btn btn-primary" asp-action="Create" asp-route-maPhieuNhap="@maPhieuNhap">＋ Thêm mặt hàng</a></div>
+<section class="data-panel" aria-label="Chi tiết các phiếu nhập"><div class="table-toolbar"><div><h2>Mặt hàng đã nhập</h2><span class="muted-text">@Model.Count() dòng chi tiết</span></div></div><div class="table-responsive"><table class="table inventory-table"><thead><tr><th>Mã chi tiết</th><th>Mã phiếu nhập</th><th>Hàng hóa</th><th class="text-end">Số lượng</th><th class="text-end">Đơn giá</th><th class="text-end">Thành tiền</th><th class="text-end">Thao tác</th></tr></thead><tbody>
+@if (!Model.Any()) { <tr><td colspan="7"><div class="empty-state"><strong>Chưa có mặt hàng nhập</strong><span>Thêm hàng hóa vào phiếu nhập để xem chi tiết tại đây.</span></div></td></tr> }
+@foreach (var item in Model) { <tr><td><span class="item-code">CTN-@item.MaChiTietNhap.ToString("D5")</span></td><td><a class="item-name" asp-controller="PhieuNhaps" asp-action="Details" asp-route-id="@item.MaPhieuNhap">PN-@item.MaPhieuNhap.ToString("D5")</a></td><td>@(item.HangHoa?.TenHang ?? $"Hàng hóa #{item.MaHang}")</td><td class="text-end numeric">@item.SoLuongNhap.ToString("N0")</td><td class="text-end numeric">@item.DonGiaNhap.ToString("N0") đ</td><td class="text-end numeric">@item.ThanhTien.ToString("N0") đ</td><td><div class="row-actions"><a asp-action="Edit" asp-route-id="@item.MaChiTietNhap">Sửa</a><a asp-action="Details" asp-route-id="@item.MaChiTietNhap">Chi tiết</a><a asp-action="Delete" asp-route-id="@item.MaChiTietNhap">Xóa</a></div></td></tr> }
+</tbody></table></div></section>

@@ -25,15 +25,15 @@ public class ChiTietPhieuXuatsController : Controller
     }
 
     // GET: CHITIETPHIEUXUATS/Details/5
-    public async Task<IActionResult> Details(int? machitietxuat)
+    public async Task<IActionResult> Details(int? id)
     {
-        if (machitietxuat == null)
+        if (id == null)
         {
             return NotFound();
         }
 
         var chitietphieuxuat = await _context.ChiTietPhieuXuats
-            .FirstOrDefaultAsync(m => m.MaChiTietXuat == machitietxuat);
+            .FirstOrDefaultAsync(m => m.MaChiTietXuat == id);
         if (chitietphieuxuat == null)
         {
             return NotFound();
@@ -53,7 +53,7 @@ public class ChiTietPhieuXuatsController : Controller
     // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create([Bind("MaChiTietXuat,MaPhieuXuat,MaHang,SoLuongXuat,DonGiaXuatThamChieu,GhiChu,PhieuXuat")] ChiTietPhieuXuat chitietphieuxuat)
+    public async Task<IActionResult> Create([Bind("MaPhieuXuat,MaHang,SoLuongXuat,DonGiaXuatThamChieu,GhiChu")] ChiTietPhieuXuat chitietphieuxuat)
     {
         if (ModelState.IsValid)
         {
@@ -65,14 +65,14 @@ public class ChiTietPhieuXuatsController : Controller
     }
 
     // GET: CHITIETPHIEUXUATS/Edit/5
-    public async Task<IActionResult> Edit(int? machitietxuat)
+    public async Task<IActionResult> Edit(int? id)
     {
-        if (machitietxuat == null)
+        if (id == null)
         {
             return NotFound();
         }
 
-        var chitietphieuxuat = await _context.ChiTietPhieuXuats.FindAsync(machitietxuat);
+        var chitietphieuxuat = await _context.ChiTietPhieuXuats.FindAsync(id);
         if (chitietphieuxuat == null)
         {
             return NotFound();
@@ -85,9 +85,9 @@ public class ChiTietPhieuXuatsController : Controller
     // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int? machitietxuat, [Bind("MaChiTietXuat,MaPhieuXuat,MaHang,SoLuongXuat,DonGiaXuatThamChieu,GhiChu,PhieuXuat")] ChiTietPhieuXuat chitietphieuxuat)
+    public async Task<IActionResult> Edit(int? id, [Bind("MaChiTietXuat,MaPhieuXuat,MaHang,SoLuongXuat,DonGiaXuatThamChieu,GhiChu")] ChiTietPhieuXuat chitietphieuxuat)
     {
-        if (machitietxuat != chitietphieuxuat.MaChiTietXuat)
+        if (id != chitietphieuxuat.MaChiTietXuat)
         {
             return NotFound();
         }
@@ -116,15 +116,15 @@ public class ChiTietPhieuXuatsController : Controller
     }
 
     // GET: CHITIETPHIEUXUATS/Delete/5
-    public async Task<IActionResult> Delete(int? machitietxuat)
+    public async Task<IActionResult> Delete(int? id)
     {
-        if (machitietxuat == null)
+        if (id == null)
         {
             return NotFound();
         }
 
         var chitietphieuxuat = await _context.ChiTietPhieuXuats
-            .FirstOrDefaultAsync(m => m.MaChiTietXuat == machitietxuat);
+            .FirstOrDefaultAsync(m => m.MaChiTietXuat == id);
         if (chitietphieuxuat == null)
         {
             return NotFound();
@@ -136,9 +136,9 @@ public class ChiTietPhieuXuatsController : Controller
     // POST: CHITIETPHIEUXUATS/Delete/5
     [HttpPost, ActionName("Delete")]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> DeleteConfirmed(int? machitietxuat)
+    public async Task<IActionResult> DeleteConfirmed(int? id)
     {
-        var chitietphieuxuat = await _context.ChiTietPhieuXuats.FindAsync(machitietxuat);
+        var chitietphieuxuat = await _context.ChiTietPhieuXuats.FindAsync(id);
         if (chitietphieuxuat != null)
         {
             _context.ChiTietPhieuXuats.Remove(chitietphieuxuat);

@@ -19,15 +19,15 @@ public class PhieuXuatsController : Controller
     }
 
     // GET: PHIEUXUATS/Details/5
-    public async Task<IActionResult> Details(int? maphieuxuat)
+    public async Task<IActionResult> Details(int? id)
     {
-        if (maphieuxuat == null)
+        if (id == null)
         {
             return NotFound();
         }
 
         var phieuxuat = await _context.PhieuXuats
-            .FirstOrDefaultAsync(m => m.MaPhieuXuat == maphieuxuat);
+            .FirstOrDefaultAsync(m => m.MaPhieuXuat == id);
         if (phieuxuat == null)
         {
             return NotFound();
@@ -59,14 +59,14 @@ public class PhieuXuatsController : Controller
     }
 
     // GET: PHIEUXUATS/Edit/5
-    public async Task<IActionResult> Edit(int? maphieuxuat)
+    public async Task<IActionResult> Edit(int? id)
     {
-        if (maphieuxuat == null)
+        if (id == null)
         {
             return NotFound();
         }
 
-        var phieuxuat = await _context.PhieuXuats.FindAsync(maphieuxuat);
+        var phieuxuat = await _context.PhieuXuats.FindAsync(id);
         if (phieuxuat == null)
         {
             return NotFound();
@@ -79,9 +79,9 @@ public class PhieuXuatsController : Controller
     // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int? maphieuxuat, [Bind("MaPhieuXuat,MaBoPhan,MaKho,NgayXuat,NguoiLap,TrangThai,GhiChu,BoPhanNhan,Kho,ChiTietPhieuXuats")] PhieuXuat phieuxuat)
+    public async Task<IActionResult> Edit(int? id, [Bind("MaPhieuXuat,MaBoPhan,MaKho,NgayXuat,NguoiLap,TrangThai,GhiChu,BoPhanNhan,Kho,ChiTietPhieuXuats")] PhieuXuat phieuxuat)
     {
-        if (maphieuxuat != phieuxuat.MaPhieuXuat)
+        if (id != phieuxuat.MaPhieuXuat)
         {
             return NotFound();
         }
@@ -110,15 +110,15 @@ public class PhieuXuatsController : Controller
     }
 
     // GET: PHIEUXUATS/Delete/5
-    public async Task<IActionResult> Delete(int? maphieuxuat)
+    public async Task<IActionResult> Delete(int? id)
     {
-        if (maphieuxuat == null)
+        if (id == null)
         {
             return NotFound();
         }
 
         var phieuxuat = await _context.PhieuXuats
-            .FirstOrDefaultAsync(m => m.MaPhieuXuat == maphieuxuat);
+            .FirstOrDefaultAsync(m => m.MaPhieuXuat == id);
         if (phieuxuat == null)
         {
             return NotFound();
@@ -130,9 +130,9 @@ public class PhieuXuatsController : Controller
     // POST: PHIEUXUATS/Delete/5
     [HttpPost, ActionName("Delete")]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> DeleteConfirmed(int? maphieuxuat)
+    public async Task<IActionResult> DeleteConfirmed(int? id)
     {
-        var phieuxuat = await _context.PhieuXuats.FindAsync(maphieuxuat);
+        var phieuxuat = await _context.PhieuXuats.FindAsync(id);
         if (phieuxuat != null)
         {
             _context.PhieuXuats.Remove(phieuxuat);
