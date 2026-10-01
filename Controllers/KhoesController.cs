@@ -1,208 +1,224 @@
-
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using QuanLyKhoHang_UNETI01_TI17A3HN.Data;
 using QuanLyKhoHang_UNETI01_TI17A3HN.Models;
 
+// Họ và tên: Nguyễn Thị Cúc
+// Mã sinh viên: 23103100178
+// Nội dung: chi tiết, thêm, sửa, xóa và thay đổi trạng thái, tìm kiếm tên kho
 
-//Họ và tên: Nguyễn Thị Cúc
-//Mã sinh viên: 23103100178
-//Nội dung: chi tiết, thêm, sửa và thay đổi trạng thái, tìm kiếm tên kho
-
-public class KhoesController : Controller
+namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
 {
-    private readonly AppDbContext _context;
-
-    public KhoesController(AppDbContext context)
+    public class KhoesController : Controller
     {
-        _context = context;
-    }
+        private readonly AppDbContext _context;
 
-    // GET: KHOS
-    public async Task<IActionResult> Index(string searchString)
-    {
-        var query = _context.Khoes.AsQueryable();
-
-        // Tìm kiếm theo tên kho
-        if (!string.IsNullOrWhiteSpace(searchString))
+        public KhoesController(AppDbContext context)
         {
-            query = query.Where(k =>
-                k.TenKho.Contains(searchString));
+            _context = context;
         }
 
-        // Sắp xếp theo mã kho
-        query = query.OrderBy(k => k.MaKho);
-
-        var khoes = await query.ToListAsync();
-
-        ViewBag.SearchString = searchString;
-
-        return View(khoes);
-    }
-    // GET: Kho/Details/5
-    public async Task<IActionResult> Details(int? id)
-    {
-        if (id == null)
+        // GET: Khoes
+        public async Task<IActionResult> Index(string? searchString)
         {
-            return NotFound();
+            var query = _context.Kho.AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(searchString))
+            {
+                query = query.Where(k => k.TenKho.Contains(searchString));
+            }
+
+            query = query.OrderBy(k => k.MaKho);
+
+            ViewBag.SearchString = searchString;
+
+            return View(await query.ToListAsync());
         }
 
-        var kho = await _context.Khoes
-            .FirstOrDefaultAsync(k => k.MaKho == id);
-
-        if (kho == null)
+        // GET: Khoes/Details/5
+        public async Task<IActionResult> Details(int? id)
         {
-            return NotFound();
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var kho = await _context.Kho
+                .FirstOrDefaultAsync(m => m.MaKho == id);
+            if (kho == null)
+            {
+                return NotFound();
+            }
+
+            return View(kho);
         }
 
-        return View(kho);
-    }
-    // GET: Kho/Create
-    public IActionResult Create()
-    {
-        return View();
-    }
-
-    // POST: Kho/Create
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(Kho model)
-    {
-        bool trungTen = await _context.Khoes
-            .AnyAsync(k => k.TenKho == model.TenKho);
-
-        if (trungTen)
+        // GET: Khoes/Create
+        public IActionResult Create()
         {
-            ModelState.AddModelError(
-                "TenKho",
-                "Tên kho đã tồn tại.");
+            return View();
         }
 
-        if (!ModelState.IsValid)
+        // POST: Khoes/Create
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create([Bind("MaKho,TenKho,DiaDiem,MoTa,TrangThai")] Kho kho)
         {
-            return View(model);
+            bool trungTen = await _context.Kho
+                .AnyAsync(k => k.TenKho == kho.TenKho);
+
+            if (trungTen)
+            {
+                ModelState.AddModelError("TenKho", "Tên kho đã tồn tại.");
+            }
+
+            if (ModelState.IsValid)
+            {
+                _context.Add(kho);
+                await _context.SaveChangesAsync();
+                TempData["Success"] = "Thêm kho thành công.";
+                return RedirectToAction(nameof(Index));
+            }
+            return View(kho);
         }
 
-        _context.Khoes.Add(model);
-
-        await _context.SaveChangesAsync();
-
-        TempData["Success"] = "Thêm kho thành công.";
-
-        return RedirectToAction(nameof(Index));
-    }
-
-    // GET: Kho/Edit/5
-    public async Task<IActionResult> Edit(int? id)
-    {
-        if (id == null)
+        // GET: Khoes/Edit/5
+        public async Task<IActionResult> Edit(int? id)
         {
-            return NotFound();
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var kho = await _context.Kho.FindAsync(id);
+            if (kho == null)
+            {
+                return NotFound();
+            }
+            return View(kho);
         }
 
-        var kho = await _context.Khoes.FindAsync(id);
-
-        if (kho == null)
+        // POST: Khoes/Edit/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, [Bind("MaKho,TenKho,DiaDiem,MoTa,TrangThai")] Kho kho)
         {
-            return NotFound();
+            if (id != kho.MaKho)
+            {
+                return NotFound();
+            }
+
+            bool trungTen = await _context.Kho
+                .AnyAsync(k => k.TenKho == kho.TenKho && k.MaKho != kho.MaKho);
+
+            if (trungTen)
+            {
+                ModelState.AddModelError("TenKho", "Tên kho đã tồn tại.");
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    var existingKho = await _context.Kho.FirstOrDefaultAsync(k => k.MaKho == id);
+                    if (existingKho == null)
+                    {
+                        return NotFound();
+                    }
+
+                    existingKho.TenKho = kho.TenKho;
+                    existingKho.DiaDiem = kho.DiaDiem;
+                    existingKho.MoTa = kho.MoTa;
+                    existingKho.TrangThai = kho.TrangThai;
+
+                    await _context.SaveChangesAsync();
+                    TempData["Success"] = "Cập nhật kho thành công.";
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!KhoExists(kho.MaKho))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                return RedirectToAction(nameof(Index));
+            }
+            return View(kho);
         }
 
-        return View(kho);
-    }
-
-    // POST: Kho/Edit/5
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int id, Kho model)
-    {
-        if (id != model.MaKho)
+        // POST: Khoes/DoiTrangThai/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DoiTrangThai(int id)
         {
-            return NotFound();
-        }
-
-        bool trungTen = await _context.Khoes
-            .AnyAsync(k =>
-                k.TenKho == model.TenKho &&
-                k.MaKho != model.MaKho);
-
-        if (trungTen)
-        {
-            ModelState.AddModelError(
-                "TenKho",
-                "Tên kho đã tồn tại.");
-        }
-
-        if (!ModelState.IsValid)
-        {
-            return View(model);
-        }
-
-        try
-        {
-            var kho = await _context.Khoes
-                .FirstOrDefaultAsync(k => k.MaKho == id);
+            var kho = await _context.Kho.FindAsync(id);
 
             if (kho == null)
             {
                 return NotFound();
             }
 
-            kho.TenKho = model.TenKho;
-            kho.DiaDiem = model.DiaDiem;
-            kho.MoTa = model.MoTa;
-            kho.TrangThai = model.TrangThai;
-
+            kho.TrangThai = !kho.TrangThai;
             await _context.SaveChangesAsync();
 
-            TempData["Success"] = "Cập nhật kho thành công.";
+            if (kho.TrangThai)
+            {
+                TempData["Success"] = "Đã kích hoạt kho.";
+            }
+            else
+            {
+                TempData["Success"] = "Đã ngừng hoạt động kho.";
+            }
+
+            return RedirectToAction(nameof(Index));
         }
-        catch (DbUpdateConcurrencyException)
+
+        // GET: Khoes/Delete/5
+        public async Task<IActionResult> Delete(int? id)
         {
-            if (!KhoExists(model.MaKho))
+            if (id == null)
             {
                 return NotFound();
             }
 
-            throw;
+            var kho = await _context.Kho
+                .FirstOrDefaultAsync(m => m.MaKho == id);
+            if (kho == null)
+            {
+                return NotFound();
+            }
+
+            return View(kho);
         }
 
-        return RedirectToAction(nameof(Index));
-    }
-
-    // POST: Kho/DoiTrangThai/5
-    // Bật / tắt trạng thái kho
-    // Không xóa vật lý
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> DoiTrangThai(int id)
-    {
-        var kho = await _context.Khoes.FindAsync(id);
-
-        if (kho == null)
+        // POST: Khoes/Delete/5
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            return NotFound();
+            var kho = await _context.Kho.FindAsync(id);
+            if (kho != null)
+            {
+                _context.Kho.Remove(kho);
+                await _context.SaveChangesAsync();
+                TempData["Success"] = "Xóa kho thành công.";
+            }
+
+            return RedirectToAction(nameof(Index));
         }
 
-        // Đảo trạng thái
-        kho.TrangThai = !kho.TrangThai;
-
-        await _context.SaveChangesAsync();
-
-        if (kho.TrangThai)
+        private bool KhoExists(int id)
         {
-            TempData["Success"] = "Đã kích hoạt kho.";
+            return _context.Kho.Any(e => e.MaKho == id);
         }
-        else
-        {
-            TempData["Success"] = "Đã ngừng hoạt động kho.";
-        }
-
-        return RedirectToAction(nameof(Index));
-    }
-    // Kiểm tra kho có tồn tại không
-    private bool KhoExists(int id)
-    {
-        return _context.Khoes.Any(e => e.MaKho == id);
     }
 }
-

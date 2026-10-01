@@ -54,7 +54,16 @@
                             <a class="nav-link text-dark" asp-area="" asp-controller="PhieuNhaps" asp-action="Index">Phiếu nhập</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="ChiTietPhieuNhaps" asp-action="Index">Chi tiết phiếu nhập</a>
+                            <a class="nav-link text-dark" asp-area="" asp-controller="PhieuXuats" asp-action="Index">Phiếu xuất</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="LoaiHangs" asp-action="Index">Loại hàng</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="DonViTinhs" asp-action="Index">Đơn vị tính</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="TaiKhoans" asp-action="Index">Tài khoản</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="ThongKe" asp-action="Dashboard">Dashboard Thống kê</a>
@@ -76,13 +85,13 @@
                                 </span>
                             </li>
                             <li class="nav-item">
-                                <a class="btn btn-outline-danger btn-sm" asp-area="" asp-controller="TaiKhoan" asp-action="DangXuat">Đăng xuất</a>
+                                <a class="btn btn-outline-danger btn-sm" asp-area="" asp-controller="TaiKhoans" asp-action="DangXuat">Đăng xuất</a>
                             </li>
                         }
                         else
                         {
                             <li class="nav-item">
-                                <a class="btn btn-outline-primary btn-sm" asp-area="" asp-controller="TaiKhoan" asp-action="DangNhap">Đăng nhập</a>
+                                <a class="btn btn-outline-primary btn-sm" asp-area="" asp-controller="TaiKhoans" asp-action="DangNhap">Đăng nhập</a>
                             </li>
                         }
                     </ul>

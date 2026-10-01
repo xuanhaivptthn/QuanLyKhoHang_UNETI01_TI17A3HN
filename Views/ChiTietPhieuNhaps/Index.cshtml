@@ -12,44 +12,35 @@
 <table class="table">
     <thead>
         <tr>
-             <th>Mã chi tiết nhập</th>
             <th>
-                Mã phiếu nhập
+                @Html.DisplayNameFor(model => model.SoLuongNhap)
             </th>
             <th>
-                Số lượng nhập
+                @Html.DisplayNameFor(model => model.DonGiaNhap)
             </th>
             <th>
-                Đơn giá nhập
+                @Html.DisplayNameFor(model => model.PhieuNhap)
             </th>
             <th>
-                Thành tiền
+                @Html.DisplayNameFor(model => model.HangHoa)
             </th>
-            <th>
-                Thông tin hàng hóa
-            </th>
+            <th></th>
         </tr>
     </thead>
     <tbody>
 @foreach (var item in Model) {
         <tr>
             <td>
-                @Html.DisplayFor(model => item.MaChiTietNhap)
+                @Html.DisplayFor(modelItem => item.SoLuongNhap)
             </td>
             <td>
-                @Html.DisplayFor(model => item.MaPhieuNhap)
+                @Html.DisplayFor(modelItem => item.DonGiaNhap)
             </td>
             <td>
-                @Html.DisplayFor(model => item.SoLuongNhap)
+                @Html.DisplayFor(modelItem => item.PhieuNhap.MaPhieuNhap)
             </td>
             <td>
-                @Html.DisplayFor(model => item.DonGiaNhap)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.ThanhTien)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.HangHoa)
+                @Html.DisplayFor(modelItem => item.HangHoa.TenHang)
             </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.MaChiTietNhap">Edit</a> |

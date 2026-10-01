@@ -1,160 +1,172 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using QuanLyKhoHang_UNETI01_TI17A3HN.Models;
 using QuanLyKhoHang_UNETI01_TI17A3HN.Data;
+using QuanLyKhoHang_UNETI01_TI17A3HN.Models;
 
-public class BoPhanNhansController : Controller
+// Họ và tên: Nguyễn Việt Dũng
+// Mã sinh viên: 23103100127
+// Phụ trách Module 4: Bộ phận nhận, Phiếu xuất, Chi tiết phiếu xuất
+
+namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
 {
-    private readonly AppDbContext _context;
-
-    public BoPhanNhansController(AppDbContext context)
+    public class BoPhanNhansController : Controller
     {
-        _context = context;
-    }
+        private readonly AppDbContext _context;
 
-    // GET: BoPhanNhans
-    public async Task<IActionResult> Index()    
-    {
-        return View(await _context.BoPhanNhans.ToListAsync());
-    }
-
-    // GET: BoPhanNhans/Details/5
-    public async Task<IActionResult> Details(int? id, int? mabophan)
-    {
-        var targetId = id ?? mabophan;
-        if (targetId == null)
+        public BoPhanNhansController(AppDbContext context)
         {
-            return NotFound();
+            _context = context;
         }
 
-        var bophannhan = await _context.BoPhanNhans
-            .FirstOrDefaultAsync(m => m.MaBoPhan == targetId);
-        if (bophannhan == null)
+        // GET: BoPhanNhans
+        public async Task<IActionResult> Index()
         {
-            return NotFound();
+            return View(await _context.BoPhanNhans.ToListAsync());
         }
 
-        return View(bophannhan);
-    }
-
-    // GET: BoPhanNhans/Create
-    public IActionResult Create()
-    {
-        return View();
-    }
-
-    // POST: BoPhanNhans/Create
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create([Bind("MaBoPhan,TenBoPhan,NguoiDaiDien,SoDienThoai,MoTa,TrangThai")] BoPhanNhan bophannhan)
-    {
-        if (ModelState.IsValid)
+        // GET: BoPhanNhans/Details/5
+        public async Task<IActionResult> Details(int? id, int? mabophan)
         {
-            _context.Add(bophannhan);
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
-        return View(bophannhan);
-    }
-
-    // GET: BoPhanNhans/Edit/5
-    public async Task<IActionResult> Edit(int? id, int? mabophan)
-    {
-        var targetId = id ?? mabophan;
-        if (targetId == null)
-        {
-            return NotFound();
-        }
-
-        var bophannhan = await _context.BoPhanNhans.FindAsync(targetId);
-        if (bophannhan == null)
-        {
-            return NotFound();
-        }
-        return View(bophannhan);
-    }
-
-    // POST: BoPhanNhans/Edit/5
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int? id, [Bind("MaBoPhan,TenBoPhan,NguoiDaiDien,SoDienThoai,MoTa,TrangThai")] BoPhanNhan bophannhan)
-    {
-        var targetId = id ?? bophannhan.MaBoPhan;
-        if (targetId != bophannhan.MaBoPhan)
-        {
-            return NotFound();
-        }
-
-        if (ModelState.IsValid)
-        {
-            try
+            var targetId = id ?? mabophan;
+            if (targetId == null)
             {
-                _context.Update(bophannhan);
+                return NotFound();
+            }
+
+            var boPhanNhan = await _context.BoPhanNhans
+                .FirstOrDefaultAsync(m => m.MaBoPhan == targetId);
+            if (boPhanNhan == null)
+            {
+                return NotFound();
+            }
+
+            return View(boPhanNhan);
+        }
+
+        // GET: BoPhanNhans/Create
+        public IActionResult Create()
+        {
+            return View();
+        }
+
+        // POST: BoPhanNhans/Create
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create([Bind("MaBoPhan,TenBoPhan,NguoiDaiDien,SoDienThoai,MoTa,TrangThai")] BoPhanNhan boPhanNhan)
+        {
+            if (ModelState.IsValid)
+            {
+                _context.Add(boPhanNhan);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+            }
+            return View(boPhanNhan);
+        }
+
+        // GET: BoPhanNhans/Edit/5
+        public async Task<IActionResult> Edit(int? id, int? mabophan)
+        {
+            var targetId = id ?? mabophan;
+            if (targetId == null)
+            {
+                return NotFound();
+            }
+
+            var boPhanNhan = await _context.BoPhanNhans.FindAsync(targetId);
+            if (boPhanNhan == null)
+            {
+                return NotFound();
+            }
+            return View(boPhanNhan);
+        }
+
+        // POST: BoPhanNhans/Edit/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int? id, int? mabophan, [Bind("MaBoPhan,TenBoPhan,NguoiDaiDien,SoDienThoai,MoTa,TrangThai")] BoPhanNhan boPhanNhan)
+        {
+            var targetId = id ?? mabophan ?? boPhanNhan.MaBoPhan;
+            if (targetId != boPhanNhan.MaBoPhan)
+            {
+                return NotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    _context.Update(boPhanNhan);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!BoPhanNhanExists(boPhanNhan.MaBoPhan))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                return RedirectToAction(nameof(Index));
+            }
+            return View(boPhanNhan);
+        }
+
+        // GET: BoPhanNhans/Delete/5
+        public async Task<IActionResult> Delete(int? id, int? mabophan)
+        {
+            var targetId = id ?? mabophan;
+            if (targetId == null)
+            {
+                return NotFound();
+            }
+
+            var boPhanNhan = await _context.BoPhanNhans
+                .FirstOrDefaultAsync(m => m.MaBoPhan == targetId);
+            if (boPhanNhan == null)
+            {
+                return NotFound();
+            }
+
+            return View(boPhanNhan);
+        }
+
+        // POST: BoPhanNhans/Delete/5
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int? id, int? mabophan)
+        {
+            var targetId = id ?? mabophan;
+            if (targetId == null && Request.HasFormContentType && int.TryParse(Request.Form["MaBoPhan"], out int formId))
+            {
+                targetId = formId;
+            }
+
+            if (targetId == null)
+            {
+                return NotFound();
+            }
+
+            var boPhanNhan = await _context.BoPhanNhans.FindAsync(targetId);
+            if (boPhanNhan != null)
+            {
+                _context.BoPhanNhans.Remove(boPhanNhan);
                 await _context.SaveChangesAsync();
             }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!BoPhanNhanExists(bophannhan.MaBoPhan))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+
             return RedirectToAction(nameof(Index));
         }
-        return View(bophannhan);
-    }
 
-    // GET: BoPhanNhans/Delete/5
-    public async Task<IActionResult> Delete(int? id, int? mabophan)
-    {
-        var targetId = id ?? mabophan;
-        if (targetId == null)
+        private bool BoPhanNhanExists(int id)
         {
-            return NotFound();
+            return _context.BoPhanNhans.Any(e => e.MaBoPhan == id);
         }
-
-        var bophannhan = await _context.BoPhanNhans
-            .FirstOrDefaultAsync(m => m.MaBoPhan == targetId);
-        if (bophannhan == null)
-        {
-            return NotFound();
-        }
-
-        return View(bophannhan);
-    }
-
-    // POST: BoPhanNhans/Delete/5
-    [HttpPost, ActionName("Delete")]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> DeleteConfirmed(int? id, int? mabophan)
-    {
-        var targetId = id ?? mabophan;
-        if (targetId == null && Request.HasFormContentType && int.TryParse(Request.Form["MaBoPhan"], out int formId))
-        {
-            targetId = formId;
-        }
-
-        if (targetId == null)
-        {
-            return NotFound();
-        }
-
-        var bophannhan = await _context.BoPhanNhans.FindAsync(targetId);
-        if (bophannhan != null)
-        {
-            _context.BoPhanNhans.Remove(bophannhan);
-            await _context.SaveChangesAsync();
-        }
-
-        return RedirectToAction(nameof(Index));
-    }
-
-    private bool BoPhanNhanExists(int id)
-    {
-        return _context.BoPhanNhans.Any(e => e.MaBoPhan == id);
     }
 }

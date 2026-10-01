@@ -11,45 +11,34 @@
     <hr />
     <dl class="row">
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.MaPhieuXuat)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.MaPhieuXuat)
-        </dd>
-    </dl>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.MaHang)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.MaHang)
-        </dd>
-    </dl>
-        <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.SoLuongXuat)
         </dt>
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.SoLuongXuat)
         </dd>
-    </dl>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.DonGiaXuatThamChieu)
         </dt>
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.DonGiaXuatThamChieu)
         </dd>
-    </dl>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.GhiChu)
         </dt>
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.GhiChu)
         </dd>
-    </dl>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.PhieuXuat)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.PhieuXuat)
+            @Html.DisplayFor(model => model.PhieuXuat.NguoiLap)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.HangHoa)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.HangHoa.TenHang)
         </dd>
     </dl>
 </div>

@@ -13,12 +13,6 @@
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.MaBoPhan)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.MaKho)
-            </th>
-            <th>
                 @Html.DisplayNameFor(model => model.NgayXuat)
             </th>
             <th>
@@ -30,6 +24,12 @@
             <th>
                 @Html.DisplayNameFor(model => model.GhiChu)
             </th>
+            <th>
+                @Html.DisplayNameFor(model => model.BoPhanNhan)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Kho)
+            </th>
             <th></th>
         </tr>
     </thead>
@@ -37,27 +37,26 @@
 @foreach (var item in Model) {
         <tr>
             <td>
-                @Html.DisplayFor(model => item.MaBoPhan)
+                @Html.DisplayFor(modelItem => item.NgayXuat)
             </td>
             <td>
-                @Html.DisplayFor(model => item.MaKho)
+                @Html.DisplayFor(modelItem => item.NguoiLap)
             </td>
             <td>
-                @Html.DisplayFor(model => item.NgayXuat)
+                @Html.DisplayFor(modelItem => item.TrangThai)
             </td>
             <td>
-                @Html.DisplayFor(model => item.NguoiLap)
+                @Html.DisplayFor(modelItem => item.GhiChu)
             </td>
             <td>
-                @Html.DisplayFor(model => item.TrangThai)
+                @Html.DisplayFor(modelItem => item.BoPhanNhan.TenBoPhan)
             </td>
             <td>
-                @Html.DisplayFor(model => item.GhiChu)
+                @Html.DisplayFor(modelItem => item.Kho.TenKho)
             </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.MaPhieuXuat">Edit</a> |
                 <a asp-action="Details" asp-route-id="@item.MaPhieuXuat">Details</a> |
-                <a asp-controller="ChiTietPhieuXuats" asp-action="Index" asp-route-maPhieuXuat="@item.MaPhieuXuat">Chi tiết phiếu xuất</a> |
                 <a asp-action="Delete" asp-route-id="@item.MaPhieuXuat">Delete</a>
             </td>
         </tr>

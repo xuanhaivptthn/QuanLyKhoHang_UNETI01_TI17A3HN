@@ -16,37 +16,33 @@
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.TenNhaCungCap)
         </dd>
-    </dl>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.SoDienThoai)
         </dt>
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.SoDienThoai)
         </dd>
-    </dl>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.Email)
         </dt>
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.Email)
         </dd>
-    </dl>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.DiaChi)
         </dt>
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.DiaChi)
         </dd>
-    </dl>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.TrangThai)
         </dt>
         <dd class = "col-sm-10">
-            @(Model.TrangThai ? "Đang hoạt động" : "Ngừng hoạt động")
+            @Html.DisplayFor(model => model.TrangThai)
         </dd>
     </dl>
 </div>
 <div>
-    <a asp-action="Edit" asp-route-manhacungcap="@Model?.MaNhaCungCap">Edit</a> |
+    <a asp-action="Edit" asp-route-id="@Model?.MaNhaCungCap">Edit</a> |
     <a asp-action="Index">Back to List</a>
 </div>

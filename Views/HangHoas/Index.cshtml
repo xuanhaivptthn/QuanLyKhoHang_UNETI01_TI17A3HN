@@ -7,8 +7,37 @@
 <h1>Index</h1>
 
 <p>
-    <a asp-action="Create">Create New</a>
+    <a asp-action="Create" class="btn btn-primary">Thêm mới hàng hóa</a>
 </p>
+
+<form asp-action="Index" method="get" class="card p-3 mb-3 bg-light">
+    <div class="row g-2">
+        <div class="col-md-3">
+            <input type="text" name="searchString" value="@ViewBag.SearchString" class="form-control" placeholder="Mã hoặc tên hàng..." />
+        </div>
+        <div class="col-md-2">
+            <select name="maLoaiHang" class="form-select" asp-items="ViewBag.LoaiHangs">
+                <option value="">-- Loại hàng --</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <select name="maDonViTinh" class="form-select" asp-items="ViewBag.DonViTinhs">
+                <option value="">-- Đơn vị tính --</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <select name="trangThai" class="form-select">
+                <option value="">-- Trạng thái --</option>
+                <option value="true" selected="@(ViewBag.TrangThai == true)">Hoạt động</option>
+                <option value="false" selected="@(ViewBag.TrangThai == false)">Ngừng HĐ</option>
+            </select>
+        </div>
+        <div class="col-md-3 d-flex gap-2">
+            <button type="submit" class="btn btn-primary">Lọc</button>
+            <a asp-action="Index" class="btn btn-outline-secondary">Tất cả</a>
+        </div>
+    </div>
+</form>
 <table class="table">
     <thead>
         <tr>
@@ -16,13 +45,7 @@
                 @Html.DisplayNameFor(model => model.TenHang)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.MaLoaiHang)
-            </th>
-            <th>
                 @Html.DisplayNameFor(model => model.LoaiHang)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.MaDonViTinh)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.DonViTinh)
@@ -39,15 +62,6 @@
             <th>
                 @Html.DisplayNameFor(model => model.TrangThai)
             </th>
-            <th>
-                @Html.DisplayNameFor(model => model.DanhSachChiTietNhap)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.DanhSachChiTietXuat)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.DanhSachTonKho)
-            </th>
             <th></th>
         </tr>
     </thead>
@@ -55,40 +69,25 @@
 @foreach (var item in Model) {
         <tr>
             <td>
-                @Html.DisplayFor(model => item.TenHang)
+                @Html.DisplayFor(modelItem => item.TenHang)
             </td>
             <td>
-                @Html.DisplayFor(model => item.MaLoaiHang)
+                @Html.DisplayFor(modelItem => item.LoaiHang.TenLoaiHang)
             </td>
             <td>
-                @Html.DisplayFor(model => item.LoaiHang)
+                @Html.DisplayFor(modelItem => item.DonViTinh.TenDonViTinh)
             </td>
             <td>
-                @Html.DisplayFor(model => item.MaDonViTinh)
+                @Html.DisplayFor(modelItem => item.GiaNhapThamKhao)
             </td>
             <td>
-                @Html.DisplayFor(model => item.DonViTinh)
+                @Html.DisplayFor(modelItem => item.MucTonToiThieu)
             </td>
             <td>
-                @Html.DisplayFor(model => item.GiaNhapThamKhao)
+                @Html.DisplayFor(modelItem => item.MoTa)
             </td>
             <td>
-                @Html.DisplayFor(model => item.MucTonToiThieu)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.MoTa)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.TrangThai)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.DanhSachChiTietNhap)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.DanhSachChiTietXuat)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.DanhSachTonKho)
+                @Html.DisplayFor(modelItem => item.TrangThai)
             </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.MaHang">Edit</a> |

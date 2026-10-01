@@ -1,150 +1,190 @@
-
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using QuanLyKhoHang_UNETI01_TI17A3HN.Models;
 using QuanLyKhoHang_UNETI01_TI17A3HN.Data;
+using QuanLyKhoHang_UNETI01_TI17A3HN.Models;
 
-public class PhieuNhapsController : Controller
+// Họ và tên: Lê Văn Hùng
+// Mã sinh viên: 23103100177
+// Phụ trách Module 3: Nhà cung cấp, Phiếu nhập, Chi tiết phiếu nhập
+
+namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
 {
-    private readonly AppDbContext _context;
-
-    public PhieuNhapsController(AppDbContext context)
+    public class PhieuNhapsController : Controller
     {
-        _context = context;
-    }
+        private readonly AppDbContext _context;
 
-    // GET: PHIEUNHAPS
-    public async Task<IActionResult> Index()    
-    {
-        return View(await _context.PhieuNhap.ToListAsync());
-    }
-
-    // GET: PHIEUNHAPS/Details/5
-    public async Task<IActionResult> Details(int? maphieunhap)
-    {
-        if (maphieunhap == null)
+        public PhieuNhapsController(AppDbContext context)
         {
-            return NotFound();
+            _context = context;
         }
 
-        var phieunhap = await _context.PhieuNhap
-            .FirstOrDefaultAsync(m => m.MaPhieuNhap == maphieunhap);
-        if (phieunhap == null)
+        // GET: PhieuNhaps
+        public async Task<IActionResult> Index()
         {
-            return NotFound();
+            var appDbContext = _context.PhieuNhap
+                .Include(p => p.Kho)
+                .Include(p => p.NhaCungCap)
+                .Include(p => p.ChiTietPhieuNhaps);
+            return View(await appDbContext.ToListAsync());
         }
 
-        return View(phieunhap);
-    }
-
-    // GET: PHIEUNHAPS/Create
-    public IActionResult Create()
-    {
-        return View();
-    }
-
-    // POST: PHIEUNHAPS/Create
-    // To protect from overposting attacks, enable the specific properties you want to bind to.
-    // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create([Bind("MaPhieuNhap,MaNhaCungCap,MaKho,NgayNhap,NguoiLap,TrangThai,GhiChu,NhaCungCap,Kho,ChiTietPhieuNhaps")] PhieuNhap phieunhap)
-    {
-        if (ModelState.IsValid)
+        // GET: PhieuNhaps/Details/5
+        public async Task<IActionResult> Details(int? id, int? maphieunhap)
         {
-            _context.Add(phieunhap);
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
-        return View(phieunhap);
-    }
-
-    // GET: PHIEUNHAPS/Edit/5
-    public async Task<IActionResult> Edit(int? maphieunhap)
-    {
-        if (maphieunhap == null)
-        {
-            return NotFound();
-        }
-
-        var phieunhap = await _context.PhieuNhap.FindAsync(maphieunhap);
-        if (phieunhap == null)
-        {
-            return NotFound();
-        }
-        return View(phieunhap);
-    }
-
-    // POST: PHIEUNHAPS/Edit/5
-    // To protect from overposting attacks, enable the specific properties you want to bind to.
-    // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int? maphieunhap, [Bind("MaPhieuNhap,MaNhaCungCap,MaKho,NgayNhap,NguoiLap,TrangThai,GhiChu,NhaCungCap,Kho,ChiTietPhieuNhaps")] PhieuNhap phieunhap)
-    {
-        if (maphieunhap != phieunhap.MaPhieuNhap)
-        {
-            return NotFound();
-        }
-
-        if (ModelState.IsValid)
-        {
-            try
+            var targetId = id ?? maphieunhap;
+            if (targetId == null)
             {
-                _context.Update(phieunhap);
+                return NotFound();
+            }
+
+            var phieuNhap = await _context.PhieuNhap
+                .Include(p => p.Kho)
+                .Include(p => p.NhaCungCap)
+                .Include(p => p.ChiTietPhieuNhaps)
+                    .ThenInclude(ct => ct.HangHoa)
+                .FirstOrDefaultAsync(m => m.MaPhieuNhap == targetId);
+            if (phieuNhap == null)
+            {
+                return NotFound();
+            }
+
+            return View(phieuNhap);
+        }
+
+        // GET: PhieuNhaps/Create
+        public IActionResult Create()
+        {
+            ViewData["MaKho"] = new SelectList(_context.Kho, "MaKho", "TenKho");
+            ViewData["MaNhaCungCap"] = new SelectList(_context.NhaCungCap, "MaNhaCungCap", "TenNhaCungCap");
+            return View();
+        }
+
+        // POST: PhieuNhaps/Create
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create([Bind("MaPhieuNhap,MaNhaCungCap,MaKho,NgayNhap,NguoiLap,TrangThai,GhiChu")] PhieuNhap phieuNhap)
+        {
+            if (ModelState.IsValid)
+            {
+                _context.Add(phieuNhap);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+            }
+            ViewData["MaKho"] = new SelectList(_context.Kho, "MaKho", "TenKho", phieuNhap.MaKho);
+            ViewData["MaNhaCungCap"] = new SelectList(_context.NhaCungCap, "MaNhaCungCap", "TenNhaCungCap", phieuNhap.MaNhaCungCap);
+            return View(phieuNhap);
+        }
+
+        // GET: PhieuNhaps/Edit/5
+        public async Task<IActionResult> Edit(int? id, int? maphieunhap)
+        {
+            var targetId = id ?? maphieunhap;
+            if (targetId == null)
+            {
+                return NotFound();
+            }
+
+            var phieuNhap = await _context.PhieuNhap.FindAsync(targetId);
+            if (phieuNhap == null)
+            {
+                return NotFound();
+            }
+            ViewData["MaKho"] = new SelectList(_context.Kho, "MaKho", "TenKho", phieuNhap.MaKho);
+            ViewData["MaNhaCungCap"] = new SelectList(_context.NhaCungCap, "MaNhaCungCap", "TenNhaCungCap", phieuNhap.MaNhaCungCap);
+            return View(phieuNhap);
+        }
+
+        // POST: PhieuNhaps/Edit/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int? id, int? maphieunhap, [Bind("MaPhieuNhap,MaNhaCungCap,MaKho,NgayNhap,NguoiLap,TrangThai,GhiChu")] PhieuNhap phieuNhap)
+        {
+            var targetId = id ?? maphieunhap ?? phieuNhap.MaPhieuNhap;
+            if (targetId != phieuNhap.MaPhieuNhap)
+            {
+                return NotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    _context.Update(phieuNhap);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!PhieuNhapExists(phieuNhap.MaPhieuNhap))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                return RedirectToAction(nameof(Index));
+            }
+            ViewData["MaKho"] = new SelectList(_context.Kho, "MaKho", "TenKho", phieuNhap.MaKho);
+            ViewData["MaNhaCungCap"] = new SelectList(_context.NhaCungCap, "MaNhaCungCap", "TenNhaCungCap", phieuNhap.MaNhaCungCap);
+            return View(phieuNhap);
+        }
+
+        // GET: PhieuNhaps/Delete/5
+        public async Task<IActionResult> Delete(int? id, int? maphieunhap)
+        {
+            var targetId = id ?? maphieunhap;
+            if (targetId == null)
+            {
+                return NotFound();
+            }
+
+            var phieuNhap = await _context.PhieuNhap
+                .Include(p => p.Kho)
+                .Include(p => p.NhaCungCap)
+                .FirstOrDefaultAsync(m => m.MaPhieuNhap == targetId);
+            if (phieuNhap == null)
+            {
+                return NotFound();
+            }
+
+            return View(phieuNhap);
+        }
+
+        // POST: PhieuNhaps/Delete/5
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int? id, int? maphieunhap)
+        {
+            var targetId = id ?? maphieunhap;
+            if (targetId == null && Request.HasFormContentType && int.TryParse(Request.Form["MaPhieuNhap"], out int formId))
+            {
+                targetId = formId;
+            }
+
+            if (targetId == null)
+            {
+                return NotFound();
+            }
+
+            var phieuNhap = await _context.PhieuNhap.FindAsync(targetId);
+            if (phieuNhap != null)
+            {
+                _context.PhieuNhap.Remove(phieuNhap);
                 await _context.SaveChangesAsync();
             }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!PhieuNhapExists(phieunhap.MaPhieuNhap))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+
             return RedirectToAction(nameof(Index));
         }
-        return View(phieunhap);
-    }
 
-    // GET: PHIEUNHAPS/Delete/5
-    public async Task<IActionResult> Delete(int? maphieunhap)
-    {
-        if (maphieunhap == null)
+        private bool PhieuNhapExists(int id)
         {
-            return NotFound();
+            return _context.PhieuNhap.Any(e => e.MaPhieuNhap == id);
         }
-
-        var phieunhap = await _context.PhieuNhap
-            .FirstOrDefaultAsync(m => m.MaPhieuNhap == maphieunhap);
-        if (phieunhap == null)
-        {
-            return NotFound();
-        }
-
-        return View(phieunhap);
-    }
-
-    // POST: PHIEUNHAPS/Delete/5
-    [HttpPost, ActionName("Delete")]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> DeleteConfirmed(int? maphieunhap)
-    {
-        var phieunhap = await _context.PhieuNhap.FindAsync(maphieunhap);
-        if (phieunhap != null)
-        {
-            _context.PhieuNhap.Remove(phieunhap);
-        }
-
-        await _context.SaveChangesAsync();
-        return RedirectToAction(nameof(Index));
-    }
-
-    private bool PhieuNhapExists(int? maphieunhap)
-    {
-        return _context.PhieuNhap.Any(e => e.MaPhieuNhap == maphieunhap);
     }
 }

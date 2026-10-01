@@ -19,6 +19,12 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
             _context = context;
         }
 
+        // GET: /TonKho
+        public IActionResult Index()
+        {
+            return RedirectToAction(nameof(CanhBao));
+        }
+
         // Chức năng Cảnh báo tồn: Lấy danh sách những hàng hóa = 0 hoặc <= Mức tồn tối thiểu
         public async Task<IActionResult> CanhBao()
         {

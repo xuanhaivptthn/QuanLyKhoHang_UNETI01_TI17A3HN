@@ -1,155 +1,196 @@
-
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using QuanLyKhoHang_UNETI01_TI17A3HN.Models;
 using QuanLyKhoHang_UNETI01_TI17A3HN.Data;
-public class ChiTietPhieuXuatsController : Controller
+using QuanLyKhoHang_UNETI01_TI17A3HN.Models;
+
+// Họ và tên: Nguyễn Việt Dũng
+// Mã sinh viên: 23103100127
+// Phụ trách Module 4: Bộ phận nhận, Phiếu xuất, Chi tiết phiếu xuất
+
+namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
 {
-    private readonly AppDbContext _context;
-
-    public ChiTietPhieuXuatsController(AppDbContext context)
+    public class ChiTietPhieuXuatsController : Controller
     {
-        _context = context;
-    }
+        private readonly AppDbContext _context;
 
-    // GET: CHITIETPHIEUXUATS
-    public async Task<IActionResult> Index(int? maPhieuXuat)
-    {
-        var query = _context.ChiTietPhieuXuats.AsQueryable();
-        if (maPhieuXuat.HasValue)
+        public ChiTietPhieuXuatsController(AppDbContext context)
         {
-            query = query.Where(c => c.MaPhieuXuat == maPhieuXuat.Value);
-            ViewData["MaPhieuXuat"] = maPhieuXuat.Value;
-        }
-        return View(await query.ToListAsync());
-    }
-
-    // GET: CHITIETPHIEUXUATS/Details/5
-    public async Task<IActionResult> Details(int? machitietxuat)
-    {
-        if (machitietxuat == null)
-        {
-            return NotFound();
+            _context = context;
         }
 
-        var chitietphieuxuat = await _context.ChiTietPhieuXuats
-            .FirstOrDefaultAsync(m => m.MaChiTietXuat == machitietxuat);
-        if (chitietphieuxuat == null)
+        // GET: ChiTietPhieuXuats
+        public async Task<IActionResult> Index(int? maPhieuXuat)
         {
-            return NotFound();
-        }
+            var query = _context.ChiTietPhieuXuats
+                .Include(c => c.HangHoa)
+                .Include(c => c.PhieuXuat)
+                .AsQueryable();
 
-        return View(chitietphieuxuat);
-    }
-
-    // GET: CHITIETPHIEUXUATS/Create
-    public IActionResult Create(int? maPhieuXuat)
-    {
-        return View(new ChiTietPhieuXuat { MaPhieuXuat = maPhieuXuat ?? 0 });
-    }
-
-    // POST: CHITIETPHIEUXUATS/Create
-    // To protect from overposting attacks, enable the specific properties you want to bind to.
-    // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create([Bind("MaChiTietXuat,MaPhieuXuat,MaHang,SoLuongXuat,DonGiaXuatThamChieu,GhiChu,PhieuXuat")] ChiTietPhieuXuat chitietphieuxuat)
-    {
-        if (ModelState.IsValid)
-        {
-            _context.Add(chitietphieuxuat);
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
-        return View(chitietphieuxuat);
-    }
-
-    // GET: CHITIETPHIEUXUATS/Edit/5
-    public async Task<IActionResult> Edit(int? machitietxuat)
-    {
-        if (machitietxuat == null)
-        {
-            return NotFound();
-        }
-
-        var chitietphieuxuat = await _context.ChiTietPhieuXuats.FindAsync(machitietxuat);
-        if (chitietphieuxuat == null)
-        {
-            return NotFound();
-        }
-        return View(chitietphieuxuat);
-    }
-
-    // POST: CHITIETPHIEUXUATS/Edit/5
-    // To protect from overposting attacks, enable the specific properties you want to bind to.
-    // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int? machitietxuat, [Bind("MaChiTietXuat,MaPhieuXuat,MaHang,SoLuongXuat,DonGiaXuatThamChieu,GhiChu,PhieuXuat")] ChiTietPhieuXuat chitietphieuxuat)
-    {
-        if (machitietxuat != chitietphieuxuat.MaChiTietXuat)
-        {
-            return NotFound();
-        }
-
-        if (ModelState.IsValid)
-        {
-            try
+            if (maPhieuXuat.HasValue)
             {
-                _context.Update(chitietphieuxuat);
+                query = query.Where(c => c.MaPhieuXuat == maPhieuXuat.Value);
+                ViewData["MaPhieuXuat"] = maPhieuXuat.Value;
+            }
+
+            return View(await query.ToListAsync());
+        }
+
+        // GET: ChiTietPhieuXuats/Details/5
+        public async Task<IActionResult> Details(int? id, int? machitietxuat)
+        {
+            var targetId = id ?? machitietxuat;
+            if (targetId == null)
+            {
+                return NotFound();
+            }
+
+            var chiTietPhieuXuat = await _context.ChiTietPhieuXuats
+                .Include(c => c.HangHoa)
+                .Include(c => c.PhieuXuat)
+                .FirstOrDefaultAsync(m => m.MaChiTietXuat == targetId);
+            if (chiTietPhieuXuat == null)
+            {
+                return NotFound();
+            }
+
+            return View(chiTietPhieuXuat);
+        }
+
+        // GET: ChiTietPhieuXuats/Create
+        public IActionResult Create(int? maPhieuXuat)
+        {
+            ViewData["MaHang"] = new SelectList(_context.HangHoa, "MaHang", "TenHang");
+            ViewData["MaPhieuXuat"] = new SelectList(_context.PhieuXuats, "MaPhieuXuat", "MaPhieuXuat", maPhieuXuat);
+            return View(new ChiTietPhieuXuat { MaPhieuXuat = maPhieuXuat ?? 0 });
+        }
+
+        // POST: ChiTietPhieuXuats/Create
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create([Bind("MaChiTietXuat,MaPhieuXuat,MaHang,SoLuongXuat,DonGiaXuatThamChieu,GhiChu")] ChiTietPhieuXuat chiTietPhieuXuat)
+        {
+            if (ModelState.IsValid)
+            {
+                _context.Add(chiTietPhieuXuat);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index), new { maPhieuXuat = chiTietPhieuXuat.MaPhieuXuat });
+            }
+            ViewData["MaHang"] = new SelectList(_context.HangHoa, "MaHang", "TenHang", chiTietPhieuXuat.MaHang);
+            ViewData["MaPhieuXuat"] = new SelectList(_context.PhieuXuats, "MaPhieuXuat", "MaPhieuXuat", chiTietPhieuXuat.MaPhieuXuat);
+            return View(chiTietPhieuXuat);
+        }
+
+        // GET: ChiTietPhieuXuats/Edit/5
+        public async Task<IActionResult> Edit(int? id, int? machitietxuat)
+        {
+            var targetId = id ?? machitietxuat;
+            if (targetId == null)
+            {
+                return NotFound();
+            }
+
+            var chiTietPhieuXuat = await _context.ChiTietPhieuXuats.FindAsync(targetId);
+            if (chiTietPhieuXuat == null)
+            {
+                return NotFound();
+            }
+            ViewData["MaHang"] = new SelectList(_context.HangHoa, "MaHang", "TenHang", chiTietPhieuXuat.MaHang);
+            ViewData["MaPhieuXuat"] = new SelectList(_context.PhieuXuats, "MaPhieuXuat", "MaPhieuXuat", chiTietPhieuXuat.MaPhieuXuat);
+            return View(chiTietPhieuXuat);
+        }
+
+        // POST: ChiTietPhieuXuats/Edit/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int? id, int? machitietxuat, [Bind("MaChiTietXuat,MaPhieuXuat,MaHang,SoLuongXuat,DonGiaXuatThamChieu,GhiChu")] ChiTietPhieuXuat chiTietPhieuXuat)
+        {
+            var targetId = id ?? machitietxuat ?? chiTietPhieuXuat.MaChiTietXuat;
+            if (targetId != chiTietPhieuXuat.MaChiTietXuat)
+            {
+                return NotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    _context.Update(chiTietPhieuXuat);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!ChiTietPhieuXuatExists(chiTietPhieuXuat.MaChiTietXuat))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                return RedirectToAction(nameof(Index), new { maPhieuXuat = chiTietPhieuXuat.MaPhieuXuat });
+            }
+            ViewData["MaHang"] = new SelectList(_context.HangHoa, "MaHang", "TenHang", chiTietPhieuXuat.MaHang);
+            ViewData["MaPhieuXuat"] = new SelectList(_context.PhieuXuats, "MaPhieuXuat", "MaPhieuXuat", chiTietPhieuXuat.MaPhieuXuat);
+            return View(chiTietPhieuXuat);
+        }
+
+        // GET: ChiTietPhieuXuats/Delete/5
+        public async Task<IActionResult> Delete(int? id, int? machitietxuat)
+        {
+            var targetId = id ?? machitietxuat;
+            if (targetId == null)
+            {
+                return NotFound();
+            }
+
+            var chiTietPhieuXuat = await _context.ChiTietPhieuXuats
+                .Include(c => c.HangHoa)
+                .Include(c => c.PhieuXuat)
+                .FirstOrDefaultAsync(m => m.MaChiTietXuat == targetId);
+            if (chiTietPhieuXuat == null)
+            {
+                return NotFound();
+            }
+
+            return View(chiTietPhieuXuat);
+        }
+
+        // POST: ChiTietPhieuXuats/Delete/5
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int? id, int? machitietxuat)
+        {
+            var targetId = id ?? machitietxuat;
+            if (targetId == null && Request.HasFormContentType && int.TryParse(Request.Form["MaChiTietXuat"], out int formId))
+            {
+                targetId = formId;
+            }
+
+            if (targetId == null)
+            {
+                return NotFound();
+            }
+
+            var chiTietPhieuXuat = await _context.ChiTietPhieuXuats.FindAsync(targetId);
+            int? maPhieuXuat = chiTietPhieuXuat?.MaPhieuXuat;
+            if (chiTietPhieuXuat != null)
+            {
+                _context.ChiTietPhieuXuats.Remove(chiTietPhieuXuat);
                 await _context.SaveChangesAsync();
             }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!ChiTietPhieuXuatExists(chitietphieuxuat.MaChiTietXuat))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-            return RedirectToAction(nameof(Index));
-        }
-        return View(chitietphieuxuat);
-    }
 
-    // GET: CHITIETPHIEUXUATS/Delete/5
-    public async Task<IActionResult> Delete(int? machitietxuat)
-    {
-        if (machitietxuat == null)
+            return RedirectToAction(nameof(Index), new { maPhieuXuat });
+        }
+
+        private bool ChiTietPhieuXuatExists(int id)
         {
-            return NotFound();
+            return _context.ChiTietPhieuXuats.Any(e => e.MaChiTietXuat == id);
         }
-
-        var chitietphieuxuat = await _context.ChiTietPhieuXuats
-            .FirstOrDefaultAsync(m => m.MaChiTietXuat == machitietxuat);
-        if (chitietphieuxuat == null)
-        {
-            return NotFound();
-        }
-
-        return View(chitietphieuxuat);
-    }
-
-    // POST: CHITIETPHIEUXUATS/Delete/5
-    [HttpPost, ActionName("Delete")]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> DeleteConfirmed(int? machitietxuat)
-    {
-        var chitietphieuxuat = await _context.ChiTietPhieuXuats.FindAsync(machitietxuat);
-        if (chitietphieuxuat != null)
-        {
-            _context.ChiTietPhieuXuats.Remove(chitietphieuxuat);
-        }
-
-        await _context.SaveChangesAsync();
-        return RedirectToAction(nameof(Index));
-    }
-
-    private bool ChiTietPhieuXuatExists(int? machitietxuat)
-    {
-        return _context.ChiTietPhieuXuats.Any(e => e.MaChiTietXuat == machitietxuat);
     }
 }

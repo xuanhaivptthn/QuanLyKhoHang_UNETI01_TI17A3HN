@@ -8,24 +8,8 @@
 
 <h3>Are you sure you want to delete this?</h3>
 <div>
-    <h4>QuanLyKhoHang_UNETI01_TI17A3HN.Models.ChiTietPhieuNhap</h4>
+    <h4>ChiTietPhieuNhap</h4>
     <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.MaPhieuNhap)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.MaPhieuNhap)
-        </dd>
-    </dl>
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.MaHang)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.MaHang)
-        </dd>
-    </dl>
     <dl class="row">
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.SoLuongNhap)
@@ -33,39 +17,26 @@
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.SoLuongNhap)
         </dd>
-    </dl>
-    <dl class="row">
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.DonGiaNhap)
         </dt>
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.DonGiaNhap)
         </dd>
-    </dl>
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ThanhTien)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ThanhTien)
-        </dd>
-    </dl>
-    <dl class="row">
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.PhieuNhap)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.PhieuNhap)
+            @Html.DisplayFor(model => model.PhieuNhap.MaPhieuNhap)
         </dd>
-    </dl>
-    <dl class="row">
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.HangHoa)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.HangHoa)
+            @Html.DisplayFor(model => model.HangHoa.TenHang)
         </dd>
     </dl>
+    
     <form asp-action="Delete">
         <input type="hidden" asp-for="MaChiTietNhap" />
         <input type="submit" value="Delete" class="btn btn-danger" /> |

@@ -12,37 +12,31 @@
     <div class="col-md-4">
         <form asp-action="Create">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-
             <div class="form-group">
                 <label asp-for="TenBoPhan" class="control-label"></label>
                 <input asp-for="TenBoPhan" class="form-control" />
                 <span asp-validation-for="TenBoPhan" class="text-danger"></span>
             </div>
-
             <div class="form-group">
                 <label asp-for="NguoiDaiDien" class="control-label"></label>
                 <input asp-for="NguoiDaiDien" class="form-control" />
                 <span asp-validation-for="NguoiDaiDien" class="text-danger"></span>
             </div>
-
             <div class="form-group">
                 <label asp-for="SoDienThoai" class="control-label"></label>
                 <input asp-for="SoDienThoai" class="form-control" />
                 <span asp-validation-for="SoDienThoai" class="text-danger"></span>
             </div>
-
             <div class="form-group">
                 <label asp-for="MoTa" class="control-label"></label>
                 <input asp-for="MoTa" class="form-control" />
                 <span asp-validation-for="MoTa" class="text-danger"></span>
             </div>
-
-            <div class="form-group">
-                <label asp-for="TrangThai" class="control-label"></label>
-                <input asp-for="TrangThai" class="form-check-input" />
-                <span asp-validation-for="TrangThai" class="text-danger"></span>
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="TrangThai" /> @Html.DisplayNameFor(model => model.TrangThai)
+                </label>
             </div>
-
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />
             </div>
@@ -53,3 +47,7 @@
 <div>
     <a asp-action="Index">Back to List</a>
 </div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

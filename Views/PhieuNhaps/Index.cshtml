@@ -12,64 +12,48 @@
 <table class="table">
     <thead>
         <tr>
-            <th>Mã phiếu nhập</th>
             <th>
-                Mã nhà cung cấp
+                @Html.DisplayNameFor(model => model.NgayNhap)
             </th>
             <th>
-                Mã kho
+                @Html.DisplayNameFor(model => model.NguoiLap)
             </th>
             <th>
-                Ngày nhập
+                @Html.DisplayNameFor(model => model.TrangThai)
             </th>
             <th>
-                Người nhập
+                @Html.DisplayNameFor(model => model.GhiChu)
             </th>
             <th>
-                Trạng thái
+                @Html.DisplayNameFor(model => model.NhaCungCap)
             </th>
             <th>
-               Ghi chú
+                @Html.DisplayNameFor(model => model.Kho)
             </th>
-            <th>
-                Nhà cung cấp
-            </th>
-            <th>
-                Số lượng
-            </th>
+            <th></th>
         </tr>
     </thead>
     <tbody>
 @foreach (var item in Model) {
         <tr>
             <td>
-                @Html.DisplayFor(model => item.MaPhieuNhap)
+                @Html.DisplayFor(modelItem => item.NgayNhap)
             </td>
             <td>
-                @Html.DisplayFor(model => item.MaNhaCungCap)
+                @Html.DisplayFor(modelItem => item.NguoiLap)
             </td>
             <td>
-                @Html.DisplayFor(model => item.MaKho)
+                @Html.DisplayFor(modelItem => item.TrangThai)
             </td>
             <td>
-                @Html.DisplayFor(model => item.NgayNhap)
+                @Html.DisplayFor(modelItem => item.GhiChu)
             </td>
             <td>
-                @Html.DisplayFor(model => item.NguoiLap)
+                @Html.DisplayFor(modelItem => item.NhaCungCap.TenNhaCungCap)
             </td>
             <td>
-                @Html.DisplayFor(model => item.TrangThai)
+                @Html.DisplayFor(modelItem => item.Kho.TenKho)
             </td>
-            <td>
-                @Html.DisplayFor(model => item.GhiChu)
-            </td>
-            <td>
-                @Html.DisplayFor(model => item.NhaCungCap)
-            </td>
-             @foreach (var ct in item.ChiTietPhieuNhaps)
-            {
-                <td>@ct.SoLuongNhap</td>
-                }
             <td>
                 <a asp-action="Edit" asp-route-id="@item.MaPhieuNhap">Edit</a> |
                 <a asp-action="Details" asp-route-id="@item.MaPhieuNhap">Details</a> |

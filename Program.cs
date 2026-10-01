@@ -105,9 +105,59 @@ app.UseAuthorization();
 app.MapStaticAssets();
 
 app.MapControllerRoute(
+    name: "kho_alias",
+    pattern: "Kho/{action=Index}/{id?}",
+    defaults: new { controller = "Khoes" });
+
+app.MapControllerRoute(
+    name: "hanghoa_alias",
+    pattern: "HangHoa/{action=Index}/{id?}",
+    defaults: new { controller = "HangHoas" });
+
+app.MapControllerRoute(
     name: "bophannhan_alias",
     pattern: "BoPhanNhan/{action=Index}/{id?}",
     defaults: new { controller = "BoPhanNhans" });
+
+app.MapControllerRoute(
+    name: "nhacungcap_alias",
+    pattern: "NhaCungCap/{action=Index}/{id?}",
+    defaults: new { controller = "NhaCungCaps" });
+
+app.MapControllerRoute(
+    name: "phieunhap_alias",
+    pattern: "PhieuNhap/{action=Index}/{id?}",
+    defaults: new { controller = "PhieuNhaps" });
+
+app.MapControllerRoute(
+    name: "phieuxuat_alias",
+    pattern: "PhieuXuat/{action=Index}/{id?}",
+    defaults: new { controller = "PhieuXuats" });
+
+app.MapControllerRoute(
+    name: "chitietphieunhap_alias",
+    pattern: "ChiTietPhieuNhap/{action=Index}/{id?}",
+    defaults: new { controller = "ChiTietPhieuNhaps" });
+
+app.MapControllerRoute(
+    name: "chitietphieuxuat_alias",
+    pattern: "ChiTietPhieuXuat/{action=Index}/{id?}",
+    defaults: new { controller = "ChiTietPhieuXuats" });
+
+app.MapControllerRoute(
+    name: "loaihang_alias",
+    pattern: "LoaiHang/{action=Index}/{id?}",
+    defaults: new { controller = "LoaiHangs" });
+
+app.MapControllerRoute(
+    name: "donvitinh_alias",
+    pattern: "DonViTinh/{action=Index}/{id?}",
+    defaults: new { controller = "DonViTinhs" });
+
+app.MapControllerRoute(
+    name: "taikhoan_alias",
+    pattern: "TaiKhoan/{action=DangNhap}/{id?}",
+    defaults: new { controller = "TaiKhoans" });
 
 app.MapControllerRoute(
     name: "default",

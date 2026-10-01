@@ -1,202 +1,227 @@
-
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using QuanLyKhoHang_UNETI01_TI17A3HN.Models;
 using QuanLyKhoHang_UNETI01_TI17A3HN.Data;
+using QuanLyKhoHang_UNETI01_TI17A3HN.Models;
 
+// Họ và tên: Lê Văn Hùng
+// Mã sinh viên: 23103100177
 
-public class NhaCungCapsController : Controller
+namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
 {
-    private readonly AppDbContext _context;
-
-    public NhaCungCapsController(AppDbContext context)
+    public class NhaCungCapsController : Controller
     {
-        _context = context;
-    }
+        private readonly AppDbContext _context;
 
-    // GET: NHACUNGCAPS
-    public async Task<IActionResult> Index(string searchString, bool? trangThai)    
-    {
-        var query = _context.NhaCungCap.AsQueryable();
-
-        if (!string.IsNullOrWhiteSpace(searchString))
+        public NhaCungCapsController(AppDbContext context)
         {
-            query = query.Where(n =>
-                n.TenNhaCungCap.Contains(searchString) ||
-                n.MaNhaCungCap.ToString().Contains(searchString) ||
-                (n.SoDienThoai != null && n.SoDienThoai.Contains(searchString)) ||
-                (n.Email != null && n.Email.Contains(searchString)));
+            _context = context;
         }
 
-        if (trangThai.HasValue)
+        // GET: NhaCungCaps
+        public async Task<IActionResult> Index(string? searchString, bool? trangThai)
         {
-            query = query.Where(n => n.TrangThai == trangThai.Value);
-        }
+            var query = _context.NhaCungCap.AsQueryable();
 
-        ViewBag.SearchString = searchString;
-        ViewBag.TrangThai = trangThai;
-
-        return View(await query.ToListAsync());
-    }
-
-    // GET: NHACUNGCAPS/Details/5
-    public async Task<IActionResult> Details(int? manhacungcap)
-    {
-        if (manhacungcap == null)
-        {
-            return NotFound();
-        }
-
-        var nhacungcap = await _context.NhaCungCap
-            .Include(n=>n.PhieuNhaps)
-            .FirstOrDefaultAsync(m => m.MaNhaCungCap == manhacungcap);
-        if (nhacungcap == null)
-        {
-            return NotFound();
-        }
-
-        return View(nhacungcap);
-    }
-
-    // GET: NHACUNGCAPS/Create
-    public IActionResult Create()
-    {
-        return View();
-    }
-
-    // POST: NHACUNGCAPS/Create
-    // To protect from overposting attacks, enable the specific properties you want to bind to.
-    // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create([Bind("MaNhaCungCap,TenNhaCungCap,SoDienThoai,Email,DiaChi,TrangThai")] NhaCungCap nhacungcap)
-    {
-        if(!string.IsNullOrEmpty(nhacungcap.Email)&& await _context.NhaCungCap.AnyAsync(n => n.Email == nhacungcap.Email))
-        {
-            ModelState.AddModelError("Email", "Email này đã tồn tại trong hệ thống!");
-        }
-        if(!string.IsNullOrEmpty(nhacungcap.SoDienThoai)&&await _context.NhaCungCap.AnyAsync(n => n.SoDienThoai == nhacungcap.SoDienThoai))
-        {
-            ModelState.AddModelError("SoDienThoai", "Số điện thoại này đã tồn tại trong hệ thống!");
-        }
-        if (ModelState.IsValid)
-        {
-            _context.Add(nhacungcap);
-            await _context.SaveChangesAsync();
-            TempData["Success"] = "Thêm mới nhà cung cấp thành công!";
-            return RedirectToAction(nameof(Index));
-        }
-        TempData["Error"] = "Vui lòng kiểm tra lại thông tin nhập!";
-        return View(nhacungcap);
-    }
-
-    // GET: NHACUNGCAPS/Edit/5
-    public async Task<IActionResult> Edit(int? manhacungcap)
-    {
-        if (manhacungcap == null)
-        {
-            return NotFound();
-        }
-
-        var nhacungcap = await _context.NhaCungCap.FindAsync(manhacungcap);
-        if (nhacungcap == null)
-        {
-            return NotFound();
-        }
-        return View(nhacungcap);
-    }
-
-    // POST: NHACUNGCAPS/Edit/5
-    // To protect from overposting attacks, enable the specific properties you want to bind to.
-    // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int? manhacungcap, [Bind("MaNhaCungCap,TenNhaCungCap,SoDienThoai,Email,DiaChi,TrangThai")] NhaCungCap nhacungcap)
-    {
-        if (manhacungcap != nhacungcap.MaNhaCungCap)
-        {
-            return NotFound();
-        }
-
-        if (ModelState.IsValid)
-        {
-            try
+            if (!string.IsNullOrWhiteSpace(searchString))
             {
-                _context.Update(nhacungcap);
+                query = query.Where(n =>
+                    n.TenNhaCungCap.Contains(searchString) ||
+                    n.MaNhaCungCap.ToString().Contains(searchString) ||
+                    (n.SoDienThoai != null && n.SoDienThoai.Contains(searchString)) ||
+                    (n.Email != null && n.Email.Contains(searchString)));
+            }
+
+            if (trangThai.HasValue)
+            {
+                query = query.Where(n => n.TrangThai == trangThai.Value);
+            }
+
+            ViewBag.SearchString = searchString;
+            ViewBag.TrangThai = trangThai;
+
+            return View(await query.ToListAsync());
+        }
+
+        // GET: NhaCungCaps/Details/5
+        public async Task<IActionResult> Details(int? id, int? manhacungcap)
+        {
+            var targetId = id ?? manhacungcap;
+            if (targetId == null)
+            {
+                return NotFound();
+            }
+
+            var nhaCungCap = await _context.NhaCungCap
+                .Include(n => n.PhieuNhaps)
+                .FirstOrDefaultAsync(m => m.MaNhaCungCap == targetId);
+
+            if (nhaCungCap == null)
+            {
+                return NotFound();
+            }
+
+            return View(nhaCungCap);
+        }
+
+        // GET: NhaCungCaps/Create
+        public IActionResult Create()
+        {
+            return View();
+        }
+
+        // POST: NhaCungCaps/Create
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create([Bind("MaNhaCungCap,TenNhaCungCap,SoDienThoai,Email,DiaChi,TrangThai")] NhaCungCap nhaCungCap)
+        {
+            if (!string.IsNullOrEmpty(nhaCungCap.Email) && await _context.NhaCungCap.AnyAsync(n => n.Email == nhaCungCap.Email))
+            {
+                ModelState.AddModelError("Email", "Email này đã tồn tại trong hệ thống!");
+            }
+
+            if (!string.IsNullOrEmpty(nhaCungCap.SoDienThoai) && await _context.NhaCungCap.AnyAsync(n => n.SoDienThoai == nhaCungCap.SoDienThoai))
+            {
+                ModelState.AddModelError("SoDienThoai", "Số điện thoại này đã tồn tại trong hệ thống!");
+            }
+
+            if (ModelState.IsValid)
+            {
+                _context.Add(nhaCungCap);
                 await _context.SaveChangesAsync();
+                TempData["Success"] = "Thêm mới nhà cung cấp thành công!";
+                return RedirectToAction(nameof(Index));
             }
-            catch (DbUpdateConcurrencyException)
+
+            TempData["Error"] = "Vui lòng kiểm tra lại thông tin nhập!";
+            return View(nhaCungCap);
+        }
+
+        // GET: NhaCungCaps/Edit/5
+        public async Task<IActionResult> Edit(int? id, int? manhacungcap)
+        {
+            var targetId = id ?? manhacungcap;
+            if (targetId == null)
             {
-                if (!NhaCungCapExists(nhacungcap.MaNhaCungCap))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                return NotFound();
             }
+
+            var nhaCungCap = await _context.NhaCungCap.FindAsync(targetId);
+            if (nhaCungCap == null)
+            {
+                return NotFound();
+            }
+            return View(nhaCungCap);
+        }
+
+        // POST: NhaCungCaps/Edit/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int? id, int? manhacungcap, [Bind("MaNhaCungCap,TenNhaCungCap,SoDienThoai,Email,DiaChi,TrangThai")] NhaCungCap nhaCungCap)
+        {
+            var targetId = id ?? manhacungcap ?? nhaCungCap.MaNhaCungCap;
+            if (targetId != nhaCungCap.MaNhaCungCap)
+            {
+                return NotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    _context.Update(nhaCungCap);
+                    await _context.SaveChangesAsync();
+                    TempData["Success"] = "Cập nhật nhà cung cấp thành công!";
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!NhaCungCapExists(nhaCungCap.MaNhaCungCap))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                return RedirectToAction(nameof(Index));
+            }
+            return View(nhaCungCap);
+        }
+
+        // POST: NhaCungCaps/DoiTrangThai/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DoiTrangThai(int id)
+        {
+            var nhaCungCap = await _context.NhaCungCap.FindAsync(id);
+
+            if (nhaCungCap == null)
+            {
+                return NotFound();
+            }
+
+            nhaCungCap.TrangThai = !nhaCungCap.TrangThai;
+
+            await _context.SaveChangesAsync();
+            TempData["Success"] = "Đã thay đổi trạng thái nhà cung cấp.";
+
             return RedirectToAction(nameof(Index));
         }
-        return View(nhacungcap);
-    }
 
-    // POST: NhaCungCaps/DoiTrangThai/5
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> DoiTrangThai(int id)
-    {
-        var nhaCungCap = await _context.NhaCungCap.FindAsync(id);
-
-        if (nhaCungCap == null)
+        // GET: NhaCungCaps/Delete/5
+        public async Task<IActionResult> Delete(int? id, int? manhacungcap)
         {
-            return NotFound();
+            var targetId = id ?? manhacungcap;
+            if (targetId == null)
+            {
+                return NotFound();
+            }
+
+            var nhaCungCap = await _context.NhaCungCap
+                .FirstOrDefaultAsync(m => m.MaNhaCungCap == targetId);
+            if (nhaCungCap == null)
+            {
+                return NotFound();
+            }
+
+            return View(nhaCungCap);
         }
 
-        // Đảo trạng thái
-        nhaCungCap.TrangThai = !nhaCungCap.TrangThai;
-
-        await _context.SaveChangesAsync();
-        TempData["Success"] = "Đã thay đổi trạng thái nhà cung cấp.";
-
-        return RedirectToAction(nameof(Index));
-    }
-
-    // GET: NHACUNGCAPS/Delete/5
-    public async Task<IActionResult> Delete(int? manhacungcap)
-    {
-        if (manhacungcap == null)
+        // POST: NhaCungCaps/Delete/5
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int? id, int? manhacungcap)
         {
-            return NotFound();
+            var targetId = id ?? manhacungcap;
+            if (targetId == null && Request.HasFormContentType && int.TryParse(Request.Form["MaNhaCungCap"], out int formId))
+            {
+                targetId = formId;
+            }
+
+            if (targetId == null)
+            {
+                return NotFound();
+            }
+
+            var nhaCungCap = await _context.NhaCungCap.FindAsync(targetId);
+            if (nhaCungCap != null)
+            {
+                _context.NhaCungCap.Remove(nhaCungCap);
+                await _context.SaveChangesAsync();
+                TempData["Success"] = "Xóa nhà cung cấp thành công!";
+            }
+
+            return RedirectToAction(nameof(Index));
         }
 
-        var nhacungcap = await _context.NhaCungCap
-            .FirstOrDefaultAsync(m => m.MaNhaCungCap == manhacungcap);
-        if (nhacungcap == null)
+        private bool NhaCungCapExists(int id)
         {
-            return NotFound();
+            return _context.NhaCungCap.Any(e => e.MaNhaCungCap == id);
         }
-
-        return View(nhacungcap);
-    }
-
-    // POST: NHACUNGCAPS/Delete/5
-    [HttpPost, ActionName("Delete")]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> DeleteConfirmed(int? manhacungcap)
-    {
-        var nhacungcap = await _context.NhaCungCap.FindAsync(manhacungcap);
-        if (nhacungcap != null)
-        {
-            _context.NhaCungCap.Remove(nhacungcap);
-        }
-
-        await _context.SaveChangesAsync();
-        return RedirectToAction(nameof(Index));
-    }
-
-    private bool NhaCungCapExists(int? manhacungcap)
-    {
-        return _context.NhaCungCap.Any(e => e.MaNhaCungCap == manhacungcap);
     }
 }

@@ -21,6 +21,12 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
             _context = context;
         }
 
+        // GET: /ThongKe
+        public IActionResult Index()
+        {
+            return RedirectToAction(nameof(Dashboard));
+        }
+
         // Yêu cầu 9.5 & 9.6: Dashboard và Thống kê tổng quan (Sử dụng LINQ)
         public async Task<IActionResult> Dashboard()
         {

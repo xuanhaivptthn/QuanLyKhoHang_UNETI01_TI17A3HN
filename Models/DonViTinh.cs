@@ -5,6 +5,7 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Models
 {
     // Họ và tên: Trần Xuân Hải
     // Mã sinh viên: 23103100135
+    // Phụ trách Module 1: Tài khoản, Đăng nhập, Phân quyền, Loại hàng & Đơn vị tính
     // Tạo model DonViTinh
     [Table("DonViTinh")]
     public class DonViTinh
