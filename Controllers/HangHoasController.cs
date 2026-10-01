@@ -42,13 +42,15 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
                 .Include(h => h.DonViTinh)
                 .AsQueryable();
 
-            // 1. TÌM KIẾM THEO MÃ HÀNG / TÊN HÀNG
+            // 1. TÌM KIẾM THEO MÃ HÀNG / TÊN HÀNG / TÊN LOẠI HÀNG / TÊN KHO
             if (!string.IsNullOrWhiteSpace(searchString))
             {
                 searchString = searchString.Trim();
                 query = query.Where(h =>
                     h.TenHang.Contains(searchString) ||
-                    h.MaHang.ToString().Contains(searchString));
+                    h.MaHang.ToString().Contains(searchString) ||
+                    (h.LoaiHang != null && h.LoaiHang.TenLoaiHang.Contains(searchString)) ||
+                    h.DanhSachTonKho!.Any(t => t.Kho != null && t.Kho.TenKho.Contains(searchString)));
             }
 
             // 2. LỌC THEO LOẠI HÀNG
