@@ -1,12 +1,14 @@
-name: Discord Push Notification
+name: Discord Push Notification & Build Check
 
 on:
   push:
     branches:
       - '**'
+  workflow_dispatch:
 
 jobs:
   notify:
+    name: Notify Commits
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -23,3 +25,49 @@ jobs:
           REPO: ${{ github.repository }}
           COMPARE_URL: ${{ github.event.compare }}
         run: node .github/workflows/discord-notify.js
+
+  build:
+    name: Test Build Status
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build project
+        id: build_step
+        run: dotnet build --no-restore --configuration Release
+
+      - name: Report Build Status to Discord
+        if: always()
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          BUILD_STATUS: ${{ steps.build_step.outcome }}
+          AUTHOR: ${{ github.actor }}
+          BRANCH: ${{ github.ref_name }}
+          REPO: ${{ github.repository }}
+          SHA: ${{ github.sha }}
+          COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
+          HEAD_COMMIT_JSON: ${{ toJson(github.event.head_commit) }}
+          RUN_ID: ${{ github.run_id }}
+          SERVER_URL: ${{ github.server_url }}
+        run: node .github/workflows/discord-build-notify.js
+
+      - name: Fail workflow if build failed
+        if: steps.build_step.outcome != 'success'
+        run: exit 1
