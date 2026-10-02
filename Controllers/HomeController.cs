@@ -1,20 +1,36 @@
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using QuanLyKhoHang_UNETI01_TI17A3HN.Data;
 using QuanLyKhoHang_UNETI01_TI17A3HN.Models;
 
 namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
 {
     public class HomeController : Controller
     {
-        public IActionResult Index()
+        private readonly AppDbContext _context;
+
+        public HomeController(AppDbContext context)
         {
-            return View();
+            _context = context;
         }
 
-        public IActionResult Privacy()
+        [AllowAnonymous]
+        public async Task<IActionResult> Index()
         {
-            return View();
+            List<TaiKhoan> taiKhoans = new();
+            try
+            {
+                taiKhoans = await _context.TaiKhoans.AsNoTracking().ToListAsync();
+            }
+            catch
+            {
+                // Tránh lỗi trang chủ nếu có gián đoạn CSDL
+            }
+            return View(taiKhoans);
         }
 
         [AllowAnonymous]

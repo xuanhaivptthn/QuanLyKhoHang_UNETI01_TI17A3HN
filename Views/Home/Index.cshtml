@@ -1,30 +1,76 @@
-﻿@inject QuanLyKhoHang_UNETI01_TI17A3HN.Models.DatabaseInfo DbInfo
+@model IEnumerable<QuanLyKhoHang_UNETI01_TI17A3HN.Models.TaiKhoan>
+@inject QuanLyKhoHang_UNETI01_TI17A3HN.Models.DatabaseInfo DbInfo
 @{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Trang chủ";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Quản lý kho hàng</h1>
+<div class="text-center my-3">
+    <h1 class="display-4 fw-bold">Quản lý kho hàng</h1>
 </div>
+
 @if (DbInfo != null)
 {
     if (DbInfo.IsRemote)
     {
-        <h2>Đang sử dụng server CSDL chung</h2>
-        <table class="table">
-            <thead>
-                <tr>
-                    <th scope="col">Tên đăng nhập</th>
-                    <th scope="col">Mật khẩu</th>
-                    <th scope="col">Họ tên</th>
-                    <th scope="col">Vai trò</th>
-                    <th scope="col">Trạng thái</th>
-                </tr>
-            </thead>
-        </table>
+        <h2 class="text-success h4 mb-3">Đang sử dụng server CSDL chung</h2>
     }
     else
     {
-        <h2>Đang sử dụng CSDL local. Restart app để kết nối lại</h2>
+        <h2 class="text-warning h4 mb-3">Đang sử dụng CSDL local. Restart app để kết nối lại</h2>
     }
 }
+
+<table class="table table-hover table-striped mb-0 align-middle">
+    <thead class="">
+        <tr class="table-dark">
+            <th scope="col">Tên đăng nhập</th>
+            <th scope="col">Mật khẩu</th>
+            <th scope="col">Họ tên</th>
+            <th scope="col">Vai trò</th>
+            <th scope="col">Trạng thái</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model != null && Model.Any())
+        {
+            foreach (var item in Model)
+            {
+                <tr>
+                    <td><strong>@item.TenDangNhap</strong></td>
+                    <td><code>@item.MatKhau</code></td>
+                    <td>@item.HoTen</td>
+                    <td>
+                        @if (item.VaiTro == "Admin")
+                        {
+                            <span class="badge bg-danger">Admin</span>
+                        }
+                        else if (item.VaiTro == "NhanVienKho")
+                        {
+                            <span class="badge bg-primary">Nhân viên kho</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">@item.VaiTro</span>
+                        }
+                    </td>
+                    <td>
+                        @if (item.TrangThai)
+                        {
+                            <span class="badge bg-success">Hoạt động</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-danger">Bị khóa</span>
+                        }
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="5" class="text-center text-muted py-3">Không có tài khoản nào trong CSDL.</td>
+            </tr>
+        }
+    </tbody>
+</table>
