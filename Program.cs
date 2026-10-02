@@ -1,85 +1,61 @@
 using Microsoft.EntityFrameworkCore;
 using QuanLyKhoHang_UNETI01_TI17A3HN.Data;
+using QuanLyKhoHang_UNETI01_TI17A3HN.Models;
+using QuanLyKhoHang_UNETI01_TI17A3HN.Services;
+
+// Họ và tên: Trần Xuân Hải
+// Mã sinh viên: 23103100135
+// Phụ trách Module 1: Tài khoản, Đăng nhập, Phân quyền, Loại hàng & Đơn vị tính
 
 var builder = WebApplication.CreateBuilder(args);
 
-var primaryConnection = builder.Configuration.GetConnectionString("RemoteDb");
+// CẤU HÌNH CƠ SỞ DỮ LIỆU & QUẢN LÝ KẾT NỐI ĐỘNG (FAILOVER & HEALTH CHECK)
+// Đăng ký thông tin CSDL (DatabaseInfo) dạng Singleton hiển thị trạng thái lên giao diện
+builder.Services.AddSingleton<DatabaseInfo>();
 
-var localDbConnection = builder.Configuration.GetConnectionString("LocalDb");
+// Đăng ký trình quản lý kết nối CSDL (DatabaseConnectionManager):
+// - Tự động phát hiện CSDL Remote (Azure SQL) hoặc Local (LocalDB)
+// - Bật TrustServerCertificate=True để tránh lỗi bắt tay SSL trên môi trường Linux
+builder.Services.AddSingleton<DatabaseConnectionManager>();
 
-string connectionString;
-if (!string.IsNullOrWhiteSpace(primaryConnection) && !string.IsNullOrWhiteSpace(localDbConnection))
+// Đăng ký các Interceptor bắt lỗi kết nối và câu lệnh EF Core để tự động chuyển CSDL tức thì
+builder.Services.AddSingleton<DatabaseFailoverConnectionInterceptor>();
+builder.Services.AddSingleton<DatabaseFailoverCommandInterceptor>();
+
+// Tiến trình chạy ngầm (BackgroundService) định kỳ thăm dò RemoteDb mỗi 15s để tự động kết nối lại
+builder.Services.AddHostedService<DatabaseHealthCheckService>();
+
+// Cấu hình AppDbContext: Lấy chuỗi kết nối động từ DatabaseConnectionManager tại mỗi request
+builder.Services.AddDbContext<AppDbContext>((serviceProvider, options) =>
 {
-    try
-    {
-        var testBuilder = new Microsoft.Data.SqlClient.SqlConnectionStringBuilder(primaryConnection);
-        if (testBuilder.ConnectTimeout < 60)
-        {
-            testBuilder.ConnectTimeout = 60;
-        }
-        using var testConn = new Microsoft.Data.SqlClient.SqlConnection(testBuilder.ConnectionString);
-        testConn.Open();
-        connectionString = testBuilder.ConnectionString;
-    }
-    catch (Exception ex)
-    {
-        Console.WriteLine($"[Warning] Failed to connect to RemoteDb ({ex.Message}). Falling back to LocalDb.");
-        connectionString = localDbConnection;
-    }
-}
-else
-{
-    // cuong moi sua o day
-    connectionString = string.IsNullOrWhiteSpace(primaryConnection) ? localDbConnection : primaryConnection;
+    var dbManager = serviceProvider.GetRequiredService<DatabaseConnectionManager>();
+    var connInterceptor = serviceProvider.GetRequiredService<DatabaseFailoverConnectionInterceptor>();
+    var cmdInterceptor = serviceProvider.GetRequiredService<DatabaseFailoverCommandInterceptor>();
 
-    if (string.IsNullOrWhiteSpace(connectionString))
-    {
-        throw new InvalidOperationException("Connection string 'RemoteDb' or 'LocalDb' not found.");
-    }
-}
-
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(connectionString)
-           .ConfigureWarnings(w => w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning)));
-
-string serverName = "";
-string databaseName = "";
-try
-{
-    var csb = new Microsoft.Data.SqlClient.SqlConnectionStringBuilder(connectionString);
-    serverName = csb.DataSource;
-    databaseName = csb.InitialCatalog;
-}
-catch { }
-
-bool isRemote = serverName.Contains("database.windows.net", StringComparison.OrdinalIgnoreCase)
-    || (connectionString == primaryConnection && !serverName.Contains("localdb", StringComparison.OrdinalIgnoreCase));
-
-builder.Services.AddSingleton(new QuanLyKhoHang_UNETI01_TI17A3HN.Models.DatabaseInfo
-{
-    IsRemote = isRemote,
-    ServerName = serverName,
-    DatabaseName = databaseName
+    options.UseSqlServer(dbManager.GetActiveConnectionString())
+           .AddInterceptors(connInterceptor, cmdInterceptor)
+           .ConfigureWarnings(w => w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning));
 });
 
-// Add services to the container.
-// https://learn.microsoft.com/en-us/aspnet/core/fundamentals/app-state?view=aspnetcore-10.0
+// CẤU HÌNH PHIÊN LÀM VIỆC (SESSION) & BỘ NHỚ ĐỆM (CACHE)
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
 {
-    options.IdleTimeout = TimeSpan.FromMinutes(30);
-    options.Cookie.HttpOnly = true;
-    options.Cookie.IsEssential = true;
+    options.IdleTimeout = TimeSpan.FromMinutes(30); // Phiên hết hạn sau 30 phút không hoạt động
+    options.Cookie.HttpOnly = true;                 // Ngăn chặn truy cập cookie qua JavaScript (chống XSS)
+    options.Cookie.IsEssential = true;             // Đảm bảo hoạt động theo chính sách Cookie
 });
+
+// CẤU HÌNH MVC CONTROLLERS & BẢO MẬT TOÀN CỤC (GLOBAL FILTER)
 builder.Services.AddControllersWithViews(options =>
-    {
-        options.Filters.Add(new QuanLyKhoHang_UNETI01_TI17A3HN.Filters.AuthorizeRoleAttribute());
-    });
+{
+    // Bắt buộc xác thực đăng nhập trên toàn bộ Web App qua AuthorizeRoleAttribute (bỏ qua nếu có [AllowAnonymous])
+    options.Filters.Add(new QuanLyKhoHang_UNETI01_TI17A3HN.Filters.AuthorizeRoleAttribute());
+});
 
 var app = builder.Build();
 
-// Dữ liệu mẫu đã được nạp hoàn tất trên Database.
-// Tắt tự động nạp lại dữ liệu mỗi lần chạy ứng dụng (chỉ chạy khi truyền tham số: dotnet run -- --seed)
+// NẠP DỮ LIỆU MẪU (SEED DATA - CHỈ CHẠY KHI TRUYỀN THAM SỐ --seed)
 if (args.Contains("--seed"))
 {
     using var scope = app.Services.CreateScope();
@@ -95,18 +71,22 @@ if (args.Contains("--seed"))
     }
 }
 
-// Configure the HTTP request pipeline.
+// CẤU HÌNH HTTP REQUEST PIPELINE & MIDDLEWARE
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
 }
 app.UseRouting();
 
+// Middleware UseSession phải nằm sau UseRouting và trước UseAuthorization
 app.UseSession();
 app.UseAuthorization();
 
 app.MapStaticAssets();
 
+// CẤU HÌNH CÁC ROUTE ĐIỀU HƯỚNG (ROUTING)
+
+// Định tuyến bí danh cho các Controller nghiệp vụ
 app.MapControllerRoute(
     name: "kho_alias",
     pattern: "Kho/{action=Index}/{id?}",
@@ -157,6 +137,7 @@ app.MapControllerRoute(
     pattern: "DonViTinh/{action=Index}/{id?}",
     defaults: new { controller = "DonViTinhs" });
 
+// Route trực tiếp cho đăng nhập và đăng xuất
 app.MapControllerRoute(
     name: "login",
     pattern: "login",
@@ -172,6 +153,7 @@ app.MapControllerRoute(
     pattern: "TaiKhoan/{action=DangNhap}/{id?}",
     defaults: new { controller = "TaiKhoans" });
 
+// Route mặc định
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}")

@@ -6,6 +6,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.AspNetCore.Mvc.Filters;
 
+// Họ và tên: Trần Xuân Hải
+// Mã sinh viên: 23103100135
+// Phụ trách Module 1: Tài khoản, Đăng nhập, Phân quyền, Loại hàng & Đơn vị tính
+
 namespace QuanLyKhoHang_UNETI01_TI17A3HN.Filters
 {
     public class AuthorizeRoleAttribute : ActionFilterAttribute
