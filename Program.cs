@@ -38,7 +38,7 @@ else
     }
 }
 
-builder.Services.AddDbContext<AppDbContext>(options => 
+builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(connectionString)
            .ConfigureWarnings(w => w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning)));
 
@@ -71,7 +71,10 @@ builder.Services.AddSession(options =>
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
 });
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews(options =>
+    {
+        options.Filters.Add(new QuanLyKhoHang_UNETI01_TI17A3HN.Filters.AuthorizeRoleAttribute());
+    });
 
 var app = builder.Build();
 
@@ -155,6 +158,16 @@ app.MapControllerRoute(
     defaults: new { controller = "DonViTinhs" });
 
 app.MapControllerRoute(
+    name: "login",
+    pattern: "login",
+    defaults: new { controller = "TaiKhoans", action = "DangNhap" });
+
+app.MapControllerRoute(
+    name: "logout",
+    pattern: "logout",
+    defaults: new { controller = "TaiKhoans", action = "DangXuat" });
+
+app.MapControllerRoute(
     name: "taikhoan_alias",
     pattern: "TaiKhoan/{action=DangNhap}/{id?}",
     defaults: new { controller = "TaiKhoans" });
@@ -163,6 +176,5 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}")
     .WithStaticAssets();
-
 
 app.Run();

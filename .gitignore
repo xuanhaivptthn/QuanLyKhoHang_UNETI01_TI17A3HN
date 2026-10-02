@@ -57,6 +57,7 @@ TestResult.xml
 nunit-*.xml
 
 .vs
+.vscode
 
 # User-specific developer files
 *.user
@@ -65,3 +66,4 @@ nunit-*.xml
 
 # Note folder - Xuan Hai
 Markdown/
+

@@ -2,11 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using QuanLyKhoHang_UNETI01_TI17A3HN.Data;
+using QuanLyKhoHang_UNETI01_TI17A3HN.Filters;
 using QuanLyKhoHang_UNETI01_TI17A3HN.Models;
 using QuanLyKhoHang_UNETI01_TI17A3HN.ViewModels;
 
@@ -16,6 +18,7 @@ using QuanLyKhoHang_UNETI01_TI17A3HN.ViewModels;
 
 namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
 {
+    [AuthorizeRole("Admin")]
     public class TaiKhoansController : Controller
     {
         private readonly AppDbContext _context;
@@ -28,24 +31,32 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
         #region Xác thực & Phiên làm việc (Authentication & Session)
 
         // GET: /TaiKhoans/DangNhap hoặc /TaiKhoan/DangNhap
+        [AllowAnonymous]
         [HttpGet]
-        public IActionResult DangNhap()
+        public IActionResult DangNhap(string? returnUrl = null)
         {
-            // Nếu đã đăng nhập thì điều hướng về trang chủ
+            // Nếu đã đăng nhập thì điều hướng về returnUrl hoặc trang chủ
             if (HttpContext.Session.GetInt32("MaTaiKhoan") != null)
             {
+                if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+                {
+                    return Redirect(returnUrl);
+                }
                 return RedirectToAction("Index", "Home");
             }
+            ViewBag.ReturnUrl = returnUrl;
             return View();
         }
 
         // POST: /TaiKhoans/DangNhap hoặc /TaiKhoan/DangNhap
+        [AllowAnonymous]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DangNhap(LoginViewModel model)
+        public async Task<IActionResult> DangNhap(LoginViewModel model, string? returnUrl = null)
         {
             if (!ModelState.IsValid)
             {
+                ViewBag.ReturnUrl = returnUrl;
                 return View(model);
             }
 
@@ -58,6 +69,7 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
             if (taiKhoan == null)
             {
                 ModelState.AddModelError(string.Empty, "Tên đăng nhập hoặc mật khẩu không chính xác, hoặc tài khoản đã bị khóa.");
+                ViewBag.ReturnUrl = returnUrl;
                 return View(model);
             }
 
@@ -67,10 +79,16 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
             HttpContext.Session.SetString("VaiTro", taiKhoan.VaiTro);
             HttpContext.Session.SetString("TenDangNhap", taiKhoan.TenDangNhap);
 
+            if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+            {
+                return Redirect(returnUrl);
+            }
+
             return RedirectToAction("Index", "Home");
         }
 
         // GET: /TaiKhoans/DangXuat hoặc /TaiKhoan/DangXuat
+        [AllowAnonymous]
         [HttpGet]
         public IActionResult DangXuat()
         {

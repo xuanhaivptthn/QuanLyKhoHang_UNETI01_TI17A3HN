@@ -1,8 +1,30 @@
-﻿@{
+﻿@inject QuanLyKhoHang_UNETI01_TI17A3HN.Models.DatabaseInfo DbInfo
+@{
     ViewData["Title"] = "Home Page";
 }
 
 <div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+    <h1 class="display-4">Quản lý kho hàng</h1>
 </div>
+@if (DbInfo != null)
+{
+    if (DbInfo.IsRemote)
+    {
+        <h2>Đang sử dụng server CSDL chung</h2>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">Tên đăng nhập</th>
+                    <th scope="col">Mật khẩu</th>
+                    <th scope="col">Họ tên</th>
+                    <th scope="col">Vai trò</th>
+                    <th scope="col">Trạng thái</th>
+                </tr>
+            </thead>
+        </table>
+    }
+    else
+    {
+        <h2>Đang sử dụng CSDL local. Restart app để kết nối lại</h2>
+    }
+}

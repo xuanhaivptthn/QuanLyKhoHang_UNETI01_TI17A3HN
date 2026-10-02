@@ -1,6 +1,7 @@
+using System.Diagnostics;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using QuanLyKhoHang_UNETI01_TI17A3HN.Models;
-using System.Diagnostics;
 
 namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
 {
@@ -16,6 +17,13 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
             return View();
         }
 
+        [AllowAnonymous]
+        public IActionResult AccessDenied()
+        {
+            return View();
+        }
+
+        [AllowAnonymous]
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
