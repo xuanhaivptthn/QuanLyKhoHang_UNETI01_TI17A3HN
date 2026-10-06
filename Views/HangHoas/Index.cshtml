@@ -98,3 +98,42 @@
 }
     </tbody>
 </table>
+
+@{
+    int currentPage = ViewBag.CurrentPage ?? 1;
+    int totalPages = ViewBag.TotalPages ?? 0;
+
+    // Giữ nguyên điều kiện tìm kiếm, lọc, sắp xếp khi chuyển trang
+    Func<int, Dictionary<string, string?>> routeFor = p => new Dictionary<string, string?>
+    {
+        ["searchString"] = ViewBag.SearchString,
+        ["maLoaiHang"] = ViewBag.MaLoaiHang?.ToString(),
+        ["maDonViTinh"] = ViewBag.MaDonViTinh?.ToString(),
+        ["trangThai"] = ViewBag.TrangThai?.ToString().ToLower(),
+        ["giaTu"] = ViewBag.GiaTu?.ToString(),
+        ["giaDen"] = ViewBag.GiaDen?.ToString(),
+        ["sortOrder"] = ViewBag.SortOrder,
+        ["page"] = p.ToString()
+    };
+}
+
+@if (totalPages > 1)
+{
+    <nav>
+        <ul class="pagination">
+            <li class="page-item @(currentPage <= 1 ? "disabled" : "")">
+                <a class="page-link" asp-action="Index" asp-all-route-data="routeFor(currentPage - 1)">Trước</a>
+            </li>
+            @for (int i = 1; i <= totalPages; i++)
+            {
+                <li class="page-item @(i == currentPage ? "active" : "")">
+                    <a class="page-link" asp-action="Index" asp-all-route-data="routeFor(i)">@i</a>
+                </li>
+            }
+            <li class="page-item @(currentPage >= totalPages ? "disabled" : "")">
+                <a class="page-link" asp-action="Index" asp-all-route-data="routeFor(currentPage + 1)">Sau</a>
+            </li>
+        </ul>
+    </nav>
+    <p class="text-muted">Trang @currentPage / @totalPages (tổng @ViewBag.TotalItems hàng hóa)</p>
+}

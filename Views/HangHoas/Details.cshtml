@@ -54,6 +54,46 @@
         </dd>
     </dl>
 </div>
+@{
+    var tonKhos = (Model?.DanhSachTonKho ?? new List<QuanLyKhoHang_UNETI01_TI17A3HN.Models.TonKho>())
+        .OrderBy(t => t.Kho?.TenKho)
+        .ToList();
+}
+<div class="mt-4">
+    <h5>Số lượng tồn theo kho</h5>
+    <table class="table table-sm">
+        <thead>
+            <tr>
+                <th>Kho</th>
+                <th>Số lượng tồn</th>
+                <th>Ngày cập nhật</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var t in tonKhos)
+            {
+                <tr>
+                    <td>@t.Kho?.TenKho</td>
+                    <td>@t.SoLuongTon</td>
+                    <td>@t.NgayCapNhat.ToString("dd/MM/yyyy HH:mm")</td>
+                </tr>
+            }
+            @if (!tonKhos.Any())
+            {
+                <tr><td colspan="3" class="text-muted">Chưa có tồn tại kho nào.</td></tr>
+            }
+        </tbody>
+        @if (tonKhos.Any())
+        {
+            <tfoot>
+                <tr>
+                    <th>Tổng</th>
+                    <th colspan="2">@tonKhos.Sum(t => t.SoLuongTon)</th>
+                </tr>
+            </tfoot>
+        }
+    </table>
+</div>
 <div>
     <a asp-action="Edit" asp-route-id="@Model?.MaHang">Edit</a> |
     <a asp-action="Index">Back to List</a>

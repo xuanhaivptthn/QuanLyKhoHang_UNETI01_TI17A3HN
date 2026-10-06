@@ -147,6 +147,8 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
             var hangHoa = await _context.HangHoa
                 .Include(h => h.LoaiHang)
                 .Include(h => h.DonViTinh)
+                .Include(h => h.DanhSachTonKho!)
+                    .ThenInclude(t => t.Kho)
                 .FirstOrDefaultAsync(m => m.MaHang == targetId);
 
             if (hangHoa == null)
