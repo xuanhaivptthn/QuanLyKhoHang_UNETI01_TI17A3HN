@@ -13,7 +13,7 @@
 <form asp-action="Index" method="get" class="card p-3 mb-3 bg-light">
     <div class="row g-2">
         <div class="col-md-3">
-            <input type="text" name="searchString" value="@ViewBag.SearchString" class="form-control" placeholder="Mã hoặc tên hàng..." />
+            <input type="text" name="searchString" value="@ViewBag.SearchString" class="form-control" placeholder="Mã, tên hàng, loại hàng hoặc tên kho..." />
         </div>
         <div class="col-md-2">
             <select name="maLoaiHang" class="form-select" asp-items="ViewBag.LoaiHangs">
@@ -26,13 +26,44 @@
             </select>
         </div>
         <div class="col-md-2">
-            <select name="trangThai" class="form-select">
-                <option value="">-- Trạng thái --</option>
-                <option value="true" selected="@(ViewBag.TrangThai == true)">Hoạt động</option>
-                <option value="false" selected="@(ViewBag.TrangThai == false)">Ngừng HĐ</option>
+            <select name="maKho" class="form-select" asp-items="ViewBag.Khos">
+                <option value="">-- Kho --</option>
             </select>
         </div>
-        <div class="col-md-3 d-flex gap-2">
+        <div class="col-md-3">
+            <select name="trangThai" class="form-select">
+                <option value="">-- Trạng thái hàng --</option>
+                <option value="true" selected="@(ViewBag.TrangThai == true)">Hoạt động</option>
+                <option value="false" selected="@(ViewBag.TrangThai == false)">Ngừng hoạt động</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <input type="number" name="giaTu" min="0" step="any" value="@ViewBag.GiaTu" class="form-control" placeholder="Giá từ" />
+        </div>
+        <div class="col-md-2">
+            <input type="number" name="giaDen" min="0" step="any" value="@ViewBag.GiaDen" class="form-control" placeholder="Giá đến" />
+        </div>
+        <div class="col-md-3">
+            <select name="canhBao" class="form-select">
+                <option value="">-- Cảnh báo tồn --</option>
+                <option value="canh_bao" selected="@(ViewBag.CanhBao == "canh_bao")">Cảnh báo (tồn &lt;= mức tối thiểu)</option>
+                <option value="binh_thuong" selected="@(ViewBag.CanhBao == "binh_thuong")">Bình thường</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <select name="sortOrder" class="form-select">
+                <option value="">-- Sắp xếp --</option>
+                <option value="ten_tang_dan" selected="@(ViewBag.SortOrder == "ten_tang_dan")">Tên hàng A → Z</option>
+                <option value="ten_giam_dan" selected="@(ViewBag.SortOrder == "ten_giam_dan")">Tên hàng Z → A</option>
+                <option value="gia_tang_dan" selected="@(ViewBag.SortOrder == "gia_tang_dan")">Giá tăng dần</option>
+                <option value="gia_giam_dan" selected="@(ViewBag.SortOrder == "gia_giam_dan")">Giá giảm dần</option>
+                <option value="muc_ton_tang" selected="@(ViewBag.SortOrder == "muc_ton_tang")">Mức tồn tối thiểu tăng</option>
+                <option value="muc_ton_giam" selected="@(ViewBag.SortOrder == "muc_ton_giam")">Mức tồn tối thiểu giảm</option>
+                <option value="ton_tang" selected="@(ViewBag.SortOrder == "ton_tang")">Số lượng tồn tăng</option>
+                <option value="ton_giam" selected="@(ViewBag.SortOrder == "ton_giam")">Số lượng tồn giảm</option>
+            </select>
+        </div>
+        <div class="col-md-2 d-flex gap-2">
             <button type="submit" class="btn btn-primary">Lọc</button>
             <a asp-action="Index" class="btn btn-outline-secondary">Tất cả</a>
         </div>
@@ -56,6 +87,7 @@
             <th>
                 @Html.DisplayNameFor(model => model.MucTonToiThieu)
             </th>
+            <th>Tồn</th>
             <th>
                 @Html.DisplayNameFor(model => model.MoTa)
             </th>
@@ -84,6 +116,16 @@
                 @Html.DisplayFor(modelItem => item.MucTonToiThieu)
             </td>
             <td>
+                @{
+                    var tongTon = ((Dictionary<int, int>)ViewBag.TongTon).GetValueOrDefault(item.MaHang);
+                }
+                @tongTon
+                @if (tongTon <= item.MucTonToiThieu)
+                {
+                    <span class="badge bg-danger">Cảnh báo</span>
+                }
+            </td>
+            <td>
                 @Html.DisplayFor(modelItem => item.MoTa)
             </td>
             <td>
@@ -92,7 +134,10 @@
             <td>
                 <a asp-action="Edit" asp-route-id="@item.MaHang">Edit</a> |
                 <a asp-action="Details" asp-route-id="@item.MaHang">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.MaHang">Delete</a>
+                <a asp-action="Delete" asp-route-id="@item.MaHang">Delete</a> |
+                <form asp-action="DoiTrangThai" asp-route-id="@item.MaHang" method="post" class="d-inline">
+                    <button type="submit" class="btn btn-link p-0 align-baseline">@(item.TrangThai ? "Ngừng HĐ" : "Kích hoạt")</button>
+                </form>
             </td>
         </tr>
 }
@@ -112,6 +157,8 @@
         ["trangThai"] = ViewBag.TrangThai?.ToString().ToLower(),
         ["giaTu"] = ViewBag.GiaTu?.ToString(),
         ["giaDen"] = ViewBag.GiaDen?.ToString(),
+        ["maKho"] = ViewBag.MaKho?.ToString(),
+        ["canhBao"] = ViewBag.CanhBao,
         ["sortOrder"] = ViewBag.SortOrder,
         ["page"] = p.ToString()
     };

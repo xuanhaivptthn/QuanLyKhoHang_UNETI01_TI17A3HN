@@ -31,6 +31,8 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
             bool? trangThai,
             decimal? giaTu,
             decimal? giaDen,
+            int? maKho,
+            string? canhBao,
             string? sortOrder,
             int page = 1)
         {
@@ -53,25 +55,22 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
                     h.DanhSachTonKho!.Any(t => t.Kho != null && t.Kho.TenKho.Contains(searchString)));
             }
 
-            // 2. LỌC THEO LOẠI HÀNG
+            // 2. LỌC THEO 
             if (maLoaiHang.HasValue)
             {
                 query = query.Where(h => h.MaLoaiHang == maLoaiHang.Value);
             }
 
-            // 3. LỌC THEO ĐƠN VỊ TÍNH
             if (maDonViTinh.HasValue)
             {
                 query = query.Where(h => h.MaDonViTinh == maDonViTinh.Value);
             }
 
-            // 4. LỌC THEO TRẠNG THÁI
             if (trangThai.HasValue)
             {
                 query = query.Where(h => h.TrangThai == trangThai.Value);
             }
 
-            // 5. LỌC THEO KHOẢNG GIÁ
             if (giaTu.HasValue)
             {
                 query = query.Where(h => h.GiaNhapThamKhao >= giaTu.Value);
@@ -82,7 +81,20 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
                 query = query.Where(h => h.GiaNhapThamKhao <= giaDen.Value);
             }
 
-            // 6. SẮP XẾP
+            if (maKho.HasValue)
+            {
+                query = query.Where(h => h.DanhSachTonKho!.Any(t => t.MaKho == maKho.Value));
+            }
+
+            if (canhBao == "canh_bao")
+            {
+                query = query.Where(h => h.DanhSachTonKho!.Sum(t => t.SoLuongTon) <= h.MucTonToiThieu);
+            }
+            else if (canhBao == "binh_thuong")
+            {
+                query = query.Where(h => h.DanhSachTonKho!.Sum(t => t.SoLuongTon) > h.MucTonToiThieu);
+            }
+
             switch (sortOrder)
             {
                 case "ten_tang_dan":
@@ -97,18 +109,25 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
                 case "gia_giam_dan":
                     query = query.OrderByDescending(h => h.GiaNhapThamKhao);
                     break;
-                case "ton_tang":
+                case "muc_ton_tang":
                     query = query.OrderBy(h => h.MucTonToiThieu);
                     break;
-                case "ton_giam":
+                case "muc_ton_giam":
                     query = query.OrderByDescending(h => h.MucTonToiThieu);
+                    break;
+                case "ton_tang":
+                    query = query.OrderBy(h => h.DanhSachTonKho!.Sum(t => t.SoLuongTon));
+                    break;
+                case "ton_giam":
+                    query = query.OrderByDescending(h => h.DanhSachTonKho!.Sum(t => t.SoLuongTon));
                     break;
                 default:
                     query = query.OrderBy(h => h.MaHang);
                     break;
             }
 
-            // 7. ĐẾM VÀ PHÂN TRANG
+            query = ((IOrderedQueryable<HangHoa>)query).ThenBy(h => h.MaHang);
+
             int totalItems = await query.CountAsync();
             int totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
             if (totalPages > 0 && page > totalPages) page = totalPages;
@@ -118,6 +137,16 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
                 .Take(pageSize)
                 .ToListAsync();
 
+            var maHangs = hangHoas.Select(h => h.MaHang).ToList();
+            ViewBag.TongTon = await _context.TonKhoes
+                .Where(t => maHangs.Contains(t.MaHang))
+                .GroupBy(t => t.MaHang)
+                .Select(g => new { MaHang = g.Key, Tong = g.Sum(t => t.SoLuongTon) })
+                .ToDictionaryAsync(x => x.MaHang, x => x.Tong);
+
+            ViewBag.Khos = new SelectList(await _context.Kho.OrderBy(k => k.TenKho).ToListAsync(), "MaKho", "TenKho", maKho);
+            ViewBag.MaKho = maKho;
+            ViewBag.CanhBao = canhBao;
             ViewBag.LoaiHangs = new SelectList(await _context.LoaiHangs.ToListAsync(), "MaLoaiHang", "TenLoaiHang", maLoaiHang);
             ViewBag.DonViTinhs = new SelectList(await _context.DonViTinhs.ToListAsync(), "MaDonViTinh", "TenDonViTinh", maDonViTinh);
 
