@@ -54,8 +54,9 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
         // GET: ChiTietPhieuNhaps/Create
         public IActionResult Create()
         {
-            ViewData["MaHang"] = new SelectList(_context.HangHoa, "MaHang", "TenHang");
-            ViewData["MaPhieuNhap"] = new SelectList(_context.PhieuNhap, "MaPhieuNhap", "MaPhieuNhap");
+            // Only active products and editable PhieuNhap (Nháp/Chờ xác nhận) can be selected
+            ViewData["MaHang"] = new SelectList(_context.HangHoa.Where(h => h.TrangThai), "MaHang", "TenHang");
+            ViewData["MaPhieuNhap"] = new SelectList(_context.PhieuNhap.Where(p => p.TrangThai == 0 || p.TrangThai == 1), "MaPhieuNhap", "MaPhieuNhap");
             return View();
         }
 
@@ -66,12 +67,21 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
         {
             if (ModelState.IsValid)
             {
+                // Ensure the selected PhieuNhap is editable
+                var ph = await _context.PhieuNhap.FindAsync(chiTietPhieuNhap.MaPhieuNhap);
+                if (ph == null || !(ph.TrangThai == 0 || ph.TrangThai == 1))
+                {
+                    ModelState.AddModelError(string.Empty, "Chi tiết chỉ được thêm vào phiếu ở trạng thái Nháp hoặc Chờ xác nhận.");
+                    ViewData["MaHang"] = new SelectList(_context.HangHoa.Where(h => h.TrangThai), "MaHang", "TenHang", chiTietPhieuNhap.MaHang);
+                    ViewData["MaPhieuNhap"] = new SelectList(_context.PhieuNhap.Where(p => p.TrangThai == 0 || p.TrangThai == 1), "MaPhieuNhap", "MaPhieuNhap", chiTietPhieuNhap.MaPhieuNhap);
+                    return View(chiTietPhieuNhap);
+                }
                 _context.Add(chiTietPhieuNhap);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["MaHang"] = new SelectList(_context.HangHoa, "MaHang", "TenHang", chiTietPhieuNhap.MaHang);
-            ViewData["MaPhieuNhap"] = new SelectList(_context.PhieuNhap, "MaPhieuNhap", "MaPhieuNhap", chiTietPhieuNhap.MaPhieuNhap);
+            ViewData["MaHang"] = new SelectList(_context.HangHoa.Where(h => h.TrangThai), "MaHang", "TenHang", chiTietPhieuNhap.MaHang);
+            ViewData["MaPhieuNhap"] = new SelectList(_context.PhieuNhap.Where(p => p.TrangThai == 0 || p.TrangThai == 1), "MaPhieuNhap", "MaPhieuNhap", chiTietPhieuNhap.MaPhieuNhap);
             return View(chiTietPhieuNhap);
         }
 
@@ -89,8 +99,8 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
             {
                 return NotFound();
             }
-            ViewData["MaHang"] = new SelectList(_context.HangHoa, "MaHang", "TenHang", chiTietPhieuNhap.MaHang);
-            ViewData["MaPhieuNhap"] = new SelectList(_context.PhieuNhap, "MaPhieuNhap", "MaPhieuNhap", chiTietPhieuNhap.MaPhieuNhap);
+            ViewData["MaHang"] = new SelectList(_context.HangHoa.Where(h => h.TrangThai), "MaHang", "TenHang", chiTietPhieuNhap.MaHang);
+            ViewData["MaPhieuNhap"] = new SelectList(_context.PhieuNhap.Where(p => p.TrangThai == 0 || p.TrangThai == 1), "MaPhieuNhap", "MaPhieuNhap", chiTietPhieuNhap.MaPhieuNhap);
             return View(chiTietPhieuNhap);
         }
 
@@ -107,6 +117,15 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
 
             if (ModelState.IsValid)
             {
+                // Ensure parent PhieuNhap is editable before saving changes
+                var ph = await _context.PhieuNhap.FindAsync(chiTietPhieuNhap.MaPhieuNhap);
+                if (ph == null || !(ph.TrangThai == 0 || ph.TrangThai == 1))
+                {
+                    ModelState.AddModelError(string.Empty, "Chi tiết chỉ được sửa khi phiếu ở trạng thái Nháp hoặc Chờ xác nhận.");
+                    ViewData["MaHang"] = new SelectList(_context.HangHoa.Where(h => h.TrangThai), "MaHang", "TenHang", chiTietPhieuNhap.MaHang);
+                    ViewData["MaPhieuNhap"] = new SelectList(_context.PhieuNhap.Where(p => p.TrangThai == 0 || p.TrangThai == 1), "MaPhieuNhap", "MaPhieuNhap", chiTietPhieuNhap.MaPhieuNhap);
+                    return View(chiTietPhieuNhap);
+                }
                 try
                 {
                     _context.Update(chiTietPhieuNhap);

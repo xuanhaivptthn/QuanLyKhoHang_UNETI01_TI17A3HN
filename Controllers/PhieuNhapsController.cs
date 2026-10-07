@@ -59,8 +59,8 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
         // GET: PhieuNhaps/Create
         public IActionResult Create()
         {
-            ViewData["MaKho"] = new SelectList(_context.Kho, "MaKho", "TenKho");
-            // Only active suppliers can be selected for new PhieuNhap
+            // Only active kho and suppliers may be selected
+            ViewData["MaKho"] = new SelectList(_context.Kho.Where(k => k.TrangThai), "MaKho", "TenKho");
             ViewData["MaNhaCungCap"] = new SelectList(_context.NhaCungCap.Where(n => n.TrangThai), "MaNhaCungCap", "TenNhaCungCap");
             return View();
         }
@@ -95,7 +95,12 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
             {
                 return NotFound();
             }
-            ViewData["MaKho"] = new SelectList(_context.Kho, "MaKho", "TenKho", phieuNhap.MaKho);
+            // Only allow edit when status is Nháp (0) or Chờ xác nhận (1)
+            if (!(phieuNhap.TrangThai == 0 || phieuNhap.TrangThai == 1))
+            {
+                return Forbid();
+            }
+            ViewData["MaKho"] = new SelectList(_context.Kho.Where(k => k.TrangThai), "MaKho", "TenKho", phieuNhap.MaKho);
             ViewData["MaNhaCungCap"] = new SelectList(_context.NhaCungCap.Where(n => n.TrangThai), "MaNhaCungCap", "TenNhaCungCap", phieuNhap.MaNhaCungCap);
             return View(phieuNhap);
         }
@@ -109,6 +114,20 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
             if (targetId != phieuNhap.MaPhieuNhap)
             {
                 return NotFound();
+            }
+
+            // Verify the existing phieuNhap status before allowing update
+            var existing = await _context.PhieuNhap.AsNoTracking().FirstOrDefaultAsync(p => p.MaPhieuNhap == phieuNhap.MaPhieuNhap);
+            if (existing == null)
+            {
+                return NotFound();
+            }
+            if (!(existing.TrangThai == 0 || existing.TrangThai == 1))
+            {
+                ModelState.AddModelError(string.Empty, "Phiếu chỉ được sửa khi ở trạng thái Nháp hoặc Chờ xác nhận.");
+                ViewData["MaKho"] = new SelectList(_context.Kho.Where(k => k.TrangThai), "MaKho", "TenKho", phieuNhap.MaKho);
+                ViewData["MaNhaCungCap"] = new SelectList(_context.NhaCungCap.Where(n => n.TrangThai), "MaNhaCungCap", "TenNhaCungCap", phieuNhap.MaNhaCungCap);
+                return View(phieuNhap);
             }
 
             if (ModelState.IsValid)
