@@ -33,7 +33,7 @@
         <div class="col-md-3">
             <select name="trangThai" class="form-select">
                 <option value="">-- Trạng thái hàng --</option>
-                <option value="true" selected="@(ViewBag.TrangThai == true)">Hoạt động</option>
+                <option value="true" selected="@(ViewBag.TrangThai == true)">Đang hoạt động</option>
                 <option value="false" selected="@(ViewBag.TrangThai == false)">Ngừng hoạt động</option>
             </select>
         </div>
@@ -129,7 +129,7 @@
                 @Html.DisplayFor(modelItem => item.MoTa)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.TrangThai)
+                @(item.TrangThai ? "Đang hoạt động" : "Ngừng hoạt động")
             </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.MaHang">Edit</a> |
