@@ -40,7 +40,7 @@
 @foreach (var item in Model) {
         <tr>
             <td>
-                @Html.DisplayFor(modelItem => item.NgayNhap)
+                @item.NgayNhap.ToString("yyyy-MM-dd")
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.NguoiLap)

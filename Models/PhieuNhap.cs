@@ -19,9 +19,10 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Models
         [Display(Name = "Kho nhập")]
         public int MaKho { get; set; }
 
-        [DataType(DataType.DateTime)]
+        [DataType(DataType.Date)]
+        [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
         [Display(Name = "Ngày nhập")]
-        public DateTime NgayNhap { get; set; }
+        public DateTime NgayNhap { get; set; } = DateTime.Today;
 
         [StringLength(100)]
         [Display(Name = "Người lập")]
