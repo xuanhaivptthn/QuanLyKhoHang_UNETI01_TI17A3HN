@@ -6,65 +6,130 @@
 @model IEnumerable<QuanLyKhoHang_UNETI01_TI17A3HN.Models.TaiKhoan>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Quản trị Tài khoản người dùng";
 }
 
-<h1>Index</h1>
+<div class="page-header">
+    <div>
+        <h2 class="page-title"><i class="bi bi-people-fill text-primary"></i> Quản Trị Tài Khoản</h2>
+        <p class="page-subtitle">Danh sách người dùng và phân quyền truy cập hệ thống cửa hàng</p>
+    </div>
+    <div>
+        <a asp-action="Create" class="btn btn-primary shadow-sm">
+            <i class="bi bi-person-plus-fill"></i> Thêm tài khoản mới
+        </a>
+    </div>
+</div>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.TenDangNhap)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.MatKhau)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.HoTen)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Email)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.VaiTro)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.TrangThai)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.TenDangNhap)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.MatKhau)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.HoTen)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Email)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.VaiTro)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.TrangThai)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.MaTaiKhoan">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.MaTaiKhoan">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.MaTaiKhoan">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+<div class="card border-0 shadow-sm rounded-4">
+    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+        <span class="fw-semibold text-secondary">
+            <i class="bi bi-list-ul me-1"></i> Tổng cộng: <strong>@(Model?.Count() ?? 0)</strong> tài khoản
+        </span>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th class="ps-4">Tên đăng nhập</th>
+                        <th>Họ và tên</th>
+                        <th>Email liên hệ</th>
+                        <th>Vai trò hệ thống</th>
+                        <th>Trạng thái</th>
+                        <th class="text-end pe-4">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Any())
+                    {
+                        foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="ps-4">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="rounded-circle bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
+                                            <i class="bi bi-person-fill fs-5"></i>
+                                        </div>
+                                        <div>
+                                            <span class="fw-bold d-block text-dark">@item.TenDangNhap</span>
+                                            <small class="text-muted font-monospace">ID: #@item.MaTaiKhoan</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="fw-semibold">@item.HoTen</span>
+                                </td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(item.Email))
+                                    {
+                                        <a href="mailto:@item.Email" class="text-decoration-none text-muted small d-inline-flex align-items-center gap-1">
+                                            <i class="bi bi-envelope"></i> @item.Email
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted small">---</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (item.VaiTro == "Admin")
+                                    {
+                                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle">
+                                            <i class="bi bi-shield-shaded me-1"></i> Quản trị viên (Admin)
+                                        </span>
+                                    }
+                                    else if (item.VaiTro == "NhanVienKho")
+                                    {
+                                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle">
+                                            <i class="bi bi-person-badge me-1"></i> Nhân viên kho
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle">
+                                            @item.VaiTro
+                                        </span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (item.TrangThai)
+                                    {
+                                        <span class="badge bg-success text-white">
+                                            <i class="bi bi-check-circle me-1"></i> Hoạt động
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary text-white">
+                                            <i class="bi bi-lock-fill me-1"></i> Đã khóa
+                                        </span>
+                                    }
+                                </td>
+                                <td class="text-end pe-4">
+                                    <div class="btn-group btn-group-sm" role="group">
+                                        <a asp-action="Edit" asp-route-id="@item.MaTaiKhoan" class="btn btn-outline-primary" title="Chỉnh sửa">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </a>
+                                        <a asp-action="Details" asp-route-id="@item.MaTaiKhoan" class="btn btn-outline-info" title="Xem chi tiết">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        <a asp-action="Delete" asp-route-id="@item.MaTaiKhoan" class="btn btn-outline-danger" title="Xóa tài khoản">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="6" class="text-center text-muted py-4">Không có dữ liệu tài khoản nào.</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

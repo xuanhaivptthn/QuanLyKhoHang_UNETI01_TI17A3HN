@@ -1,59 +1,95 @@
+@*
+    Họ và tên: Nguyễn Việt Dũng
+    Mã sinh viên: 23103100127
+    Phụ trách Module 4: Bộ phận nhận, Phiếu xuất, Chi tiết phiếu xuất
+*@
 @model IEnumerable<QuanLyKhoHang_UNETI01_TI17A3HN.Models.ChiTietPhieuXuat>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Chi tiết các mặt hàng xuất";
 }
 
-<h1>Index</h1>
+<div class="page-header">
+    <div>
+        <h2 class="page-title"><i class="bi bi-list-check text-danger"></i> Danh Sách Chi Tiết Hàng Xuất</h2>
+        <p class="page-subtitle">Nhật ký toàn bộ các dòng hàng hóa được xuất bàn giao từ hệ thống kho</p>
+    </div>
+    <div>
+        <a asp-action="Create" class="btn btn-primary shadow-sm">
+            <i class="bi bi-plus-circle-fill"></i> Thêm chi tiết xuất
+        </a>
+    </div>
+</div>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.SoLuongXuat)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.DonGiaXuatThamChieu)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.GhiChu)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.PhieuXuat)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.HangHoa)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.SoLuongXuat)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.DonGiaXuatThamChieu)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.GhiChu)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.PhieuXuat.NguoiLap)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.HangHoa.TenHang)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.MaChiTietXuat">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.MaChiTietXuat">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.MaChiTietXuat">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+<div class="card border-0 shadow-sm rounded-4">
+    <div class="card-header bg-white py-3">
+        <span class="fw-semibold text-secondary">
+            <i class="bi bi-box-seam me-1"></i> Tổng số: <strong>@(Model?.Count() ?? 0)</strong> dòng hàng xuất
+        </span>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th class="ps-4">Mã dòng</th>
+                        <th>Phiếu xuất</th>
+                        <th>Tên hàng hóa</th>
+                        <th class="text-center">Số lượng xuất</th>
+                        <th class="text-end">Đơn giá tham chiếu</th>
+                        <th class="text-end">Thành tiền</th>
+                        <th class="text-end pe-4">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Any())
+                    {
+                        foreach (var item in Model)
+                        {
+                            var thanhTien = (decimal)item.SoLuongXuat * item.DonGiaXuatThamChieu;
+                            <tr>
+                                <td class="ps-4 font-monospace text-muted">#@item.MaChiTietXuat</td>
+                                <td>
+                                    <a asp-controller="PhieuXuats" asp-action="Details" asp-route-id="@item.MaPhieuXuat" class="fw-bold text-decoration-none text-danger">
+                                        #PX-@item.MaPhieuXuat
+                                    </a>
+                                </td>
+                                <td>
+                                    <span class="fw-semibold text-dark">@(item.HangHoa?.TenHang ?? "Sản phẩm #" + item.MaHang)</span>
+                                </td>
+                                <td class="text-center font-monospace fw-bold text-danger">
+                                    @item.SoLuongXuat
+                                </td>
+                                <td class="text-end">
+                                    @item.DonGiaXuatThamChieu.ToString("#,##0") VNĐ
+                                </td>
+                                <td class="text-end fw-bold text-dark">
+                                    @thanhTien.ToString("#,##0") VNĐ
+                                </td>
+                                <td class="text-end pe-4">
+                                    <div class="btn-group btn-group-sm" role="group">
+                                        <a asp-action="Details" asp-route-id="@item.MaChiTietXuat" class="btn btn-outline-info" title="Xem chi tiết">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        <a asp-action="Edit" asp-route-id="@item.MaChiTietXuat" class="btn btn-outline-primary" title="Sửa">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </a>
+                                        <a asp-action="Delete" asp-route-id="@item.MaChiTietXuat" class="btn btn-outline-danger" title="Xóa">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="7" class="text-center text-muted py-4">Chưa có chi tiết hàng xuất nào.</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

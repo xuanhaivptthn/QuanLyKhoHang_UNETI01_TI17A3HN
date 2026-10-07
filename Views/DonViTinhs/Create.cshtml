@@ -6,41 +6,63 @@
 @model QuanLyKhoHang_UNETI01_TI17A3HN.Models.DonViTinh
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Thêm đơn vị tính mới";
 }
 
-<h1>Create</h1>
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <div class="page-header">
+            <div>
+                <h2 class="page-title"><i class="bi bi-rulers text-secondary"></i> Thêm Đơn Vị Tính Mới</h2>
+                <p class="page-subtitle">Khai báo đơn vị đo lường hoặc quy cách bao gói sản phẩm</p>
+            </div>
+            <div>
+                <a asp-action="Index" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Quay lại danh sách
+                </a>
+            </div>
+        </div>
 
-<h4>DonViTinh</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="TenDonViTinh" class="control-label"></label>
-                <input asp-for="TenDonViTinh" class="form-control" />
-                <span asp-validation-for="TenDonViTinh" class="text-danger"></span>
+        <div class="card border-0 shadow-sm rounded-4">
+            <div class="card-body p-4 p-md-5">
+                <form asp-action="Create" method="post">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-4 py-2" role="alert"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="TenDonViTinh" class="form-label fw-semibold">
+                            <i class="bi bi-rulers me-1 text-primary"></i> Tên đơn vị tính <span class="text-danger">*</span>
+                        </label>
+                        <input asp-for="TenDonViTinh" class="form-control" placeholder="Ví dụ: Chiếc, Cái, Bộ, Hộp, Thùng, Kg, Mét..." />
+                        <span asp-validation-for="TenDonViTinh" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="MoTa" class="form-label fw-semibold">
+                            <i class="bi bi-card-text me-1 text-primary"></i> Mô tả chi tiết
+                        </label>
+                        <textarea asp-for="MoTa" rows="3" class="form-control" placeholder="Quy cách đóng gói, ghi chú..."></textarea>
+                        <span asp-validation-for="MoTa" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-4">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" role="switch" asp-for="TrangThai" checked id="chkTrangThaiDVT" />
+                            <label class="form-check-label fw-semibold" for="chkTrangThaiDVT">
+                                Áp dụng sử dụng đơn vị tính này
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2 pt-3 border-top">
+                        <a asp-action="Index" class="btn btn-outline-secondary">Hủy bỏ</a>
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="bi bi-check-circle-fill"></i> Lưu đơn vị tính
+                        </button>
+                    </div>
+                </form>
             </div>
-            <div class="form-group">
-                <label asp-for="MoTa" class="control-label"></label>
-                <input asp-for="MoTa" class="form-control" />
-                <span asp-validation-for="MoTa" class="text-danger"></span>
-            </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="TrangThai" /> @Html.DisplayNameFor(model => model.TrangThai)
-                </label>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
+        </div>
     </div>
-</div>
-
-<div>
-    <a asp-action="Index">Back to List</a>
 </div>
 
 @section Scripts {

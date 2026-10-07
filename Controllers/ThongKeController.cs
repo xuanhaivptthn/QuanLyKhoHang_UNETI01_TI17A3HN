@@ -55,9 +55,46 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
                 SoHangSapHet = await _context.TonKhoes
                     .Include(t => t.HangHoa)
                     // Hàng sắp hết là lớn hơn 0 và nhỏ hơn hoặc bằng mức tối thiểu
-                    .Where(t => t.SoLuongTon > 0 && t.SoLuongTon <= t.HangHoa.MucTonToiThieu)
+                    .Where(t => t.SoLuongTon > 0 && t.SoLuongTon <= t.HangHoa!.MucTonToiThieu)
                     .CountAsync(),
             };
+
+            // Dữ liệu biểu đồ cơ cấu theo loại hàng
+            var loaiHangsData = await _context.LoaiHangs
+                .Select(lh => new {
+                    TenLoaiHang = lh.TenLoaiHang,
+                    SoLuongHang = lh.HangHoas.Count()
+                })
+                .Where(x => x.SoLuongHang > 0)
+                .ToListAsync();
+            ViewBag.LoaiHangLabels = loaiHangsData.Select(x => x.TenLoaiHang).ToList();
+            ViewBag.LoaiHangData = loaiHangsData.Select(x => x.SoLuongHang).ToList();
+
+            // Dữ liệu so sánh Nhập - Xuất 7 ngày gần nhất
+            var last7Days = Enumerable.Range(0, 7)
+                .Select(i => today.AddDays(-6 + i))
+                .ToList();
+
+            var nhap7Days = await _context.PhieuNhap
+                .Where(p => p.NgayNhap.Date >= today.AddDays(-6))
+                .GroupBy(p => p.NgayNhap.Date)
+                .Select(g => new { Ngay = g.Key, SoLuong = g.Count() })
+                .ToListAsync();
+
+            var xuat7Days = await _context.PhieuXuats
+                .Where(p => p.NgayXuat.Date >= today.AddDays(-6))
+                .GroupBy(p => p.NgayXuat.Date)
+                .Select(g => new { Ngay = g.Key, SoLuong = g.Count() })
+                .ToListAsync();
+
+            ViewBag.ChartDaysLabels = last7Days.Select(d => d.ToString("dd/MM")).ToList();
+            ViewBag.ChartNhapData = last7Days.Select(d => nhap7Days.FirstOrDefault(x => x.Ngay == d.Date)?.SoLuong ?? 0).ToList();
+            ViewBag.ChartXuatData = last7Days.Select(d => xuat7Days.FirstOrDefault(x => x.Ngay == d.Date)?.SoLuong ?? 0).ToList();
+
+            // Tổng giá trị hàng hóa tồn kho ước tính
+            ViewBag.TongGiaTriTonKho = await _context.TonKhoes
+                .Include(t => t.HangHoa)
+                .SumAsync(t => (decimal)t.SoLuongTon * t.HangHoa!.GiaNhapThamKhao);
 
             return View(viewModel);
         }
@@ -75,16 +112,16 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
             // 1. LINQ: Top 5 Hàng nhập nhiều nhất
             ViewBag.TopHangNhap = await _context.ChiTietPhieuNhap
                 .Include(c => c.PhieuNhap).Include(c => c.HangHoa)
-                .Where(c => c.PhieuNhap.NgayNhap.Date >= tuNgay.Value.Date && c.PhieuNhap.NgayNhap.Date <= denNgay.Value.Date && c.PhieuNhap.TrangThai == 2)
-                .GroupBy(c => new { c.MaHang, c.HangHoa.TenHang })
+                .Where(c => c.PhieuNhap != null && c.PhieuNhap.NgayNhap.Date >= tuNgay.Value.Date && c.PhieuNhap.NgayNhap.Date <= denNgay.Value.Date && c.PhieuNhap.TrangThai == 2)
+                .GroupBy(c => new { c.MaHang, TenHang = c.HangHoa!.TenHang })
                 .Select(g => new { TenHang = g.Key.TenHang, TongSo = g.Sum(c => c.SoLuongNhap) })
                 .OrderByDescending(x => x.TongSo).Take(5).ToListAsync();
 
             // 2. LINQ: Top 5 Hàng xuất nhiều nhất
             ViewBag.TopHangXuat = await _context.ChiTietPhieuXuats
                 .Include(c => c.PhieuXuat).Include(c => c.HangHoa)
-                .Where(c => c.PhieuXuat.NgayXuat.Date >= tuNgay.Value.Date && c.PhieuXuat.NgayXuat.Date <= denNgay.Value.Date && c.PhieuXuat.TrangThai == TrangThaiPhieuXuat.DaHoanTat)
-                .GroupBy(c => new { c.MaHang, c.HangHoa.TenHang })
+                .Where(c => c.PhieuXuat != null && c.PhieuXuat.NgayXuat.Date >= tuNgay.Value.Date && c.PhieuXuat.NgayXuat.Date <= denNgay.Value.Date && c.PhieuXuat.TrangThai == TrangThaiPhieuXuat.DaHoanTat)
+                .GroupBy(c => new { c.MaHang, TenHang = c.HangHoa!.TenHang })
                 .Select(g => new { TenHang = g.Key.TenHang, TongSo = g.Sum(c => c.SoLuongXuat) })
                 .OrderByDescending(x => x.TongSo).Take(5).ToListAsync();
 

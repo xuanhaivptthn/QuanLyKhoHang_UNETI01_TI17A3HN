@@ -1,186 +1,275 @@
+@*
+    Họ và tên: Nguyễn Thị Cúc
+    Mã sinh viên: 23103100178
+    Phụ trách Module 2: Quản lý Kho, Hàng hóa & Tra cứu dữ liệu cửa hàng
+*@
 @model IEnumerable<QuanLyKhoHang_UNETI01_TI17A3HN.Models.HangHoa>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Danh mục Hàng hóa";
+    var tongTonDict = ViewBag.TongTon as Dictionary<int, int> ?? new Dictionary<int, int>();
 }
 
-<h1>Index</h1>
+<div class="page-header">
+    <div>
+        <h2 class="page-title"><i class="bi bi-box-seam-fill text-primary"></i> Quản Lý Danh Mục Hàng Hóa</h2>
+        <p class="page-subtitle">Quản lý sản phẩm, đơn vị tính, giá nhập và định mức tồn kho tối thiểu</p>
+    </div>
+    <div>
+        <a asp-action="Create" class="btn btn-primary shadow-sm">
+            <i class="bi bi-plus-circle-fill"></i> Thêm hàng hóa mới
+        </a>
+    </div>
+</div>
 
-<p>
-    <a asp-action="Create" class="btn btn-primary">Thêm mới hàng hóa</a>
-</p>
+<!-- Bộ lọc đa năng (Multi-criteria Filter Bar) -->
+<div class="card border-0 shadow-sm rounded-4 mb-4">
+    <div class="card-body p-4">
+        <form asp-action="Index" method="get">
+            <div class="row g-3">
+                <div class="col-md-4 col-lg-3">
+                    <label class="form-label small fw-semibold text-muted">Từ khóa tìm kiếm</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light text-muted border-end-0"><i class="bi bi-search"></i></span>
+                        <input type="text" name="searchString" value="@ViewBag.SearchString" class="form-control border-start-0 ps-0" placeholder="Mã, tên, kho..." />
+                    </div>
+                </div>
 
-<form asp-action="Index" method="get" class="card p-3 mb-3 bg-light">
-    <div class="row g-2">
-        <div class="col-md-3">
-            <input type="text" name="searchString" value="@ViewBag.SearchString" class="form-control" placeholder="Mã, tên hàng, loại hàng hoặc tên kho..." />
-        </div>
-        <div class="col-md-2">
-            <select name="maLoaiHang" class="form-select" asp-items="ViewBag.LoaiHangs">
-                <option value="">-- Loại hàng --</option>
-            </select>
-        </div>
-        <div class="col-md-2">
-            <select name="maDonViTinh" class="form-select" asp-items="ViewBag.DonViTinhs">
-                <option value="">-- Đơn vị tính --</option>
-            </select>
-        </div>
-        <div class="col-md-2">
-            <select name="maKho" class="form-select" asp-items="ViewBag.Khos">
-                <option value="">-- Kho --</option>
-            </select>
-        </div>
-        <div class="col-md-3">
-            <select name="trangThai" class="form-select">
-                <option value="">-- Trạng thái hàng --</option>
-                <option value="true" selected="@(ViewBag.TrangThai == true)">Hoạt động</option>
-                <option value="false" selected="@(ViewBag.TrangThai == false)">Ngừng hoạt động</option>
-            </select>
-        </div>
-        <div class="col-md-2">
-            <input type="number" name="giaTu" min="0" step="any" value="@ViewBag.GiaTu" class="form-control" placeholder="Giá từ" />
-        </div>
-        <div class="col-md-2">
-            <input type="number" name="giaDen" min="0" step="any" value="@ViewBag.GiaDen" class="form-control" placeholder="Giá đến" />
-        </div>
-        <div class="col-md-3">
-            <select name="canhBao" class="form-select">
-                <option value="">-- Cảnh báo tồn --</option>
-                <option value="canh_bao" selected="@(ViewBag.CanhBao == "canh_bao")">Cảnh báo (tồn &lt;= mức tối thiểu)</option>
-                <option value="binh_thuong" selected="@(ViewBag.CanhBao == "binh_thuong")">Bình thường</option>
-            </select>
-        </div>
-        <div class="col-md-3">
-            <select name="sortOrder" class="form-select">
-                <option value="">-- Sắp xếp --</option>
-                <option value="ten_tang_dan" selected="@(ViewBag.SortOrder == "ten_tang_dan")">Tên hàng A → Z</option>
-                <option value="ten_giam_dan" selected="@(ViewBag.SortOrder == "ten_giam_dan")">Tên hàng Z → A</option>
-                <option value="gia_tang_dan" selected="@(ViewBag.SortOrder == "gia_tang_dan")">Giá tăng dần</option>
-                <option value="gia_giam_dan" selected="@(ViewBag.SortOrder == "gia_giam_dan")">Giá giảm dần</option>
-                <option value="muc_ton_tang" selected="@(ViewBag.SortOrder == "muc_ton_tang")">Mức tồn tối thiểu tăng</option>
-                <option value="muc_ton_giam" selected="@(ViewBag.SortOrder == "muc_ton_giam")">Mức tồn tối thiểu giảm</option>
-                <option value="ton_tang" selected="@(ViewBag.SortOrder == "ton_tang")">Số lượng tồn tăng</option>
-                <option value="ton_giam" selected="@(ViewBag.SortOrder == "ton_giam")">Số lượng tồn giảm</option>
-            </select>
-        </div>
-        <div class="col-md-2 d-flex gap-2">
-            <button type="submit" class="btn btn-primary">Lọc</button>
-            <a asp-action="Index" class="btn btn-outline-secondary">Tất cả</a>
+                <div class="col-md-4 col-lg-2">
+                    <label class="form-label small fw-semibold text-muted">Loại hàng</label>
+                    <select name="maLoaiHang" class="form-select" asp-items="ViewBag.LoaiHangs">
+                        <option value="">-- Tất cả loại --</option>
+                    </select>
+                </div>
+
+                <div class="col-md-4 col-lg-2">
+                    <label class="form-label small fw-semibold text-muted">Đơn vị tính</label>
+                    <select name="maDonViTinh" class="form-select" asp-items="ViewBag.DonViTinhs">
+                        <option value="">-- Tất cả ĐVT --</option>
+                    </select>
+                </div>
+
+                <div class="col-md-4 col-lg-2">
+                    <label class="form-label small fw-semibold text-muted">Kho lưu trữ</label>
+                    <select name="maKho" class="form-select" asp-items="ViewBag.Khos">
+                        <option value="">-- Tất cả kho --</option>
+                    </select>
+                </div>
+
+                <div class="col-md-4 col-lg-3">
+                    <label class="form-label small fw-semibold text-muted">Cảnh báo hạn mức</label>
+                    <select name="canhBao" class="form-select">
+                        <option value="">-- Tất cả mức tồn --</option>
+                        <option value="canh_bao" selected="@(ViewBag.CanhBao == "canh_bao")">⚠️ Cảnh báo (Tồn &le; Mức tối thiểu)</option>
+                        <option value="binh_thuong" selected="@(ViewBag.CanhBao == "binh_thuong")">✅ Bình thường (An toàn)</option>
+                    </select>
+                </div>
+
+                <div class="col-md-3 col-lg-2">
+                    <label class="form-label small fw-semibold text-muted">Giá từ (VNĐ)</label>
+                    <input type="number" name="giaTu" min="0" step="any" value="@ViewBag.GiaTu" class="form-control" placeholder="Từ..." />
+                </div>
+
+                <div class="col-md-3 col-lg-2">
+                    <label class="form-label small fw-semibold text-muted">Giá đến (VNĐ)</label>
+                    <input type="number" name="giaDen" min="0" step="any" value="@ViewBag.GiaDen" class="form-control" placeholder="Đến..." />
+                </div>
+
+                <div class="col-md-3 col-lg-2">
+                    <label class="form-label small fw-semibold text-muted">Trạng thái KD</label>
+                    <select name="trangThai" class="form-select">
+                        <option value="">-- Tất cả --</option>
+                        <option value="true" selected="@(ViewBag.TrangThai == true)">Đang kinh doanh</option>
+                        <option value="false" selected="@(ViewBag.TrangThai == false)">Ngừng kinh doanh</option>
+                    </select>
+                </div>
+
+                <div class="col-md-3 col-lg-3">
+                    <label class="form-label small fw-semibold text-muted">Sắp xếp</label>
+                    <select name="sortOrder" class="form-select">
+                        <option value="">-- Mặc định --</option>
+                        <option value="ten_tang_dan" selected="@(ViewBag.SortOrder == "ten_tang_dan")">Tên A &rarr; Z</option>
+                        <option value="ten_giam_dan" selected="@(ViewBag.SortOrder == "ten_giam_dan")">Tên Z &rarr; A</option>
+                        <option value="gia_tang_dan" selected="@(ViewBag.SortOrder == "gia_tang_dan")">Giá tăng dần</option>
+                        <option value="gia_giam_dan" selected="@(ViewBag.SortOrder == "gia_giam_dan")">Giá giảm dần</option>
+                        <option value="ton_tang" selected="@(ViewBag.SortOrder == "ton_tang")">Tồn kho tăng dần</option>
+                        <option value="ton_giam" selected="@(ViewBag.SortOrder == "ton_giam")">Tồn kho giảm dần</option>
+                    </select>
+                </div>
+
+                <div class="col-md-12 col-lg-3 d-flex align-items-end gap-2">
+                    <button type="submit" class="btn btn-primary flex-grow-1">
+                        <i class="bi bi-funnel-fill"></i> Lọc dữ liệu
+                    </button>
+                    <a asp-action="Index" class="btn btn-outline-secondary" title="Xóa bộ lọc">
+                        <i class="bi bi-arrow-counterclockwise"></i> Đặt lại
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Bảng Danh Sách Hàng Hóa -->
+<div class="card border-0 shadow-sm rounded-4">
+    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+        <span class="fw-semibold text-secondary">
+            <i class="bi bi-box me-1"></i> Tìm thấy: <strong>@ViewBag.TotalItems</strong> hàng hóa
+        </span>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th class="ps-4">Mã hàng</th>
+                        <th>Tên hàng hóa</th>
+                        <th>Loại hàng</th>
+                        <th>ĐVT</th>
+                        <th class="text-end">Giá tham khảo</th>
+                        <th class="text-center">Tối thiểu</th>
+                        <th class="text-center">Tổng tồn</th>
+                        <th class="text-center">Trạng thái</th>
+                        <th class="text-end pe-4">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Any())
+                    {
+                        foreach (var item in Model)
+                        {
+                            var tongTon = tongTonDict.GetValueOrDefault(item.MaHang);
+                            <tr>
+                                <td class="ps-4 font-monospace text-muted">#@item.MaHang</td>
+                                <td>
+                                    <span class="fw-bold text-dark d-block">@item.TenHang</span>
+                                    @if (!string.IsNullOrEmpty(item.MoTa))
+                                    {
+                                        <small class="text-muted text-truncate d-inline-block" style="max-width: 250px;">@item.MoTa</small>
+                                    }
+                                </td>
+                                <td>
+                                    <span class="badge bg-light text-dark border">
+                                        @(item.LoaiHang?.TenLoaiHang ?? "---")
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-secondary-subtle text-secondary">
+                                        @(item.DonViTinh?.TenDonViTinh ?? "---")
+                                    </span>
+                                </td>
+                                <td class="text-end fw-semibold text-primary">
+                                    @item.GiaNhapThamKhao.ToString("#,##0") VNĐ
+                                </td>
+                                <td class="text-center text-muted font-monospace">
+                                    @item.MucTonToiThieu
+                                </td>
+                                <td class="text-center">
+                                    @if (tongTon == 0)
+                                    {
+                                        <span class="badge bg-danger">
+                                            <i class="bi bi-x-circle-fill me-1"></i> Hết hàng (0)
+                                        </span>
+                                    }
+                                    else if (tongTon <= item.MucTonToiThieu)
+                                    {
+                                        <span class="badge bg-warning text-dark">
+                                            <i class="bi bi-exclamation-triangle-fill me-1"></i> Sắp hết (@tongTon)
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-success">
+                                            <i class="bi bi-check-circle-fill me-1"></i> An toàn (@tongTon)
+                                        </span>
+                                    }
+                                </td>
+                                <td class="text-center">
+                                    @if (item.TrangThai)
+                                    {
+                                        <span class="badge bg-success-subtle text-success border border-success-subtle">Kinh doanh</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary-subtle text-muted border">Ngừng KD</span>
+                                    }
+                                </td>
+                                <td class="text-end pe-4">
+                                    <div class="btn-group btn-group-sm" role="group">
+                                        <a asp-action="Details" asp-route-id="@item.MaHang" class="btn btn-outline-info" title="Xem phân bổ kho">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        <a asp-action="Edit" asp-route-id="@item.MaHang" class="btn btn-outline-primary" title="Chỉnh sửa">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </a>
+                                        <a asp-action="Delete" asp-route-id="@item.MaHang" class="btn btn-outline-danger" title="Xóa">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="9" class="text-center text-muted py-5">
+                                <i class="bi bi-inbox fs-1 d-block text-secondary opacity-50 mb-2"></i>
+                                Không tìm thấy hàng hóa nào phù hợp với bộ lọc.
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
         </div>
     </div>
-</form>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.TenHang)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.LoaiHang)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.DonViTinh)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.GiaNhapThamKhao)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.MucTonToiThieu)
-            </th>
-            <th>Tồn</th>
-            <th>
-                @Html.DisplayNameFor(model => model.MoTa)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.TrangThai)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.TenHang)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.LoaiHang.TenLoaiHang)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.DonViTinh.TenDonViTinh)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.GiaNhapThamKhao)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.MucTonToiThieu)
-            </td>
-            <td>
-                @{
-                    var tongTon = ((Dictionary<int, int>)ViewBag.TongTon).GetValueOrDefault(item.MaHang);
-                }
-                @tongTon
-                @if (tongTon <= item.MucTonToiThieu)
-                {
-                    <span class="badge bg-danger">Cảnh báo</span>
-                }
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.MoTa)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.TrangThai)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.MaHang">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.MaHang">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.MaHang">Delete</a> |
-                <form asp-action="DoiTrangThai" asp-route-id="@item.MaHang" method="post" class="d-inline">
-                    <button type="submit" class="btn btn-link p-0 align-baseline">@(item.TrangThai ? "Ngừng HĐ" : "Kích hoạt")</button>
-                </form>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
 
-@{
-    int currentPage = ViewBag.CurrentPage ?? 1;
-    int totalPages = ViewBag.TotalPages ?? 0;
+    <!-- Phân trang Server-side chuẩn LINQ -->
+    @{
+        int currentPage = ViewBag.CurrentPage ?? 1;
+        int totalPages = ViewBag.TotalPages ?? 0;
 
-    // Giữ nguyên điều kiện tìm kiếm, lọc, sắp xếp khi chuyển trang
-    Func<int, Dictionary<string, string?>> routeFor = p => new Dictionary<string, string?>
+        Func<int, Dictionary<string, string?>> routeFor = p => new Dictionary<string, string?>
+        {
+            ["searchString"] = ViewBag.SearchString,
+            ["maLoaiHang"] = ViewBag.MaLoaiHang?.ToString(),
+            ["maDonViTinh"] = ViewBag.MaDonViTinh?.ToString(),
+            ["trangThai"] = ViewBag.TrangThai?.ToString()?.ToLower(),
+            ["giaTu"] = ViewBag.GiaTu?.ToString(),
+            ["giaDen"] = ViewBag.GiaDen?.ToString(),
+            ["maKho"] = ViewBag.MaKho?.ToString(),
+            ["canhBao"] = ViewBag.CanhBao,
+            ["sortOrder"] = ViewBag.SortOrder,
+            ["page"] = p.ToString()
+        };
+    }
+
+    @if (totalPages > 1)
     {
-        ["searchString"] = ViewBag.SearchString,
-        ["maLoaiHang"] = ViewBag.MaLoaiHang?.ToString(),
-        ["maDonViTinh"] = ViewBag.MaDonViTinh?.ToString(),
-        ["trangThai"] = ViewBag.TrangThai?.ToString().ToLower(),
-        ["giaTu"] = ViewBag.GiaTu?.ToString(),
-        ["giaDen"] = ViewBag.GiaDen?.ToString(),
-        ["maKho"] = ViewBag.MaKho?.ToString(),
-        ["canhBao"] = ViewBag.CanhBao,
-        ["sortOrder"] = ViewBag.SortOrder,
-        ["page"] = p.ToString()
-    };
-}
-
-@if (totalPages > 1)
-{
-    <nav>
-        <ul class="pagination">
-            <li class="page-item @(currentPage <= 1 ? "disabled" : "")">
-                <a class="page-link" asp-action="Index" asp-all-route-data="routeFor(currentPage - 1)">Trước</a>
-            </li>
-            @for (int i = 1; i <= totalPages; i++)
-            {
-                <li class="page-item @(i == currentPage ? "active" : "")">
-                    <a class="page-link" asp-action="Index" asp-all-route-data="routeFor(i)">@i</a>
-                </li>
-            }
-            <li class="page-item @(currentPage >= totalPages ? "disabled" : "")">
-                <a class="page-link" asp-action="Index" asp-all-route-data="routeFor(currentPage + 1)">Sau</a>
-            </li>
-        </ul>
-    </nav>
-    <p class="text-muted">Trang @currentPage / @totalPages (tổng @ViewBag.TotalItems hàng hóa)</p>
-}
+        <div class="card-footer bg-white py-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <span class="text-muted small">
+                Hiển thị trang <strong>@currentPage</strong> / <strong>@totalPages</strong> (Tổng cộng: @ViewBag.TotalItems hàng hóa)
+            </span>
+            <nav aria-label="Page navigation">
+                <ul class="pagination pagination-sm mb-0">
+                    <li class="page-item @(currentPage <= 1 ? "disabled" : "")">
+                        <a class="page-link" asp-action="Index" asp-all-route-data="routeFor(currentPage - 1)">
+                            <i class="bi bi-chevron-left"></i> Trước
+                        </a>
+                    </li>
+                    @for (int i = 1; i <= totalPages; i++)
+                    {
+                        <li class="page-item @(i == currentPage ? "active" : "")">
+                            <a class="page-link" asp-action="Index" asp-all-route-data="routeFor(i)">@i</a>
+                        </li>
+                    }
+                    <li class="page-item @(currentPage >= totalPages ? "disabled" : "")">
+                        <a class="page-link" asp-action="Index" asp-all-route-data="routeFor(currentPage + 1)">
+                            Sau <i class="bi bi-chevron-right"></i>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    }
+</div>

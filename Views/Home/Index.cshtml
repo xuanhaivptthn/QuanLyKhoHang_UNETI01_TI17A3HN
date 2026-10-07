@@ -1,76 +1,235 @@
 @model IEnumerable<QuanLyKhoHang_UNETI01_TI17A3HN.Models.TaiKhoan>
 @inject QuanLyKhoHang_UNETI01_TI17A3HN.Models.DatabaseInfo DbInfo
 @{
-    ViewData["Title"] = "Trang chủ";
+    ViewData["Title"] = "Trang chủ - Hệ thống Quản lý Kho hàng";
 }
 
-<div class="text-center my-3">
-    <h1 class="display-4 fw-bold">Quản lý kho hàng</h1>
+<!-- Hero Welcome Section -->
+<div class="card border-0 rounded-4 shadow-sm mb-4 overflow-hidden" style="background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);">
+    <div class="card-body p-4 p-md-5 text-white">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <span class="badge bg-primary bg-opacity-75 text-white mb-2 px-3 py-1">
+                    <i class="bi bi-mortarboard-fill me-1"></i> Nhóm 1 - TI17A3HN - UNETI
+                </span>
+                <h1 class="display-6 fw-bold mb-2">Hệ Thống Quản Lý Kho Hàng</h1>
+                <p class="lead text-light text-opacity-75 mb-4" style="font-size: 1.05rem;">
+                    Giải pháp quản lý Nhập &bull; Xuất &bull; Tồn kho toàn diện theo tiêu chuẩn kiến trúc ASP.NET Core 10 MVC & Entity Framework Core.
+                </p>
+                <div class="d-flex flex-wrap gap-2">
+                    <a asp-controller="ThongKe" asp-action="Dashboard" class="btn btn-primary px-3 py-2 rounded-3 shadow-sm">
+                        <i class="bi bi-speedometer2"></i> Mở Dashboard Thống kê
+                    </a>
+                    <a asp-controller="PhieuNhaps" asp-action="Create" class="btn btn-success px-3 py-2 rounded-3 shadow-sm">
+                        <i class="bi bi-plus-circle"></i> Lập Phiếu Nhập
+                    </a>
+                    <a asp-controller="PhieuXuats" asp-action="Create" class="btn btn-warning text-dark px-3 py-2 rounded-3 shadow-sm">
+                        <i class="bi bi-box-arrow-up-right"></i> Lập Phiếu Xuất
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-4 text-center d-none d-lg-block">
+                <div class="p-4 bg-white bg-opacity-10 rounded-4 border border-white border-opacity-10 backdrop-blur">
+                    <i class="bi bi-boxes text-white" style="font-size: 5rem; opacity: 0.9;"></i>
+                    <div class="text-white-50 small mt-2">Phiên bản đồ án v1.0</div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
+<!-- Database Connection Status Notification -->
 @if (DbInfo != null)
 {
-    if (DbInfo.IsRemote)
-    {
-        <h2 class="text-success h4 mb-3">Đang sử dụng server CSDL chung</h2>
-    }
-    else
-    {
-        <h2 class="text-warning h4 mb-3">Đang sử dụng CSDL local. Hệ thống sẽ tự động chuyển sang server chung khi kết nối khả dụng...</h2>
-    }
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body py-3 px-4 d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <div class="d-flex align-items-center gap-3">
+                @if (DbInfo.IsRemote)
+                {
+                    <span class="d-inline-flex p-2 bg-success bg-opacity-10 text-success rounded-circle">
+                        <i class="bi bi-cloud-check-fill fs-4"></i>
+                    </span>
+                    <div>
+                        <div class="fw-bold text-success mb-0 d-flex align-items-center gap-2">
+                            <span>Đang kết nối Server CSDL Chung (Azure SQL)</span>
+                            <span class="badge bg-success">Đồng bộ</span>
+                        </div>
+                        <small class="text-muted">Máy chủ: @DbInfo.ServerName | Cơ sở dữ liệu: @DbInfo.DatabaseName</small>
+                    </div>
+                }
+                else
+                {
+                    <span class="d-inline-flex p-2 bg-warning bg-opacity-10 text-warning rounded-circle">
+                        <i class="bi bi-hdd-fill fs-4"></i>
+                    </span>
+                    <div>
+                        <div class="fw-bold text-warning mb-0 d-flex align-items-center gap-2">
+                            <span>Đang sử dụng CSDL Cục bộ (LocalDB)</span>
+                            <span class="badge bg-warning text-dark">Chế độ Fallback</span>
+                        </div>
+                        <small class="text-muted">Hệ thống sẽ tự động chuyển đổi sang server chung khi kết nối khả dụng.</small>
+                    </div>
+                }
+            </div>
+            <div class="small text-muted font-monospace">
+                Trạng thái: Hoạt động bình thường
+            </div>
+        </div>
+    </div>
 }
 
-<table class="table table-hover table-striped mb-0 align-middle">
-    <thead class="">
-        <tr class="table-dark">
-            <th scope="col">Tên đăng nhập</th>
-            <th scope="col">Mật khẩu</th>
-            <th scope="col">Họ tên</th>
-            <th scope="col">Vai trò</th>
-            <th scope="col">Trạng thái</th>
-        </tr>
-    </thead>
-    <tbody>
-        @if (Model != null && Model.Any())
-        {
-            foreach (var item in Model)
-            {
-                <tr>
-                    <td><strong>@item.TenDangNhap</strong></td>
-                    <td><code>@item.MatKhau</code></td>
-                    <td>@item.HoTen</td>
-                    <td>
-                        @if (item.VaiTro == "Admin")
+<!-- Quick Actions Grid -->
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-xl-3">
+        <div class="card h-100 hover-lift border-0 shadow-sm">
+            <div class="card-body p-3 d-flex align-items-center gap-3">
+                <div class="p-3 bg-primary bg-opacity-10 text-primary rounded-3">
+                    <i class="bi bi-box-seam fs-3"></i>
+                </div>
+                <div>
+                    <h6 class="fw-bold mb-1">Tra Cứu Hàng Hóa</h6>
+                    <small class="text-muted d-block mb-2">Bộ lọc đa năng & tồn theo kho</small>
+                    <a asp-controller="HangHoas" asp-action="Index" class="text-decoration-none small fw-semibold text-primary">
+                        Xem chi tiết <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="card h-100 hover-lift border-0 shadow-sm">
+            <div class="card-body p-3 d-flex align-items-center gap-3">
+                <div class="p-3 bg-danger bg-opacity-10 text-danger rounded-3">
+                    <i class="bi bi-exclamation-triangle-fill fs-3"></i>
+                </div>
+                <div>
+                    <h6 class="fw-bold mb-1">Cảnh Báo Hết Hàng</h6>
+                    <small class="text-muted d-block mb-2">Hàng chạm mức tồn tối thiểu</small>
+                    <a asp-controller="TonKho" asp-action="CanhBao" class="text-decoration-none small fw-semibold text-danger">
+                        Kiểm tra ngay <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="card h-100 hover-lift border-0 shadow-sm">
+            <div class="card-body p-3 d-flex align-items-center gap-3">
+                <div class="p-3 bg-info bg-opacity-10 text-info rounded-3">
+                    <i class="bi bi-clock-history fs-3"></i>
+                </div>
+                <div>
+                    <h6 class="fw-bold mb-1">Lịch Sử Biến Động</h6>
+                    <small class="text-muted d-block mb-2">Nhật ký nhập - xuất kho</small>
+                    <a asp-controller="TonKho" asp-action="LichSu" class="text-decoration-none small fw-semibold text-info">
+                        Xem nhật ký <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="card h-100 hover-lift border-0 shadow-sm">
+            <div class="card-body p-3 d-flex align-items-center gap-3">
+                <div class="p-3 bg-success bg-opacity-10 text-success rounded-3">
+                    <i class="bi bi-building fs-3"></i>
+                </div>
+                <div>
+                    <h6 class="fw-bold mb-1">Quản Lý Kho Hàng</h6>
+                    <small class="text-muted d-block mb-2">Kho tổng & chi nhánh cửa hàng</small>
+                    <a asp-controller="Khoes" asp-action="Index" class="text-decoration-none small fw-semibold text-success">
+                        Quản lý kho <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Test Accounts Card (Kiểm thử chức năng phân quyền) -->
+<div class="card border-0 shadow-sm rounded-4">
+    <div class="card-header bg-white py-3 d-flex align-items-center justify-content-between">
+        <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-shield-check text-primary fs-5"></i>
+            <h5 class="fw-bold mb-0">Danh Sách Tài Khoản Hệ Thống (Phục vụ Demo & Kiểm thử)</h5>
+        </div>
+        <span class="badge bg-light text-secondary border">Module 1 - Phân quyền</span>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th class="ps-4">Tên đăng nhập</th>
+                        <th>Mật khẩu</th>
+                        <th>Họ và tên</th>
+                        <th>Vai trò</th>
+                        <th>Trạng thái</th>
+                        <th class="text-end pe-4">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Any())
+                    {
+                        foreach (var item in Model)
                         {
-                            <span class="badge bg-danger">Admin</span>
+                            <tr>
+                                <td class="ps-4">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="rounded-circle bg-light d-flex align-items-center justify-content-center text-secondary" style="width: 32px; height: 32px;">
+                                            <i class="bi bi-person"></i>
+                                        </div>
+                                        <strong>@item.TenDangNhap</strong>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="font-monospace bg-light px-2 py-1 rounded border text-muted">@item.MatKhau</span>
+                                </td>
+                                <td>@item.HoTen</td>
+                                <td>
+                                    @if (item.VaiTro == "Admin")
+                                    {
+                                        <span class="badge bg-danger"><i class="bi bi-person-fill-gear me-1"></i> Quản trị viên (Admin)</span>
+                                    }
+                                    else if (item.VaiTro == "NhanVienKho")
+                                    {
+                                        <span class="badge bg-primary"><i class="bi bi-person-badge me-1"></i> Nhân viên kho</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">@item.VaiTro</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (item.TrangThai)
+                                    {
+                                        <span class="badge bg-success-subtle text-success border border-success-subtle">
+                                            <i class="bi bi-check-circle-fill me-1"></i> Hoạt động
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle">
+                                            <i class="bi bi-slash-circle me-1"></i> Bị khóa
+                                        </span>
+                                    }
+                                </td>
+                                <td class="text-end pe-4">
+                                    <a asp-controller="TaiKhoans" asp-action="DangNhap" class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-box-arrow-in-right"></i> Đăng nhập
+                                    </a>
+                                </td>
+                            </tr>
                         }
-                        else if (item.VaiTro == "NhanVienKho")
-                        {
-                            <span class="badge bg-primary">Nhân viên kho</span>
-                        }
-                        else
-                        {
-                            <span class="badge bg-secondary">@item.VaiTro</span>
-                        }
-                    </td>
-                    <td>
-                        @if (item.TrangThai)
-                        {
-                            <span class="badge bg-success">Hoạt động</span>
-                        }
-                        else
-                        {
-                            <span class="badge bg-danger">Bị khóa</span>
-                        }
-                    </td>
-                </tr>
-            }
-        }
-        else
-        {
-            <tr>
-                <td colspan="5" class="text-center text-muted py-3">Không có tài khoản nào trong CSDL.</td>
-            </tr>
-        }
-    </tbody>
-</table>
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="6" class="text-center text-muted py-4">Chưa có dữ liệu tài khoản.</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

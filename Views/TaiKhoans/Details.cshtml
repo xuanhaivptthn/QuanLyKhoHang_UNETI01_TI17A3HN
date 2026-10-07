@@ -6,54 +6,82 @@
 @model QuanLyKhoHang_UNETI01_TI17A3HN.Models.TaiKhoan
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Chi tiết tài khoản";
 }
 
-<h1>Details</h1>
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <div class="page-header">
+            <div>
+                <h2 class="page-title"><i class="bi bi-person-bounding-box text-primary"></i> Chi Tiết Tài Khoản</h2>
+                <p class="page-subtitle">Xem thông tin định danh và phân quyền người dùng</p>
+            </div>
+            <div>
+                <a asp-action="Index" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Quay lại danh sách
+                </a>
+            </div>
+        </div>
 
-<div>
-    <h4>TaiKhoan</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.TenDangNhap)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.TenDangNhap)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.MatKhau)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.MatKhau)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.HoTen)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.HoTen)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Email)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Email)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.VaiTro)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.VaiTro)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.TrangThai)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.TrangThai)
-        </dd>
-    </dl>
-</div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.MaTaiKhoan">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+            <div class="card-header bg-primary text-white p-4 d-flex align-items-center gap-3">
+                <div class="rounded-circle bg-white text-primary d-flex align-items-center justify-content-center shadow-sm" style="width: 56px; height: 56px;">
+                    <i class="bi bi-person-fill fs-2"></i>
+                </div>
+                <div>
+                    <h4 class="mb-0 fw-bold">@Model.HoTen</h4>
+                    <span class="badge bg-white text-primary mt-1">@Model.TenDangNhap</span>
+                </div>
+            </div>
+
+            <div class="card-body p-4">
+                <dl class="row mb-0 gy-3">
+                    <dt class="col-sm-4 text-muted">Mã tài khoản (ID):</dt>
+                    <dd class="col-sm-8 font-monospace fw-bold">#@Model.MaTaiKhoan</dd>
+
+                    <dt class="col-sm-4 text-muted">Tên đăng nhập:</dt>
+                    <dd class="col-sm-8 fw-semibold">@Model.TenDangNhap</dd>
+
+                    <dt class="col-sm-4 text-muted">Mật khẩu:</dt>
+                    <dd class="col-sm-8"><span class="font-monospace bg-light px-2 py-1 rounded border">@Model.MatKhau</span></dd>
+
+                    <dt class="col-sm-4 text-muted">Email liên hệ:</dt>
+                    <dd class="col-sm-8">@(string.IsNullOrEmpty(Model.Email) ? "Chưa cập nhật" : Model.Email)</dd>
+
+                    <dt class="col-sm-4 text-muted">Vai trò hệ thống:</dt>
+                    <dd class="col-sm-8">
+                        @if (Model.VaiTro == "Admin")
+                        {
+                            <span class="badge bg-danger"><i class="bi bi-shield-fill-check me-1"></i> Quản trị viên (Admin)</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-primary"><i class="bi bi-person-badge me-1"></i> @Model.VaiTro</span>
+                        }
+                    </dd>
+
+                    <dt class="col-sm-4 text-muted">Trạng thái:</dt>
+                    <dd class="col-sm-8">
+                        @if (Model.TrangThai)
+                        {
+                            <span class="badge bg-success"><i class="bi bi-check-circle-fill me-1"></i> Đang hoạt động</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-danger"><i class="bi bi-lock-fill me-1"></i> Đã bị khóa</span>
+                        }
+                    </dd>
+                </dl>
+            </div>
+
+            <div class="card-footer bg-light p-3 d-flex justify-content-end gap-2">
+                <a asp-action="Edit" asp-route-id="@Model.MaTaiKhoan" class="btn btn-primary">
+                    <i class="bi bi-pencil-square"></i> Chỉnh sửa
+                </a>
+                <a asp-action="Index" class="btn btn-outline-secondary">
+                    Quay lại
+                </a>
+            </div>
+        </div>
+    </div>
 </div>

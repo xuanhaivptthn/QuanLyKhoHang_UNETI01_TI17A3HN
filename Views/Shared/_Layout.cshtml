@@ -1,97 +1,201 @@
 @inject QuanLyKhoHang_UNETI01_TI17A3HN.Models.DatabaseInfo DbInfo
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - QuanLyKhoHang_UNETI01_TI17A3HN</title>
-    <script type="importmap"></script>
+    <title>@ViewData["Title"] - Quản Lý Kho Hàng UNETI</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/lib/bootstrap-icons/font/bootstrap-icons.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/QuanLyKhoHang_UNETI01_TI17A3HN.styles.css" asp-append-version="true" />
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
+    <header class="no-print">
+        <nav class="navbar navbar-expand-xl navbar-dark app-navbar py-2">
+            <div class="container-fluid px-3">
                 <a class="navbar-brand d-inline-flex align-items-center gap-2" asp-area="" asp-controller="Home" asp-action="Index">
-                    <span>QuanLyKhoHang_UNETI01_TI17A3HN</span>
+                    <span class="d-inline-flex align-items-center justify-content-center bg-primary text-white rounded p-1" style="width: 32px; height: 32px;">
+                        <i class="bi bi-box-seam-fill"></i>
+                    </span>
+                    <span>KhoHàng<span class="text-primary-emphasis fw-light">UNETI</span></span>
+                    
                     @if (DbInfo != null)
                     {
                         if (DbInfo.IsRemote)
                         {
-                            <span class="badge rounded-pill bg-success text-white" style="font-size: 0.72rem; font-weight: 500;" title="Remote Database (Azure SQL): @DbInfo.ServerName (@DbInfo.DatabaseName)">
-                                Remote DB
+                            <span class="badge rounded-pill bg-success text-white d-none d-md-inline-flex align-items-center gap-1" style="font-size: 0.7rem; font-weight: 500;" title="Remote Database (Azure SQL): @DbInfo.ServerName (@DbInfo.DatabaseName)">
+                                <i class="bi bi-cloud-check-fill"></i> Remote DB
                             </span>
                         }
                         else
                         {
-                            <span class="badge rounded-pill bg-secondary text-white" style="font-size: 0.72rem; font-weight: 500;" title="Local Database (LocalDB): @DbInfo.ServerName (@DbInfo.DatabaseName)">
-                                Local DB
+                            <span class="badge rounded-pill bg-warning text-dark d-none d-md-inline-flex align-items-center gap-1" style="font-size: 0.7rem; font-weight: 500;" title="Local Database (LocalDB): @DbInfo.ServerName (@DbInfo.DatabaseName)">
+                                <i class="bi bi-hdd-fill"></i> Local DB
                             </span>
                         }
                     }
                 </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+
+                <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
+
+                <div class="collapse navbar-collapse" id="mainNavbar">
+                    <ul class="navbar-nav me-auto mb-2 mb-xl-0">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Khoes" asp-action="Index">Kho</a>
+                            <a class="nav-link" asp-controller="Home" asp-action="Index">
+                                <i class="bi bi-house-door"></i> Trang chủ
+                            </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="HangHoas" asp-action="Index">Hàng hóa</a>
+                            <a class="nav-link" asp-controller="ThongKe" asp-action="Dashboard">
+                                <i class="bi bi-speedometer2"></i> Dashboard
+                            </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="BoPhanNhans" asp-action="Index">Bộ phận nhận</a>
+
+                        <!-- Nhóm Quản Lý Kho & Hàng Hóa -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="khoHangDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-boxes"></i> Hàng hóa & Kho
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="khoHangDropdown">
+                                <li>
+                                    <a class="dropdown-item" asp-controller="HangHoas" asp-action="Index">
+                                        <i class="bi bi-box-seam text-primary"></i> Danh sách Hàng hóa
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" asp-controller="Khoes" asp-action="Index">
+                                        <i class="bi bi-building text-info"></i> Quản lý Kho hàng
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item" asp-controller="LoaiHangs" asp-action="Index">
+                                        <i class="bi bi-tags text-warning"></i> Loại hàng
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" asp-controller="DonViTinhs" asp-action="Index">
+                                        <i class="bi bi-rulers text-secondary"></i> Đơn vị tính
+                                    </a>
+                                </li>
+                            </ul>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="NhaCungCaps" asp-action="Index">Nhà cung cấp</a>
+
+                        <!-- Nhóm Nghiệp Vụ Nhập Kho -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="nhapKhoDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-box-arrow-in-down"></i> Nhập kho
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="nhapKhoDropdown">
+                                <li>
+                                    <a class="dropdown-item" asp-controller="PhieuNhaps" asp-action="Index">
+                                        <i class="bi bi-receipt text-success"></i> Danh sách Phiếu nhập
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" asp-controller="PhieuNhaps" asp-action="Create">
+                                        <i class="bi bi-plus-circle text-primary"></i> Tạo phiếu nhập mới
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item" asp-controller="NhaCungCaps" asp-action="Index">
+                                        <i class="bi bi-truck text-secondary"></i> Nhà cung cấp
+                                    </a>
+                                </li>
+                            </ul>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="PhieuNhaps" asp-action="Index">Phiếu nhập</a>
+
+                        <!-- Nhóm Nghiệp Vụ Xuất Kho -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="xuatKhoDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-box-arrow-up-right"></i> Xuất kho
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="xuatKhoDropdown">
+                                <li>
+                                    <a class="dropdown-item" asp-controller="PhieuXuats" asp-action="Index">
+                                        <i class="bi bi-receipt-cutoff text-danger"></i> Danh sách Phiếu xuất
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" asp-controller="PhieuXuats" asp-action="Create">
+                                        <i class="bi bi-plus-circle text-primary"></i> Tạo phiếu xuất mới
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item" asp-controller="BoPhanNhans" asp-action="Index">
+                                        <i class="bi bi-shop text-secondary"></i> Bộ phận nhận / Cửa hàng
+                                    </a>
+                                </li>
+                            </ul>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="PhieuXuats" asp-action="Index">Phiếu xuất</a>
+
+                        <!-- Nhóm Tồn Kho & Cảnh Báo -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="tonKhoDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-clipboard2-data"></i> Tồn kho & Báo cáo
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="tonKhoDropdown">
+                                <li>
+                                    <a class="dropdown-item" asp-controller="TonKho" asp-action="CanhBao">
+                                        <i class="bi bi-exclamation-triangle-fill text-danger"></i> Cảnh báo hạn mức tồn
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" asp-controller="TonKho" asp-action="LichSu">
+                                        <i class="bi bi-clock-history text-primary"></i> Lịch sử biến động kho
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item" asp-controller="ThongKe" asp-action="BaoCaoNhapXuat">
+                                        <i class="bi bi-file-earmark-bar-graph text-info"></i> Báo cáo tổng hợp Nhập - Xuất
+                                    </a>
+                                </li>
+                            </ul>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="LoaiHangs" asp-action="Index">Loại hàng</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="DonViTinhs" asp-action="Index">Đơn vị tính</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="TaiKhoans" asp-action="Index">Tài khoản</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="ThongKe" asp-action="Dashboard">Dashboard Thống kê</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="TonKho" asp-action="CanhBao">Cảnh Báo Tồn</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="TonKho" asp-action="LichSu">Lịch Sử Nhập Xuất</a>
-                        </li>
+
+                        <!-- Quản trị Tài khoản (chỉ Admin) -->
+                        @if (Context.Session.GetString("VaiTro") == "Admin")
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="TaiKhoans" asp-action="Index">
+                                    <i class="bi bi-people"></i> Quản trị Tài khoản
+                                </a>
+                            </li>
+                        }
                     </ul>
-                    <ul class="navbar-nav align-items-center">
+
+                    <!-- Khu vực người dùng / Đăng nhập / Đăng xuất -->
+                    <ul class="navbar-nav align-items-center gap-2">
                         @if (Context.Session.GetInt32("MaTaiKhoan") != null)
                         {
-                            <li class="nav-item me-2">
-                                <span class="text-dark me-2">
-                                    Xin chào: <strong>@Context.Session.GetString("HoTen")</strong>
-                                    <span class="badge bg-info text-dark ms-1">@Context.Session.GetString("VaiTro")</span>
-                                </span>
-                            </li>
                             <li class="nav-item">
-                                <a class="btn btn-outline-danger btn-sm" asp-area="" asp-controller="TaiKhoans" asp-action="DangXuat">Đăng xuất</a>
+                                <div class="d-flex align-items-center text-light bg-dark bg-opacity-50 px-3 py-1 rounded-pill border border-secondary border-opacity-50">
+                                    <i class="bi bi-person-circle fs-5 text-info me-2"></i>
+                                    <div class="lh-sm text-start me-2">
+                                        <div class="fw-semibold text-white small">@Context.Session.GetString("HoTen")</div>
+                                        <span class="badge @(Context.Session.GetString("VaiTro") == "Admin" ? "bg-danger" : "bg-primary")" style="font-size: 0.65rem;">
+                                            @Context.Session.GetString("VaiTro")
+                                        </span>
+                                    </div>
+                                    <a class="btn btn-outline-danger btn-sm rounded-pill ms-1 py-0 px-2" asp-controller="TaiKhoans" asp-action="DangXuat" title="Đăng xuất">
+                                        <i class="bi bi-box-arrow-right"></i>
+                                    </a>
+                                </div>
                             </li>
                         }
                         else
                         {
                             <li class="nav-item">
-                                <a class="btn btn-outline-primary btn-sm" asp-area="" asp-controller="TaiKhoans" asp-action="DangNhap">Đăng nhập</a>
+                                <a class="btn btn-primary btn-sm rounded-pill px-3 shadow-sm" asp-controller="TaiKhoans" asp-action="DangNhap">
+                                    <i class="bi bi-box-arrow-in-right"></i> Đăng nhập
+                                </a>
                             </li>
                         }
                     </ul>
@@ -99,17 +203,22 @@
             </div>
         </nav>
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
+
+    <div class="container-fluid px-4 py-4">
+        <main role="main">
             @RenderBody()
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - QuanLyKhoHang_UNETI01_TI17A3HN
+    <footer class="footer no-print">
+        <div class="container-fluid px-4 d-flex justify-content-between align-items-center">
+            <span>&copy; 2026 - <strong>QuanLyKhoHang_UNETI01_TI17A3HN</strong> (Nhóm 1 - TI17A3HN - UNETI)</span>
+            <span class="d-none d-sm-inline text-muted small">
+                ASP.NET Core 10 MVC &bull; SQL Server &bull; Bootstrap Icons
+            </span>
         </div>
     </footer>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>

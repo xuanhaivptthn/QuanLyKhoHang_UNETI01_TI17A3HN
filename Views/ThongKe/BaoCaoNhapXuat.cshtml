@@ -1,58 +1,154 @@
-﻿@{
-    ViewData["Title"] = "Báo Cáo Thống Kê LINQ";
+@*
+    Họ và tên: Nguyễn Văn Cường
+    Mã sinh viên: 23103100132
+    Nội dung thực hiện: Tồn kho, cảnh báo tồn, lịch sử nhập xuất, Dashboard và thống kê LINQ.
+*@
+@{
+    ViewData["Title"] = "Báo cáo thống kê Nhập - Xuất theo thời gian";
 }
 
-<h2 class="mt-4"><i class="fas fa-chart-pie"></i> Báo Cáo Thống Kê Theo Thời Gian</h2>
-
-<!-- Yêu cầu 9.7: Chọn khoảng ngày -->
-<form asp-action="BaoCaoNhapXuat" method="get" class="form-inline mb-4 mt-3 bg-light p-3 border rounded">
-    <div class="row align-items-center">
-        <div class="col-auto">
-            <label class="fw-bold">Từ ngày:</label>
-            <input type="date" name="tuNgay" value="@ViewBag.TuNgay" class="form-control" />
-        </div>
-        <div class="col-auto">
-            <label class="fw-bold">Đến ngày:</label>
-            <input type="date" name="denNgay" value="@ViewBag.DenNgay" class="form-control" />
-        </div>
-        <div class="col-auto mt-4">
-            <button type="submit" class="btn btn-primary"><i class="fas fa-filter"></i> Thống kê bằng LINQ</button>
-        </div>
+<div class="page-header">
+    <div>
+        <h2 class="page-title"><i class="bi bi-file-earmark-bar-graph-fill text-primary"></i> Báo Cáo Thống Kê Nhập - Xuất</h2>
+        <p class="page-subtitle">Thống kê nâng cao bằng LINQ: Xếp hạng top mặt hàng nhập/xuất và đối soát số liệu theo kỳ</p>
     </div>
-</form>
+    <div class="d-flex gap-2">
+        <button type="button" class="btn btn-outline-secondary" onclick="window.print()">
+            <i class="bi bi-printer"></i> In báo cáo
+        </button>
+        <a asp-action="Dashboard" class="btn btn-outline-secondary">
+            <i class="bi bi-speedometer2"></i> Dashboard
+        </a>
+    </div>
+</div>
 
-<div class="row">
-    <!-- Top Nhập -->
-    <div class="col-md-6">
-        <div class="card shadow-sm mb-4">
-            <div class="card-header bg-success text-white">Top 5 Hàng Nhập Nhiều Nhất</div>
-            <div class="card-body">
-                <table class="table table-bordered">
-                    <thead><tr><th>Tên Hàng</th><th>Tổng Số Nhập</th></tr></thead>
-                    <tbody>
-                        @foreach (var item in ViewBag.TopHangNhap)
-                        {
-                            <tr><td>@item.TenHang</td><td>@item.TongSo</td></tr>
-                        }
-                    </tbody>
-                </table>
+<!-- Bộ Lọc Thời Gian Báo Cáo -->
+<div class="card border-0 shadow-sm rounded-4 mb-4 no-print">
+    <div class="card-body p-4">
+        <form asp-action="BaoCaoNhapXuat" method="get">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-4 col-lg-3">
+                    <label class="form-label small fw-semibold text-muted">Từ ngày</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light text-muted"><i class="bi bi-calendar-event"></i></span>
+                        <input type="date" name="tuNgay" value="@ViewBag.TuNgay" class="form-control" />
+                    </div>
+                </div>
+
+                <div class="col-md-4 col-lg-3">
+                    <label class="form-label small fw-semibold text-muted">Đến ngày</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light text-muted"><i class="bi bi-calendar-event"></i></span>
+                        <input type="date" name="denNgay" value="@ViewBag.DenNgay" class="form-control" />
+                    </div>
+                </div>
+
+                <div class="col-md-4 col-lg-3">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-funnel-fill"></i> Tổng hợp số liệu LINQ
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- 2 Bảng Top Nhập & Top Xuất -->
+<div class="row g-4">
+    <!-- Top Hàng Nhập -->
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm rounded-4 h-100">
+            <div class="card-header bg-white py-3 d-flex align-items-center justify-content-between">
+                <h5 class="fw-bold mb-0 text-success">
+                    <i class="bi bi-trophy-fill me-2"></i> Top 5 Hàng Nhập Nhiều Nhất
+                </h5>
+                <span class="badge bg-success-subtle text-success border border-success-subtle">Nhập kho</span>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="ps-4" style="width: 50px;">STT</th>
+                                <th>Tên hàng hóa</th>
+                                <th class="text-end pe-4">Tổng số lượng nhập</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (ViewBag.TopHangNhap != null && ((System.Collections.IEnumerable)ViewBag.TopHangNhap).Cast<object>().Any())
+                            {
+                                int stt = 1;
+                                foreach (dynamic item in ViewBag.TopHangNhap)
+                                {
+                                    <tr>
+                                        <td class="ps-4 font-monospace">
+                                            @if (stt == 1) { <span class="badge bg-warning text-dark"><i class="bi bi-trophy-fill"></i> 1</span> }
+                                            else { <span class="text-muted">#@stt</span> }
+                                        </td>
+                                        <td class="fw-semibold text-dark">@item.TenHang</td>
+                                        <td class="text-end pe-4 font-monospace fw-bold fs-6 text-success">+@item.TongSo</td>
+                                    </tr>
+                                    stt++;
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="3" class="text-center text-muted py-4">Chưa có giao dịch nhập nào trong kỳ này.</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
-    <!-- Top Xuất -->
-    <div class="col-md-6">
-        <div class="card shadow-sm mb-4">
-            <div class="card-header bg-warning text-dark">Top 5 Hàng Xuất Nhiều Nhất</div>
-            <div class="card-body">
-                <table class="table table-bordered">
-                    <thead><tr><th>Tên Hàng</th><th>Tổng Số Xuất</th></tr></thead>
-                    <tbody>
-                        @foreach (var item in ViewBag.TopHangXuat)
-                        {
-                            <tr><td>@item.TenHang</td><td>@item.TongSo</td></tr>
-                        }
-                    </tbody>
-                </table>
+
+    <!-- Top Hàng Xuất -->
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm rounded-4 h-100">
+            <div class="card-header bg-white py-3 d-flex align-items-center justify-content-between">
+                <h5 class="fw-bold mb-0 text-danger">
+                    <i class="bi bi-fire me-2"></i> Top 5 Hàng Xuất Nhiều Nhất
+                </h5>
+                <span class="badge bg-danger-subtle text-danger border border-danger-subtle">Xuất kho</span>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="ps-4" style="width: 50px;">STT</th>
+                                <th>Tên hàng hóa</th>
+                                <th class="text-end pe-4">Tổng số lượng xuất</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (ViewBag.TopHangXuat != null && ((System.Collections.IEnumerable)ViewBag.TopHangXuat).Cast<object>().Any())
+                            {
+                                int stt = 1;
+                                foreach (dynamic item in ViewBag.TopHangXuat)
+                                {
+                                    <tr>
+                                        <td class="ps-4 font-monospace">
+                                            @if (stt == 1) { <span class="badge bg-danger text-white"><i class="bi bi-fire"></i> 1</span> }
+                                            else { <span class="text-muted">#@stt</span> }
+                                        </td>
+                                        <td class="fw-semibold text-dark">@item.TenHang</td>
+                                        <td class="text-end pe-4 font-monospace fw-bold fs-6 text-danger">-@item.TongSo</td>
+                                    </tr>
+                                    stt++;
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="3" class="text-center text-muted py-4">Chưa có giao dịch xuất nào trong kỳ này.</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>

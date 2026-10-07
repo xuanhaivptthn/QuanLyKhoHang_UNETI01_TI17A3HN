@@ -1,57 +1,55 @@
+@*
+    Họ và tên: Nguyễn Việt Dũng
+    Mã sinh viên: 23103100127
+    Phụ trách Module 4: Bộ phận nhận, Phiếu xuất, Chi tiết phiếu xuất
+*@
 @model QuanLyKhoHang_UNETI01_TI17A3HN.Models.PhieuXuat
 
 @{
-    ViewData["Title"] = "Delete";
+    ViewData["Title"] = "Xác nhận xóa phiếu xuất #PX-" + Model.MaPhieuXuat;
 }
 
-<h1>Delete</h1>
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card border-danger shadow-sm rounded-4 overflow-hidden">
+            <div class="card-header bg-danger text-white p-3 d-flex align-items-center gap-2">
+                <i class="bi bi-exclamation-triangle-fill fs-4"></i>
+                <h5 class="mb-0 fw-bold">Xác Nhận Xóa Phiếu Xuất Kho</h5>
+            </div>
+            <div class="card-body p-4">
+                <p class="text-danger fw-semibold">
+                    Bạn có chắc chắn muốn xóa phiếu xuất này không? Toàn bộ các dòng chi tiết hàng xuất gắn liền với phiếu cũng sẽ bị xóa.
+                </p>
 
-<h3>Are you sure you want to delete this?</h3>
-<div>
-    <h4>PhieuXuat</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.NgayXuat)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.NgayXuat)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.NguoiLap)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.NguoiLap)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.TrangThai)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.TrangThai)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.GhiChu)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.GhiChu)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.BoPhanNhan)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.BoPhanNhan.TenBoPhan)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Kho)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Kho.TenKho)
-        </dd>
-    </dl>
-    
-    <form asp-action="Delete">
-        <input type="hidden" asp-for="MaPhieuXuat" />
-        <input type="submit" value="Delete" class="btn btn-danger" /> |
-        <a asp-action="Index">Back to List</a>
-    </form>
+                <div class="bg-light p-3 rounded-3 border mb-4">
+                    <dl class="row gy-2 mb-0">
+                        <dt class="col-sm-4 text-muted">Mã phiếu:</dt>
+                        <dd class="col-sm-8 font-monospace fw-bold text-danger">#PX-@Model.MaPhieuXuat</dd>
+
+                        <dt class="col-sm-4 text-muted">Bộ phận nhận:</dt>
+                        <dd class="col-sm-8 fw-semibold">@(Model.BoPhanNhan?.TenBoPhan ?? "---")</dd>
+
+                        <dt class="col-sm-4 text-muted">Kho xuất:</dt>
+                        <dd class="col-sm-8">@(Model.Kho?.TenKho ?? "---")</dd>
+
+                        <dt class="col-sm-4 text-muted">Ngày xuất:</dt>
+                        <dd class="col-sm-8">@Model.NgayXuat.ToString("dd/MM/yyyy HH:mm")</dd>
+
+                        <dt class="col-sm-4 text-muted">Người lập:</dt>
+                        <dd class="col-sm-8">@Model.NguoiLap</dd>
+                    </dl>
+                </div>
+
+                <form asp-action="Delete" method="post" class="d-flex justify-content-end gap-2">
+                    <input type="hidden" asp-for="MaPhieuXuat" />
+                    <a asp-action="Index" class="btn btn-outline-secondary">
+                        <i class="bi bi-x-circle"></i> Hủy bỏ
+                    </a>
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash-fill"></i> Xác nhận xóa
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>

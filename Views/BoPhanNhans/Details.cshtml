@@ -1,48 +1,66 @@
+@*
+    Họ và tên: Nguyễn Việt Dũng
+    Mã sinh viên: 23103100127
+    Phụ trách Module 4: Bộ phận nhận, Phiếu xuất, Chi tiết phiếu xuất
+*@
 @model QuanLyKhoHang_UNETI01_TI17A3HN.Models.BoPhanNhan
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Chi tiết bộ phận nhận - " + Model.TenBoPhan;
 }
 
-<h1>Details</h1>
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <div class="page-header">
+            <div>
+                <h2 class="page-title"><i class="bi bi-shop text-primary"></i> Chi Tiết Bộ Phận Nhận</h2>
+                <p class="page-subtitle">Thông tin chi nhánh và địa chỉ tiếp nhận phân phối hàng hóa</p>
+            </div>
+            <div>
+                <a asp-action="Index" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Quay lại danh sách
+                </a>
+            </div>
+        </div>
 
-<div>
-    <h4>BoPhanNhan</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.TenBoPhan)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.TenBoPhan)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.NguoiDaiDien)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.NguoiDaiDien)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.SoDienThoai)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.SoDienThoai)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.MoTa)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.MoTa)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.TrangThai)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.TrangThai)
-        </dd>
-    </dl>
-</div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.MaBoPhan">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+        <div class="card border-0 shadow-sm rounded-4">
+            <div class="card-body p-4">
+                <div class="mb-3">
+                    <span class="badge bg-light text-primary border font-monospace px-2 py-1">Mã BPN: #@Model.MaBoPhan</span>
+                    <h4 class="fw-bold text-dark mt-2 mb-1">@Model.TenBoPhan</h4>
+                </div>
+                <hr class="text-secondary opacity-25" />
+                <dl class="row gy-3 mb-0">
+                    <dt class="col-sm-4 text-muted">Người đại diện:</dt>
+                    <dd class="col-sm-8 fw-semibold">@(string.IsNullOrEmpty(Model.NguoiDaiDien) ? "Chưa cập nhật" : Model.NguoiDaiDien)</dd>
+
+                    <dt class="col-sm-4 text-muted">Số điện thoại:</dt>
+                    <dd class="col-sm-8"><i class="bi bi-telephone text-success me-1"></i>@(string.IsNullOrEmpty(Model.SoDienThoai) ? "Chưa cập nhật" : Model.SoDienThoai)</dd>
+
+                    <dt class="col-sm-4 text-muted">Mô tả / Ghi chú:</dt>
+                    <dd class="col-sm-8">@(string.IsNullOrEmpty(Model.MoTa) ? "Chưa cập nhật" : Model.MoTa)</dd>
+
+                    <dt class="col-sm-4 text-muted">Trạng thái:</dt>
+                    <dd class="col-sm-8">
+                        @if (Model.TrangThai)
+                        {
+                            <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i> Đang hoạt động</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary"><i class="bi bi-pause-circle me-1"></i> Ngừng hoạt động</span>
+                        }
+                    </dd>
+                </dl>
+            </div>
+            <div class="card-footer bg-light p-3 d-flex justify-content-end gap-2">
+                <a asp-action="Edit" asp-route-id="@Model.MaBoPhan" class="btn btn-primary">
+                    <i class="bi bi-pencil-square"></i> Chỉnh sửa
+                </a>
+                <a asp-action="Index" class="btn btn-outline-secondary">
+                    Quay lại
+                </a>
+            </div>
+        </div>
+    </div>
 </div>

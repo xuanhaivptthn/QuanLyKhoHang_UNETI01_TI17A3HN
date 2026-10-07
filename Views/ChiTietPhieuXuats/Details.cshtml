@@ -1,48 +1,61 @@
+@*
+    Họ và tên: Nguyễn Việt Dũng
+    Mã sinh viên: 23103100127
+    Phụ trách Module 4: Bộ phận nhận, Phiếu xuất, Chi tiết phiếu xuất
+*@
 @model QuanLyKhoHang_UNETI01_TI17A3HN.Models.ChiTietPhieuXuat
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Chi tiết mặt hàng xuất";
 }
 
-<h1>Details</h1>
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <div class="page-header">
+            <div>
+                <h2 class="page-title"><i class="bi bi-box-arrow-up-right text-danger"></i> Chi Tiết Hàng Xuất Kho</h2>
+                <p class="page-subtitle">Thông tin dòng xuất trong phiếu #PX-@Model.MaPhieuXuat</p>
+            </div>
+            <div>
+                <a asp-controller="PhieuXuats" asp-action="Details" asp-route-id="@Model.MaPhieuXuat" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Quay lại phiếu xuất
+                </a>
+            </div>
+        </div>
 
-<div>
-    <h4>ChiTietPhieuXuat</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.SoLuongXuat)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.SoLuongXuat)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.DonGiaXuatThamChieu)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.DonGiaXuatThamChieu)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.GhiChu)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.GhiChu)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.PhieuXuat)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.PhieuXuat.NguoiLap)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.HangHoa)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.HangHoa.TenHang)
-        </dd>
-    </dl>
-</div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.MaChiTietXuat">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+        <div class="card border-0 shadow-sm rounded-4">
+            <div class="card-body p-4">
+                <dl class="row gy-3 mb-0">
+                    <dt class="col-sm-4 text-muted">Mã phiếu xuất:</dt>
+                    <dd class="col-sm-8 font-monospace fw-bold text-danger">#PX-@Model.MaPhieuXuat</dd>
+
+                    <dt class="col-sm-4 text-muted">Mặt hàng:</dt>
+                    <dd class="col-sm-8 fw-bold">@(Model.HangHoa?.TenHang ?? "---")</dd>
+
+                    <dt class="col-sm-4 text-muted">Số lượng xuất:</dt>
+                    <dd class="col-sm-8 font-monospace fw-bold fs-6 text-danger">@Model.SoLuongXuat</dd>
+
+                    <dt class="col-sm-4 text-muted">Đơn giá tham chiếu:</dt>
+                    <dd class="col-sm-8 text-primary fw-semibold">@Model.DonGiaXuatThamChieu.ToString("#,##0") VNĐ</dd>
+
+                    <dt class="col-sm-4 text-muted">Thành tiền:</dt>
+                    <dd class="col-sm-8 text-danger fw-bold fs-5">@(( (decimal)Model.SoLuongXuat * Model.DonGiaXuatThamChieu ).ToString("#,##0")) VNĐ</dd>
+
+                    <dt class="col-sm-4 text-muted">Người lập phiếu:</dt>
+                    <dd class="col-sm-8">@(Model.PhieuXuat?.NguoiLap ?? "---")</dd>
+
+                    <dt class="col-sm-4 text-muted">Ghi chú:</dt>
+                    <dd class="col-sm-8 text-secondary">@(string.IsNullOrEmpty(Model.GhiChu) ? "---" : Model.GhiChu)</dd>
+                </dl>
+            </div>
+            <div class="card-footer bg-light p-3 d-flex justify-content-end gap-2">
+                <a asp-action="Edit" asp-route-id="@Model.MaChiTietXuat" class="btn btn-primary">
+                    <i class="bi bi-pencil-square"></i> Chỉnh sửa
+                </a>
+                <a asp-controller="PhieuXuats" asp-action="Details" asp-route-id="@Model.MaPhieuXuat" class="btn btn-outline-secondary">
+                    Quay lại
+                </a>
+            </div>
+        </div>
+    </div>
 </div>

@@ -1,63 +1,57 @@
+@*
+    Họ và tên: Nguyễn Thị Cúc
+    Mã sinh viên: 23103100178
+    Phụ trách Module 2: Quản lý Kho, Hàng hóa & Tra cứu dữ liệu cửa hàng
+*@
 @model QuanLyKhoHang_UNETI01_TI17A3HN.Models.HangHoa
 
 @{
-    ViewData["Title"] = "Delete";
+    ViewData["Title"] = "Xác nhận xóa hàng hóa";
 }
 
-<h1>Delete</h1>
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card border-danger shadow-sm rounded-4 overflow-hidden">
+            <div class="card-header bg-danger text-white p-3 d-flex align-items-center gap-2">
+                <i class="bi bi-exclamation-triangle-fill fs-4"></i>
+                <h5 class="mb-0 fw-bold">Xác Nhận Xóa Hàng Hóa</h5>
+            </div>
+            <div class="card-body p-4">
+                <div asp-validation-summary="All" class="alert alert-danger" role="alert" style="display: @(ViewData.ModelState.IsValid ? "none" : "block")"></div>
 
-<h3>Are you sure you want to delete this?</h3>
-<div>
-    <h4>HangHoa</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.TenHang)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.TenHang)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.LoaiHang)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.LoaiHang.TenLoaiHang)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.DonViTinh)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.DonViTinh.TenDonViTinh)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.GiaNhapThamKhao)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.GiaNhapThamKhao)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.MucTonToiThieu)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.MucTonToiThieu)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.MoTa)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.MoTa)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.TrangThai)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.TrangThai)
-        </dd>
-    </dl>
-    
-    <form asp-action="Delete">
-        <input type="hidden" asp-for="MaHang" />
-        <input type="submit" value="Delete" class="btn btn-danger" /> |
-        <a asp-action="Index">Back to List</a>
-    </form>
+                <p class="text-danger fw-semibold">
+                    Bạn có chắc chắn muốn xóa mặt hàng này không? Lưu ý: Nếu mặt hàng đã phát sinh tồn kho hoặc chứng từ nhập/xuất, hệ thống sẽ bảo vệ toàn vẹn dữ liệu.
+                </p>
+
+                <div class="bg-light p-3 rounded-3 border mb-4">
+                    <dl class="row gy-2 mb-0">
+                        <dt class="col-sm-4 text-muted">Mã hàng:</dt>
+                        <dd class="col-sm-8 font-monospace fw-bold">#@Model.MaHang</dd>
+
+                        <dt class="col-sm-4 text-muted">Tên hàng hóa:</dt>
+                        <dd class="col-sm-8 fw-bold">@Model.TenHang</dd>
+
+                        <dt class="col-sm-4 text-muted">Loại hàng:</dt>
+                        <dd class="col-sm-8">@(Model.LoaiHang?.TenLoaiHang ?? "---")</dd>
+
+                        <dt class="col-sm-4 text-muted">Đơn vị tính:</dt>
+                        <dd class="col-sm-8">@(Model.DonViTinh?.TenDonViTinh ?? "---")</dd>
+
+                        <dt class="col-sm-4 text-muted">Giá tham khảo:</dt>
+                        <dd class="col-sm-8 text-primary fw-semibold">@Model.GiaNhapThamKhao.ToString("#,##0") VNĐ</dd>
+                    </dl>
+                </div>
+
+                <form asp-action="Delete" method="post" class="d-flex justify-content-end gap-2">
+                    <input type="hidden" asp-for="MaHang" />
+                    <a asp-action="Index" class="btn btn-outline-secondary">
+                        <i class="bi bi-x-circle"></i> Hủy bỏ
+                    </a>
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash-fill"></i> Xác nhận xóa
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>

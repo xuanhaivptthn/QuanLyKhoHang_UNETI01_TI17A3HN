@@ -1,85 +1,160 @@
-﻿@model IEnumerable<QuanLyKhoHang_UNETI01_TI17A3HN.Models.LichSuTonKho>
+@*
+    Họ và tên: Nguyễn Văn Cường
+    Mã sinh viên: 23103100132
+    Nội dung thực hiện: Tồn kho, cảnh báo tồn, lịch sử nhập xuất, Dashboard và thống kê LINQ.
+*@
+@model IEnumerable<QuanLyKhoHang_UNETI01_TI17A3HN.Models.LichSuTonKho>
 
 @{
-    ViewData["Title"] = "Lịch Sử Nhập Xuất";
+    ViewData["Title"] = "Lịch sử biến động nhập xuất kho";
 }
 
-<h2 class="mt-4"><i class="fas fa-history"></i> Lịch Sử Nhập Xuất Kho</h2>
-<p>Biến động tồn kho của tất cả các mặt hàng.</p>
-
-<!-- Form tìm kiếm theo Kho hoặc Hàng hóa -->
-<form asp-action="LichSu" method="get" class="mb-3">
-    <div class="input-group w-50">
-        <input type="text" name="timKiem" value="@ViewBag.TimKiem" class="form-control" placeholder="Nhập tên hàng hóa hoặc kho để lọc..." />
-        <button type="submit" class="btn btn-info">Tìm kiếm / Lọc</button>
+<div class="page-header">
+    <div>
+        <h2 class="page-title"><i class="bi bi-clock-history text-primary"></i> Nhật Ký Biến Động Kho</h2>
+        <p class="page-subtitle">Theo dõi toàn bộ lịch sử các giao dịch nhập kho, xuất kho và tồn lũy kế sau giao dịch</p>
     </div>
-</form>
+    <div class="d-flex gap-2">
+        <a asp-controller="ThongKe" asp-action="Dashboard" class="btn btn-outline-secondary">
+            <i class="bi bi-speedometer2"></i> Dashboard
+        </a>
+    </div>
+</div>
 
-<table class="table table-bordered table-striped mt-3">
-    <thead class="thead-dark">
-        <tr>
-            <th>Ngày Phát Sinh</th>
-            <th>Loại Giao Dịch</th>
-            <th>Mã Phiếu</th>
-            <th>Kho</th>
-            <th>Tên Hàng Hóa</th>
-            <th>Số Lượng</th>
-            <th>Tồn Sau Giao Dịch</th>
-            <th>Người Thực Hiện</th>
-            <th>Ghi Chú</th>
-        </tr>
-    </thead>
-    <tbody>
-        @if (Model != null && Model.Any())
-        {
-            foreach (var item in Model)
-            {
-                <tr>
-                    <td>@item.NgayPhatSinh.ToString("dd/MM/yyyy HH:mm")</td>
-                    <td>
-                        @if (item.LoaiGiaoDich != null && item.LoaiGiaoDich.Contains("Nhập"))
+<!-- Bộ Lọc Tìm Kiếm & Lọc Lịch Sử -->
+<div class="card border-0 shadow-sm rounded-4 mb-4">
+    <div class="card-body p-3">
+        <form asp-action="LichSu" method="get">
+            <div class="row g-2 align-items-center">
+                <div class="col-md-8 col-lg-6">
+                    <div class="input-group">
+                        <span class="input-group-text bg-light text-muted border-end-0"><i class="bi bi-search"></i></span>
+                        <input type="text" name="timKiem" value="@ViewBag.TimKiem" class="form-control border-start-0 ps-0" placeholder="Tìm theo tên hàng hóa, kho hoặc người thực hiện..." />
+                    </div>
+                </div>
+                <div class="col-md-4 col-lg-3 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-funnel-fill"></i> Lọc nhật ký
+                    </button>
+                    <a asp-action="LichSu" class="btn btn-outline-secondary">Tất cả</a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Bảng Nhật Ký Biến Động -->
+<div class="card border-0 shadow-sm rounded-4">
+    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+        <span class="fw-semibold text-secondary">
+            <i class="bi bi-journal-text me-1"></i> Nhật ký giao dịch kho
+        </span>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th class="ps-4">Thời điểm</th>
+                        <th>Loại giao dịch</th>
+                        <th>Chứng từ</th>
+                        <th>Kho hàng</th>
+                        <th>Hàng hóa</th>
+                        <th class="text-center">Số lượng</th>
+                        <th class="text-center">Tồn sau GD</th>
+                        <th>Người thực hiện</th>
+                        <th class="pe-4">Ghi chú</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Any())
+                    {
+                        foreach (var item in Model)
                         {
-                            <span class="badge bg-success">Nhập</span>
+                            bool isNhap = item.LoaiGiaoDich != null && item.LoaiGiaoDich.Contains("Nhập");
+                            <tr>
+                                <td class="ps-4 text-muted small">
+                                    <i class="bi bi-calendar3 me-1"></i>@item.NgayPhatSinh.ToString("dd/MM/yyyy HH:mm")
+                                </td>
+                                <td>
+                                    @if (isNhap)
+                                    {
+                                        <span class="badge bg-success-subtle text-success border border-success-subtle">
+                                            <i class="bi bi-box-arrow-in-down me-1"></i> Nhập kho
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle">
+                                            <i class="bi bi-box-arrow-up-right me-1"></i> Xuất kho
+                                        </span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(item.MaPhieu))
+                                    {
+                                        <span class="font-monospace fw-semibold @(isNhap ? "text-success" : "text-danger")">
+                                            @item.MaPhieu
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted small">---</span>
+                                    }
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-1">
+                                        <i class="bi bi-building text-secondary small"></i>
+                                        <span>@(item.Kho?.TenKho ?? "Kho #" + item.MaKho)</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="fw-bold text-dark">@(item.HangHoa?.TenHang ?? "Mặt hàng #" + item.MaHang)</span>
+                                </td>
+                                <td class="text-center font-monospace fw-bold fs-6 @(isNhap ? "text-success" : "text-danger")">
+                                    @(isNhap ? "+" : "-")@item.SoLuong
+                                </td>
+                                <td class="text-center font-monospace fw-semibold text-primary">
+                                    @item.TonSauGiaoDich
+                                </td>
+                                <td>
+                                    <span class="text-muted small"><i class="bi bi-person me-1"></i>@item.NguoiThucHien</span>
+                                </td>
+                                <td class="pe-4 text-muted small">
+                                    @(string.IsNullOrEmpty(item.GhiChu) ? "---" : item.GhiChu)
+                                </td>
+                            </tr>
                         }
-                        else
-                        {
-                            <span class="badge bg-danger">Xuất</span>
-                        }
-                    </td>
-                    <td>@item.MaPhieu</td>
-                    <td>@item.Kho.TenKho</td>
-                    <td>@item.HangHoa.TenHang</td>
-                    <td class="font-weight-bold @(item.LoaiGiaoDich != null && item.LoaiGiaoDich.Contains("Nhập") ? "text-success" : "text-danger")">
-                        @(item.LoaiGiaoDich != null && item.LoaiGiaoDich.Contains("Nhập") ? "+" : "-")@item.SoLuong
-                    </td>
-                    <td>@item.TonSauGiaoDich</td>
-                    <td>@item.NguoiThucHien</td>
-                    <td>@item.GhiChu</td>
-                </tr>
-            }
-        }
-        else
-        {
-            <tr>
-                <td colspan="9" class="text-center text-muted">Chưa có dữ liệu lịch sử nào.</td>
-            </tr>
-        }
-    </tbody>
-</table>
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="9" class="text-center text-muted py-5">
+                                <i class="bi bi-clock-history fs-1 d-block text-secondary opacity-50 mb-2"></i>
+                                Chưa có dữ liệu lịch sử biến động kho nào.
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
 
-<!-- Giao diện Phân trang -->
-@if (ViewBag.TotalPages > 1)
-{
-    <nav>
-        <ul class="pagination">
-            @for (int i = 1; i <= ViewBag.TotalPages; i++)
-            {
-                <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
-                    <a class="page-link" href="/TonKho/LichSu?pageNumber=@i&timKiem=@ViewBag.TimKiem">@i</a>
-                </li>
-            }
-        </ul>
-    </nav>
-}
-
-<a href="/ThongKe/Dashboard" class="btn btn-secondary mt-3">Quay lại Dashboard</a>
+    <!-- Phân trang -->
+    @if (ViewBag.TotalPages > 1)
+    {
+        <div class="card-footer bg-white py-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <span class="text-muted small">Trang <strong>@ViewBag.CurrentPage</strong> / <strong>@ViewBag.TotalPages</strong></span>
+            <nav aria-label="Pagination">
+                <ul class="pagination pagination-sm mb-0">
+                    @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                    {
+                        <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
+                            <a class="page-link" href="/TonKho/LichSu?pageNumber=@i&timKiem=@ViewBag.TimKiem">@i</a>
+                        </li>
+                    }
+                </ul>
+            </nav>
+        </div>
+    }
+</div>

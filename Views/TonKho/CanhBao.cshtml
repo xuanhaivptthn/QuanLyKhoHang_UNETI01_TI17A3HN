@@ -1,45 +1,142 @@
-﻿@model IEnumerable<QuanLyKhoHang_UNETI01_TI17A3HN.Models.TonKho>
+@*
+    Họ và tên: Nguyễn Văn Cường
+    Mã sinh viên: 23103100132
+    Nội dung thực hiện: Tồn kho, cảnh báo tồn, lịch sử nhập xuất, Dashboard và thống kê LINQ.
+*@
+@model IEnumerable<QuanLyKhoHang_UNETI01_TI17A3HN.Models.TonKho>
 
 @{
-    ViewData["Title"] = "Danh Sách Cảnh Báo Tồn Kho";
+    ViewData["Title"] = "Cảnh báo hạn mức tồn kho";
+    var hetHangCount = Model?.Count(t => t.SoLuongTon == 0) ?? 0;
+    var sapHetCount = Model?.Count(t => t.SoLuongTon > 0 && t.HangHoa != null && t.SoLuongTon <= t.HangHoa.MucTonToiThieu) ?? 0;
 }
 
-<h2 class="mt-4 text-danger"><i class="fas fa-exclamation-triangle"></i> Danh Sách Cảnh Báo Tồn Kho</h2>
-<p>Danh sách các mặt hàng đã hết hoặc chạm mức tồn tối thiểu cần nhập thêm.</p>
+<div class="page-header">
+    <div>
+        <h2 class="page-title"><i class="bi bi-exclamation-triangle-fill text-danger"></i> Cảnh Báo Hạn Mức Tồn Kho</h2>
+        <p class="page-subtitle">Danh sách các mặt hàng đã hết hoặc chạm ngưỡng định mức tối thiểu cần nhập bổ sung</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a asp-controller="PhieuNhaps" asp-action="Create" class="btn btn-success shadow-sm">
+            <i class="bi bi-plus-circle-fill"></i> Tạo phiếu nhập ngay
+        </a>
+        <a asp-controller="ThongKe" asp-action="Dashboard" class="btn btn-outline-secondary">
+            <i class="bi bi-speedometer2"></i> Dashboard
+        </a>
+    </div>
+</div>
 
-<table class="table table-bordered table-striped mt-3">
-    <thead class="thead-dark">
-        <tr>
-            <th>Kho</th>
-            <th>Mã Hàng</th>
-            <th>Tên Hàng Hóa</th>
-            <th>Mức Tồn Tối Thiểu</th>
-            <th class="text-danger">Số Lượng Tồn Thực Tế</th>
-            <th>Trạng Thái</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>@item.Kho.TenKho</td>
-                <td>@item.MaHang</td>
-                <td>@item.HangHoa.TenHang</td>
-                <td>@item.HangHoa.MucTonToiThieu</td>
-                <td class="text-danger font-weight-bold">@item.SoLuongTon</td>
-                <td>
-                    @if (item.SoLuongTon == 0)
+<!-- Thẻ Tóm Tắt Tình Hình Cảnh Báo -->
+<div class="row g-3 mb-4">
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm rounded-4 border-start border-4 border-danger">
+            <div class="card-body p-4 d-flex align-items-center justify-content-between">
+                <div>
+                    <span class="text-danger small fw-bold text-uppercase">Hàng đã hết (Tồn = 0)</span>
+                    <h3 class="fw-bold text-danger mb-0 mt-1">@hetHangCount sản phẩm</h3>
+                    <small class="text-muted">Cần ưu tiên đặt hàng ngay lập tức</small>
+                </div>
+                <div class="p-3 rounded-circle bg-danger bg-opacity-10 text-danger fs-2">
+                    <i class="bi bi-x-circle-fill"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm rounded-4 border-start border-4 border-warning">
+            <div class="card-body p-4 d-flex align-items-center justify-content-between">
+                <div>
+                    <span class="text-warning small fw-bold text-uppercase">Hàng sắp hết (Tồn &le; Mức tối thiểu)</span>
+                    <h3 class="fw-bold text-warning mb-0 mt-1">@sapHetCount sản phẩm</h3>
+                    <small class="text-muted">Đang dưới ngưỡng an toàn lưu kho</small>
+                </div>
+                <div class="p-3 rounded-circle bg-warning bg-opacity-10 text-warning fs-2">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bảng Cảnh Báo Chi Tiết -->
+<div class="card border-0 shadow-sm rounded-4">
+    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+        <span class="fw-semibold text-secondary">
+            <i class="bi bi-list-check me-1"></i> Danh sách mặt hàng cần chú ý (@(Model?.Count() ?? 0) mặt hàng)
+        </span>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th class="ps-4">Kho lưu trữ</th>
+                        <th>Mã hàng</th>
+                        <th>Tên hàng hóa</th>
+                        <th class="text-center">Định mức tối thiểu</th>
+                        <th class="text-center">Tồn kho thực tế</th>
+                        <th class="text-center">Mức độ cảnh báo</th>
+                        <th class="text-end pe-4">Hành động nhanh</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Any())
                     {
-                        <span class="badge bg-danger">Hết hàng</span>
+                        foreach (var item in Model)
+                        {
+                            bool isHet = item.SoLuongTon == 0;
+                            <tr class="@(isHet ? "table-danger bg-opacity-25" : "table-warning bg-opacity-25")">
+                                <td class="ps-4">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <i class="bi bi-building text-secondary"></i>
+                                        <strong>@(item.Kho?.TenKho ?? "Kho #" + item.MaKho)</strong>
+                                    </div>
+                                </td>
+                                <td class="font-monospace text-muted">#@item.MaHang</td>
+                                <td>
+                                    <span class="fw-bold text-dark d-block">@(item.HangHoa?.TenHang ?? "Mặt hàng #" + item.MaHang)</span>
+                                </td>
+                                <td class="text-center font-monospace">
+                                    <span class="badge bg-light text-dark border">
+                                        @item.HangHoa?.MucTonToiThieu
+                                    </span>
+                                </td>
+                                <td class="text-center font-monospace fw-bold fs-6 @(isHet ? "text-danger" : "text-warning text-dark")">
+                                    @item.SoLuongTon
+                                </td>
+                                <td class="text-center">
+                                    @if (isHet)
+                                    {
+                                        <span class="badge bg-danger shadow-sm">
+                                            <i class="bi bi-slash-circle-fill me-1"></i> HẾT HÀNG
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-warning text-dark shadow-sm">
+                                            <i class="bi bi-exclamation-triangle-fill me-1"></i> SẮP HẾT
+                                        </span>
+                                    }
+                                </td>
+                                <td class="text-end pe-4">
+                                    <a asp-controller="PhieuNhaps" asp-action="Create" class="btn btn-sm btn-success shadow-sm">
+                                        <i class="bi bi-cart-plus-fill"></i> Tạo phiếu nhập ngay
+                                    </a>
+                                </td>
+                            </tr>
+                        }
                     }
                     else
                     {
-                        <span class="badge bg-warning text-dark">Sắp hết</span>
+                        <tr>
+                            <td colspan="7" class="text-center text-success py-5">
+                                <i class="bi bi-check-circle-fill fs-1 d-block mb-2 text-success opacity-75"></i>
+                                Tuyệt vời! Hiện tại không có mặt hàng nào bị hết hoặc chạm ngưỡng cảnh báo.
+                            </td>
+                        </tr>
                     }
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
-
-<a href="/ThongKe/Dashboard" class="btn btn-secondary mt-3">Quay lại Dashboard</a>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

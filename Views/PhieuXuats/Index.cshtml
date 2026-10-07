@@ -1,65 +1,124 @@
+@*
+    Họ và tên: Nguyễn Việt Dũng
+    Mã sinh viên: 23103100127
+    Phụ trách Module 4: Bộ phận nhận, Phiếu xuất, Chi tiết phiếu xuất
+*@
 @model IEnumerable<QuanLyKhoHang_UNETI01_TI17A3HN.Models.PhieuXuat>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Danh sách Phiếu xuất kho";
 }
 
-<h1>Index</h1>
+<div class="page-header">
+    <div>
+        <h2 class="page-title"><i class="bi bi-box-arrow-up-right text-danger"></i> Quản Lý Phiếu Xuất Kho</h2>
+        <p class="page-subtitle">Theo dõi quy trình xuất kho giao hàng cho chi nhánh, bộ phận nhận và khách hàng</p>
+    </div>
+    <div>
+        <a asp-action="Create" class="btn btn-primary shadow-sm">
+            <i class="bi bi-plus-circle-fill"></i> Lập phiếu xuất mới
+        </a>
+    </div>
+</div>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.NgayXuat)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.NguoiLap)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.TrangThai)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.GhiChu)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.BoPhanNhan)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Kho)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.NgayXuat)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.NguoiLap)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.TrangThai)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.GhiChu)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.BoPhanNhan.TenBoPhan)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Kho.TenKho)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.MaPhieuXuat">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.MaPhieuXuat">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.MaPhieuXuat">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+<div class="card border-0 shadow-sm rounded-4">
+    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+        <span class="fw-semibold text-secondary">
+            <i class="bi bi-receipt-cutoff me-1"></i> Tổng số: <strong>@(Model?.Count() ?? 0)</strong> phiếu xuất
+        </span>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th class="ps-4">Mã phiếu</th>
+                        <th>Bộ phận nhận / Cửa hàng</th>
+                        <th>Kho xuất</th>
+                        <th>Ngày xuất</th>
+                        <th>Người lập</th>
+                        <th class="text-center">Số món</th>
+                        <th class="text-center">Trạng thái</th>
+                        <th class="text-end pe-4">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Any())
+                    {
+                        foreach (var item in Model)
+                        {
+                            var chiTiets = item.ChiTietPhieuXuats ?? new List<QuanLyKhoHang_UNETI01_TI17A3HN.Models.ChiTietPhieuXuat>();
+                            var soMon = chiTiets.Count;
+                            <tr>
+                                <td class="ps-4 font-monospace fw-bold text-danger">#PX-@item.MaPhieuXuat</td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <i class="bi bi-shop text-secondary"></i>
+                                        <span class="fw-semibold text-dark">@(item.BoPhanNhan?.TenBoPhan ?? "---")</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge bg-light text-dark border">
+                                        <i class="bi bi-building me-1 text-info"></i>@(item.Kho?.TenKho ?? "---")
+                                    </span>
+                                </td>
+                                <td class="text-muted small">
+                                    @item.NgayXuat.ToString("dd/MM/yyyy HH:mm")
+                                </td>
+                                <td>
+                                    <span class="text-muted small"><i class="bi bi-person me-1"></i>@item.NguoiLap</span>
+                                </td>
+                                <td class="text-center font-monospace">
+                                    <span class="badge bg-secondary-subtle text-secondary">@soMon mặt hàng</span>
+                                </td>
+                                <td class="text-center">
+                                    @if (item.TrangThai == TrangThaiPhieuXuat.Nhap)
+                                    {
+                                        <span class="badge bg-secondary">Nháp</span>
+                                    }
+                                    else if (item.TrangThai == TrangThaiPhieuXuat.ChoXacNhan)
+                                    {
+                                        <span class="badge bg-warning text-dark">Chờ xác nhận</span>
+                                    }
+                                    else if (item.TrangThai == TrangThaiPhieuXuat.DaHoanTat)
+                                    {
+                                        <span class="badge bg-success"><i class="bi bi-check2-circle me-1"></i> Đã hoàn tất</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger">Đã hủy</span>
+                                    }
+                                </td>
+                                <td class="text-end pe-4">
+                                    <div class="btn-group btn-group-sm" role="group">
+                                        <a asp-action="Details" asp-route-id="@item.MaPhieuXuat" class="btn btn-outline-info" title="Xem phiếu xuất">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        @if (item.TrangThai == TrangThaiPhieuXuat.Nhap || item.TrangThai == TrangThaiPhieuXuat.ChoXacNhan)
+                                        {
+                                            <a asp-action="Edit" asp-route-id="@item.MaPhieuXuat" class="btn btn-outline-primary" title="Sửa thông tin">
+                                                <i class="bi bi-pencil-square"></i>
+                                            </a>
+                                            <a asp-action="Delete" asp-route-id="@item.MaPhieuXuat" class="btn btn-outline-danger" title="Xóa">
+                                                <i class="bi bi-trash"></i>
+                                            </a>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="8" class="text-center text-muted py-5">
+                                <i class="bi bi-receipt-cutoff fs-1 d-block text-secondary opacity-50 mb-2"></i>
+                                Chưa có phiếu xuất kho nào.
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
