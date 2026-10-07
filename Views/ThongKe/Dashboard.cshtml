@@ -1,47 +1,73 @@
 ﻿@model QuanLyKhoHang_UNETI01_TI17A3HN.ViewModels.DashboardViewModel
 
 @{
-    ViewData["Title"] = "Dashboard Thống Kê";
+    ViewData["Title"] = "Dashboard Tổng quan";
 }
 
+<style>
+    
+    .dashboard-card {
+        transition: transform 0.2s;
+    }
+    .dashboard-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+</style>
+
 <div class="container-fluid mt-4">
-    <h2 class="mb-4"><i class="fas fa-chart-line"></i> Bảng Điều Khiển - Module 5</h2>
+    <h2 class="mb-4"><i class="fas fa-chart-line"></i> Bảng Điều Khiển - Hệ thống quản lý kho vật tư</h2>
     <div class="row">
         <!-- Box 1: Tổng Hàng Hóa -->
         <div class="col-md-3">
-            <div class="card text-white bg-primary mb-3">
-                <div class="card-header">Tổng Hàng Hóa</div>
-                <div class="card-body">
-                    <h3 class="card-title text-center">@Model.TongSoHangHoa</h3>
+            <a href="/HangHoas/Index" class="text-decoration-none">
+                <div class="card text-white bg-primary mb-3 dashboard-card">
+                    <div class="card-header">Tổng Hàng Hóa</div>
+                    <div class="card-body">
+                        <h3 class="card-title text-center">@Model.TongSoHangHoa</h3>
+                        <p class="text-center mb-0 mt-2" style="font-size: 0.85rem; opacity: 0.8;">Xem toàn bộ <i class="fas fa-arrow-circle-right"></i></p>
+                    </div>
                 </div>
-            </div>
+            </a>
         </div>
+
         <!-- Box 2: Tổng Kho -->
         <div class="col-md-3">
-            <div class="card text-white bg-success mb-3">
-                <div class="card-header">Kho Đang Hoạt Động</div>
-                <div class="card-body">
-                    <h3 class="card-title text-center">@Model.TongSoKho</h3>
+            <a href="/Khoes/Index" class="text-decoration-none">
+                <div class="card text-white bg-success mb-3 dashboard-card">
+                    <div class="card-header">Kho Đang Hoạt Động</div>
+                    <div class="card-body">
+                        <h3 class="card-title text-center">@Model.TongSoKho</h3>
+                        <p class="text-center mb-0 mt-2" style="font-size: 0.85rem; opacity: 0.8;">Xem chi tiết <i class="fas fa-arrow-circle-right"></i></p>
+                    </div>
                 </div>
-            </div>
+            </a>
         </div>
+
         <!-- Box 3: Số Phiếu Nhập Hôm Nay -->
         <div class="col-md-3">
-            <div class="card text-white bg-info mb-3">
-                <div class="card-header">Phiếu Nhập (Hôm Nay)</div>
-                <div class="card-body">
-                    <h3 class="card-title text-center">@Model.SoPhieuNhapTrongNgay</h3>
+            <a href="/PhieuNhaps/Index" class="text-decoration-none">
+                <div class="card text-white bg-info mb-3 dashboard-card">
+                    <div class="card-header">Phiếu Nhập (Hôm Nay)</div>
+                    <div class="card-body">
+                        <h3 class="card-title text-center">@Model.SoPhieuNhapTrongNgay</h3>
+                        <p class="text-center mb-0 mt-2" style="font-size: 0.85rem; opacity: 0.8;">Đến trang nhập <i class="fas fa-arrow-circle-right"></i></p>
+                    </div>
                 </div>
-            </div>
+            </a>
         </div>
+
         <!-- Box 4: Số Phiếu Xuất Hôm Nay -->
         <div class="col-md-3">
-            <div class="card text-white bg-secondary mb-3">
-                <div class="card-header">Phiếu Xuất (Hôm Nay)</div>
-                <div class="card-body">
-                    <h3 class="card-title text-center">@Model.SoPhieuXuatTrongNgay</h3>
+            <a href="/PhieuXuats/Index" class="text-decoration-none">
+                <div class="card text-white bg-secondary mb-3 dashboard-card">
+                    <div class="card-header">Phiếu Xuất (Hôm Nay)</div>
+                    <div class="card-body">
+                        <h3 class="card-title text-center">@Model.SoPhieuXuatTrongNgay</h3>
+                        <p class="text-center mb-0 mt-2" style="font-size: 0.85rem; opacity: 0.8;">Đến trang xuất <i class="fas fa-arrow-circle-right"></i></p>
+                    </div>
                 </div>
-            </div>
+            </a>
         </div>
     </div>
 
@@ -53,7 +79,6 @@
             <div class="alert alert-danger shadow-sm">
                 <h4><i class="fas fa-exclamation-triangle"></i> Cảnh Báo Hết Hàng</h4>
                 <p class="mb-0">Hiện tại có <strong>@Model.SoHangHet</strong> sản phẩm có số lượng tồn bằng 0.</p>
-                <!-- Nút bấm chuyển hướng sang trang xem chi tiết cảnh báo -->
                 <a href="/TonKho/CanhBao" class="btn btn-sm btn-danger mt-2">Xem chi tiết</a>
             </div>
         </div>
