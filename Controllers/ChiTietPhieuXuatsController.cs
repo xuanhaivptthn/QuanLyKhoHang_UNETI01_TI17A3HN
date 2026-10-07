@@ -69,7 +69,7 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
             if (maPhieuXuat.HasValue && !await IsEditableExportAsync(maPhieuXuat.Value))
             {
                 TempData["ErrorMessage"] = "Chỉ có thể thêm chi tiết cho phiếu xuất đang ở trạng thái Nháp.";
-                return RedirectToAction(nameof(Index), new { maPhieuXuat });
+                return RedirectToAction("Details", "PhieuXuats", new { id = maPhieuXuat.Value });
             }
 
             await PopulateCreateEditListsAsync(maPhieuXuat);
@@ -82,7 +82,8 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("MaChiTietXuat,MaPhieuXuat,MaHang,SoLuongXuat,DonGiaXuatThamChieu,GhiChu")] ChiTietPhieuXuat chiTietPhieuXuat)
         {
-            if (!await IsEditableExportAsync(chiTietPhieuXuat.MaPhieuXuat))
+            var px = await _context.PhieuXuats.FindAsync(chiTietPhieuXuat.MaPhieuXuat);
+            if (px == null || !IsEditableExport(px.TrangThai))
             {
                 ModelState.AddModelError(nameof(chiTietPhieuXuat.MaPhieuXuat), "Chỉ có thể thêm chi tiết cho phiếu xuất đang ở trạng thái Nháp.");
             }
@@ -93,6 +94,16 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
             if (await HasDuplicateItemAsync(chiTietPhieuXuat.MaPhieuXuat, chiTietPhieuXuat.MaHang))
             {
                 ModelState.AddModelError(nameof(chiTietPhieuXuat.MaHang), "Mặt hàng này đã có trong phiếu xuất.");
+            }
+
+            if (px != null)
+            {
+                var tonKho = await _context.TonKhoes.FirstOrDefaultAsync(t => t.MaKho == px.MaKho && t.MaHang == chiTietPhieuXuat.MaHang);
+                var tonHienTai = tonKho?.SoLuongTon ?? 0;
+                if (chiTietPhieuXuat.SoLuongXuat > tonHienTai)
+                {
+                    ModelState.AddModelError(nameof(chiTietPhieuXuat.SoLuongXuat), $"Số lượng xuất ({chiTietPhieuXuat.SoLuongXuat}) vượt quá số lượng tồn kho hiện tại ({tonHienTai}).");
+                }
             }
 
             if (ModelState.IsValid)
@@ -114,7 +125,8 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
                     await PopulateCreateEditListsAsync(chiTietPhieuXuat.MaPhieuXuat, chiTietPhieuXuat.MaHang);
                     return View(chiTietPhieuXuat);
                 }
-                return RedirectToAction(nameof(Index), new { maPhieuXuat = chiTietPhieuXuat.MaPhieuXuat });
+                TempData["SuccessMessage"] = "Đã thêm mặt hàng vào phiếu xuất.";
+                return RedirectToAction("Details", "PhieuXuats", new { id = chiTietPhieuXuat.MaPhieuXuat });
             }
             await PopulateCreateEditListsAsync(chiTietPhieuXuat.MaPhieuXuat, chiTietPhieuXuat.MaHang);
             return View(chiTietPhieuXuat);
@@ -140,7 +152,7 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
             if (chiTietPhieuXuat.PhieuXuat == null || !IsEditableExport(chiTietPhieuXuat.PhieuXuat.TrangThai))
             {
                 TempData["ErrorMessage"] = "Chỉ có thể sửa chi tiết của phiếu xuất đang ở trạng thái Nháp.";
-                return RedirectToAction(nameof(Index), new { maPhieuXuat = chiTietPhieuXuat.MaPhieuXuat });
+                return RedirectToAction("Details", "PhieuXuats", new { id = chiTietPhieuXuat.MaPhieuXuat });
             }
             await PopulateCreateEditListsAsync(chiTietPhieuXuat.MaPhieuXuat, chiTietPhieuXuat.MaHang);
             return View(chiTietPhieuXuat);
@@ -169,7 +181,7 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
             if (existingDetail.PhieuXuat == null || !IsEditableExport(existingDetail.PhieuXuat.TrangThai))
             {
                 TempData["ErrorMessage"] = "Chỉ có thể sửa chi tiết của phiếu xuất đang ở trạng thái Nháp.";
-                return RedirectToAction(nameof(Index), new { maPhieuXuat = existingDetail.MaPhieuXuat });
+                return RedirectToAction("Details", "PhieuXuats", new { id = existingDetail.MaPhieuXuat });
             }
 
             if (!await IsEditableExportAsync(chiTietPhieuXuat.MaPhieuXuat))
@@ -186,6 +198,17 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
                 chiTietPhieuXuat.MaChiTietXuat))
             {
                 ModelState.AddModelError(nameof(chiTietPhieuXuat.MaHang), "Mặt hàng này đã có trong phiếu xuất.");
+            }
+
+            var px = await _context.PhieuXuats.FindAsync(chiTietPhieuXuat.MaPhieuXuat);
+            if (px != null)
+            {
+                var tonKho = await _context.TonKhoes.FirstOrDefaultAsync(t => t.MaKho == px.MaKho && t.MaHang == chiTietPhieuXuat.MaHang);
+                var tonHienTai = tonKho?.SoLuongTon ?? 0;
+                if (chiTietPhieuXuat.SoLuongXuat > tonHienTai)
+                {
+                    ModelState.AddModelError(nameof(chiTietPhieuXuat.SoLuongXuat), $"Số lượng xuất ({chiTietPhieuXuat.SoLuongXuat}) vượt quá số lượng tồn kho hiện tại ({tonHienTai}).");
+                }
             }
 
             if (ModelState.IsValid)
@@ -213,7 +236,8 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
                     await PopulateCreateEditListsAsync(chiTietPhieuXuat.MaPhieuXuat, chiTietPhieuXuat.MaHang);
                     return View(chiTietPhieuXuat);
                 }
-                return RedirectToAction(nameof(Index), new { maPhieuXuat = chiTietPhieuXuat.MaPhieuXuat });
+                TempData["SuccessMessage"] = "Đã cập nhật chi tiết phiếu xuất.";
+                return RedirectToAction("Details", "PhieuXuats", new { id = chiTietPhieuXuat.MaPhieuXuat });
             }
             await PopulateCreateEditListsAsync(chiTietPhieuXuat.MaPhieuXuat, chiTietPhieuXuat.MaHang);
             return View(chiTietPhieuXuat);
@@ -240,7 +264,7 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
             if (chiTietPhieuXuat.PhieuXuat == null || !IsEditableExport(chiTietPhieuXuat.PhieuXuat.TrangThai))
             {
                 TempData["ErrorMessage"] = "Chỉ có thể xóa chi tiết của phiếu xuất đang ở trạng thái Nháp.";
-                return RedirectToAction(nameof(Index), new { maPhieuXuat = chiTietPhieuXuat.MaPhieuXuat });
+                return RedirectToAction("Details", "PhieuXuats", new { id = chiTietPhieuXuat.MaPhieuXuat });
             }
 
             return View(chiTietPhieuXuat);
@@ -272,14 +296,19 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
                 if (chiTietPhieuXuat.PhieuXuat == null || !IsEditableExport(chiTietPhieuXuat.PhieuXuat.TrangThai))
                 {
                     TempData["ErrorMessage"] = "Chỉ có thể xóa chi tiết của phiếu xuất đang ở trạng thái Nháp.";
-                    return RedirectToAction(nameof(Index), new { maPhieuXuat });
+                    return RedirectToAction("Details", "PhieuXuats", new { id = maPhieuXuat });
                 }
 
                 _context.ChiTietPhieuXuats.Remove(chiTietPhieuXuat);
                 await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = "Đã xóa mặt hàng khỏi phiếu xuất.";
             }
 
-            return RedirectToAction(nameof(Index), new { maPhieuXuat });
+            if (maPhieuXuat.HasValue)
+            {
+                return RedirectToAction("Details", "PhieuXuats", new { id = maPhieuXuat.Value });
+            }
+            return RedirectToAction("Index", "PhieuXuats");
         }
 
         private async Task PopulateCreateEditListsAsync(int? maPhieuXuat = null, int? maHang = null)

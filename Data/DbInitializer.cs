@@ -297,7 +297,7 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Data
                     MaKho = khoList[(i - 1) % khoCount].MaKho,
                     NgayNhap = ngayNhap,
                     NguoiLap = nguoiLaps[(i - 1) % nguoiLaps.Length],
-                    TrangThai = trangThai,
+                    TrangThai = (TrangThaiPhieuNhap)trangThai,
                     GhiChu = trangThai switch
                     {
                         0 => $"Phiếu nhập nháp số PN-2026-{i:D3} đang bổ sung danh mục",
@@ -461,9 +461,9 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Data
             // Bảng theo dõi số lượng tồn tạm thời cho từng cặp (MaKho, MaHang)
             var tonDict = new Dictionary<(int MaKho, int MaHang), int>();
 
-            // 10.1. Xử lý nghiệp vụ từ các Phiếu Nhập đã hoàn tất (TrangThai == 2)
+            // 10.1. Xử lý nghiệp vụ từ các Phiếu Nhập đã hoàn tất (TrangThai == TrangThaiPhieuNhap.DaHoanTat)
             var completedNhaps = phieuNhaps
-                .Where(p => p.TrangThai == 2)
+                .Where(p => p.TrangThai == TrangThaiPhieuNhap.DaHoanTat)
                 .OrderBy(p => p.NgayNhap)
                 .ToList();
 

@@ -249,8 +249,26 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
             var taiKhoan = await _context.TaiKhoans.FindAsync(targetId);
             if (taiKhoan != null)
             {
+                var currentUserId = HttpContext.Session.GetInt32("MaTaiKhoan");
+                if (currentUserId == targetId)
+                {
+                    TempData["Error"] = "Bạn không thể tự xóa tài khoản đang đăng nhập.";
+                    return RedirectToAction(nameof(Index));
+                }
+
+                if (string.Equals(taiKhoan.VaiTro, "Admin", StringComparison.OrdinalIgnoreCase))
+                {
+                    var adminCount = await _context.TaiKhoans.CountAsync(t => t.VaiTro == "Admin" && t.TrangThai);
+                    if (adminCount <= 1)
+                    {
+                        TempData["Error"] = "Hệ thống phải có ít nhất 1 tài khoản Admin đang hoạt động. Không thể xóa.";
+                        return RedirectToAction(nameof(Index));
+                    }
+                }
+
                 _context.TaiKhoans.Remove(taiKhoan);
                 await _context.SaveChangesAsync();
+                TempData["Success"] = "Đã xóa tài khoản thành công!";
             }
 
             return RedirectToAction(nameof(Index));

@@ -75,7 +75,7 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
             // 1. LINQ: Top 5 Hàng nhập nhiều nhất
             ViewBag.TopHangNhap = await _context.ChiTietPhieuNhap
                 .Include(c => c.PhieuNhap).Include(c => c.HangHoa)
-                .Where(c => c.PhieuNhap.NgayNhap.Date >= tuNgay.Value.Date && c.PhieuNhap.NgayNhap.Date <= denNgay.Value.Date && c.PhieuNhap.TrangThai == 2)
+                .Where(c => c.PhieuNhap != null && c.PhieuNhap.NgayNhap.Date >= tuNgay.Value.Date && c.PhieuNhap.NgayNhap.Date <= denNgay.Value.Date && c.PhieuNhap.TrangThai == TrangThaiPhieuNhap.DaHoanTat)
                 .GroupBy(c => new { c.MaHang, c.HangHoa.TenHang })
                 .Select(g => new { TenHang = g.Key.TenHang, TongSo = g.Sum(c => c.SoLuongNhap) })
                 .OrderByDescending(x => x.TongSo).Take(5).ToListAsync();

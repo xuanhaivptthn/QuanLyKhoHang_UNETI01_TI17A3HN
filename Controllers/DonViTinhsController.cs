@@ -142,10 +142,18 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
             var donViTinh = await _context.DonViTinhs.FindAsync(id);
             if (donViTinh != null)
             {
+                var hasHangHoa = await _context.HangHoa.AnyAsync(h => h.MaDonViTinh == id);
+                if (hasHangHoa)
+                {
+                    TempData["Error"] = "Không thể xóa đơn vị tính này vì vẫn còn hàng hóa đang sử dụng. Vui lòng đổi đơn vị tính cho các hàng hóa liên quan trước.";
+                    return RedirectToAction(nameof(Index));
+                }
+
                 _context.DonViTinhs.Remove(donViTinh);
+                await _context.SaveChangesAsync();
+                TempData["Success"] = "Đã xóa đơn vị tính thành công!";
             }
 
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 

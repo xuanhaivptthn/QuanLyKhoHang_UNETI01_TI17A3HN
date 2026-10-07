@@ -31,5 +31,11 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Models
 
         [ForeignKey("MaHang")]
         public virtual HangHoa? HangHoa { get; set; }
+
+        [NotMapped]
+        public bool DaHetHang => SoLuongTon <= 0;
+
+        [NotMapped]
+        public bool SapHetHang => SoLuongTon > 0 && HangHoa != null && SoLuongTon <= HangHoa.MucTonToiThieu;
     }
 }

@@ -1,13 +1,28 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace QuanLyKhoHang_UNETI01_TI17A3HN.Models
 {
+    public enum TrangThaiPhieuNhap
+    {
+        [Display(Name = "Nháp")]
+        Nhap = 0,
+
+        [Display(Name = "Chờ xác nhận")]
+        ChoXacNhan = 1,
+
+        [Display(Name = "Đã hoàn tất")]
+        DaHoanTat = 2,
+
+        [Display(Name = "Đã hủy")]
+        DaHuy = 3
+    }
+
     public class PhieuNhap
     {
         // Họ và tên: Lê Văn Hùng
         // Mã sinh viên: 23103100177
-        // Phần này để quản lý các mặt hàng. 
+        // Phụ trách Module 3: Nhà cung cấp, Phiếu nhập, Chi tiết phiếu nhập
         [Key]
         public int MaPhieuNhap { get; set; }
 
@@ -28,9 +43,8 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Models
         [Display(Name = "Người lập")]
         public string? NguoiLap { get; set; }
 
-        // Trạng thái: 0: Nháp, 1: Chờ xác nhận, 2: Đã hoàn tất, 3: Đã hủy
         [Display(Name = "Trạng thái")]
-        public int TrangThai { get; set; } = 0;
+        public TrangThaiPhieuNhap TrangThai { get; set; } = TrangThaiPhieuNhap.Nhap;
 
         [StringLength(500)]
         [Display(Name = "Ghi chú")]
@@ -46,14 +60,19 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Models
         public virtual ICollection<ChiTietPhieuNhap> ChiTietPhieuNhaps { get; set; } = new List<ChiTietPhieuNhap>();
 
         [NotMapped]
+        [Display(Name = "Tổng tiền")]
+        public decimal TongTien => ChiTietPhieuNhaps?.Sum(d => d.ThanhTien) ?? 0m;
+
+        [NotMapped]
         [Display(Name = "Tổng tiền nhập")]
-        [Column(TypeName = "decimal(18,2)")]
-        public decimal TongTienNhap
-        {
-            get
-            {
-                return ChiTietPhieuNhaps?.Sum(d => d.ThanhTien) ?? 0m;
-            }
-        }
+        public decimal TongTienNhap => TongTien;
+
+        [NotMapped]
+        [Display(Name = "Tổng số lượng")]
+        public int TongSoLuong => ChiTietPhieuNhaps?.Sum(d => d.SoLuongNhap) ?? 0;
+
+        [NotMapped]
+        [Display(Name = "Số mặt hàng")]
+        public int SoMatHang => ChiTietPhieuNhaps?.Count ?? 0;
     }
 }

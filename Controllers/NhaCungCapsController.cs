@@ -211,6 +211,13 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
             var nhaCungCap = await _context.NhaCungCap.FindAsync(targetId);
             if (nhaCungCap != null)
             {
+                var hasPhieuNhap = await _context.PhieuNhap.AnyAsync(p => p.MaNhaCungCap == targetId);
+                if (hasPhieuNhap)
+                {
+                    TempData["Error"] = "Không thể xóa nhà cung cấp này vì đã có phiếu nhập hàng liên kết. Hãy đổi trạng thái sang ngừng hoạt động.";
+                    return RedirectToAction(nameof(Index));
+                }
+
                 _context.NhaCungCap.Remove(nhaCungCap);
                 await _context.SaveChangesAsync();
                 TempData["Success"] = "Xóa nhà cung cấp thành công!";

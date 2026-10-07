@@ -287,9 +287,127 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
             {
                 _context.PhieuXuats.Remove(phieuXuat);
                 await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = "Đã xóa phiếu xuất thành công.";
             }
 
             return RedirectToAction(nameof(Index));
+        }
+
+        // POST: PhieuXuats/HoanTat/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [AuthorizeRole("Admin", "NhanVienKho")]
+        public async Task<IActionResult> HoanTat(int id)
+        {
+            var phFull = await _context.PhieuXuats
+                .Include(p => p.ChiTietPhieuXuats)
+                    .ThenInclude(ct => ct.HangHoa)
+                .Include(p => p.Kho)
+                .Include(p => p.BoPhanNhan)
+                .FirstOrDefaultAsync(p => p.MaPhieuXuat == id);
+
+            if (phFull == null)
+            {
+                return NotFound();
+            }
+
+            if (phFull.TrangThai == TrangThaiPhieuXuat.DaHoanTat)
+            {
+                TempData["ErrorMessage"] = "Phiếu xuất này đã ở trạng thái Hoàn tất.";
+                return RedirectToAction(nameof(Details), new { id });
+            }
+
+            if (phFull.TrangThai == TrangThaiPhieuXuat.DaHuy)
+            {
+                TempData["ErrorMessage"] = "Phiếu đã hủy không thể hoàn tất.";
+                return RedirectToAction(nameof(Details), new { id });
+            }
+
+            if (!phFull.ChiTietPhieuXuats.Any())
+            {
+                TempData["ErrorMessage"] = "Phiếu chưa có mặt hàng nào. Vui lòng thêm hàng trước khi hoàn tất.";
+                return RedirectToAction(nameof(Details), new { id });
+            }
+
+            if (phFull.Kho != null && !phFull.Kho.TrangThai)
+            {
+                TempData["ErrorMessage"] = "Kho xuất hiện đang ngừng hoạt động.";
+                return RedirectToAction(nameof(Details), new { id });
+            }
+
+            if (phFull.BoPhanNhan != null && !phFull.BoPhanNhan.TrangThai)
+            {
+                TempData["ErrorMessage"] = "Bộ phận nhận hiện đang ngừng hoạt động.";
+                return RedirectToAction(nameof(Details), new { id });
+            }
+
+            await using var tx = await _context.Database.BeginTransactionAsync(IsolationLevel.Serializable);
+            var error = await ApplyCompletedExportAsync(phFull, phFull.MaKho);
+            if (error != null)
+            {
+                await tx.RollbackAsync();
+                TempData["ErrorMessage"] = error;
+                return RedirectToAction(nameof(Details), new { id });
+            }
+
+            phFull.TrangThai = TrangThaiPhieuXuat.DaHoanTat;
+            await _context.SaveChangesAsync();
+            await tx.CommitAsync();
+
+            TempData["SuccessMessage"] = "Đã hoàn tất xuất kho và cập nhật số lượng tồn thành công!";
+            return RedirectToAction(nameof(Details), new { id });
+        }
+
+        // POST: PhieuXuats/HuyPhieu/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [AuthorizeRole("Admin", "NhanVienKho")]
+        public async Task<IActionResult> HuyPhieu(int id)
+        {
+            var phieu = await _context.PhieuXuats
+                .Include(p => p.ChiTietPhieuXuats)
+                .FirstOrDefaultAsync(p => p.MaPhieuXuat == id);
+
+            if (phieu == null)
+            {
+                return NotFound();
+            }
+
+            if (phieu.TrangThai == TrangThaiPhieuXuat.DaHuy)
+            {
+                TempData["ErrorMessage"] = "Phiếu này đã được hủy trước đó.";
+                return RedirectToAction(nameof(Details), new { id });
+            }
+
+            if (phieu.TrangThai == TrangThaiPhieuXuat.DaHoanTat)
+            {
+                if (!IsAdmin())
+                {
+                    TempData["ErrorMessage"] = "Chỉ Admin mới có quyền hủy phiếu xuất đã hoàn tất.";
+                    return RedirectToAction(nameof(Details), new { id });
+                }
+
+                await using var tx = await _context.Database.BeginTransactionAsync(IsolationLevel.Serializable);
+                var err = await ReverseCompletedExportAsync(phieu);
+                if (err != null)
+                {
+                    await tx.RollbackAsync();
+                    TempData["ErrorMessage"] = err;
+                    return RedirectToAction(nameof(Details), new { id });
+                }
+
+                phieu.TrangThai = TrangThaiPhieuXuat.DaHuy;
+                await _context.SaveChangesAsync();
+                await tx.CommitAsync();
+
+                TempData["SuccessMessage"] = "Đã hủy phiếu xuất và hoàn trả tồn kho thành công!";
+                return RedirectToAction(nameof(Details), new { id });
+            }
+
+            phieu.TrangThai = TrangThaiPhieuXuat.DaHuy;
+            await _context.SaveChangesAsync();
+            TempData["SuccessMessage"] = "Đã hủy phiếu xuất thành công!";
+            return RedirectToAction(nameof(Details), new { id });
         }
 
         private IActionResult ReturnEditView(PhieuXuat phieuXuat, TrangThaiPhieuXuat currentStatus)

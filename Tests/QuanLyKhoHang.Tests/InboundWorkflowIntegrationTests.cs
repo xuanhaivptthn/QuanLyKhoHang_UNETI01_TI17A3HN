@@ -35,7 +35,7 @@ public sealed class InboundWorkflowIntegrationTests : WarehouseIntegrationTest
         var receiptId = await WithDbAsync(async db =>
         {
             var receipt = await db.PhieuNhap.SingleAsync();
-            Assert.Equal(0, receipt.TrangThai);
+            Assert.Equal(0, (int)receipt.TrangThai);
             Assert.Equal("Administrator", receipt.NguoiLap);
             return receipt.MaPhieuNhap;
         });

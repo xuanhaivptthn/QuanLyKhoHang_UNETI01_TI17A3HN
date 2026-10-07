@@ -96,7 +96,7 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
                 return NotFound();
             }
             // Only allow edit when status is Nháp (0) or Chờ xác nhận (1)
-            if (!(phieuNhap.TrangThai == 0 || phieuNhap.TrangThai == 1))
+            if (!(phieuNhap.TrangThai == TrangThaiPhieuNhap.Nhap || phieuNhap.TrangThai == TrangThaiPhieuNhap.ChoXacNhan))
             {
                 return Forbid();
             }
@@ -122,7 +122,7 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
             {
                 return NotFound();
             }
-            if (!(existing.TrangThai == 0 || existing.TrangThai == 1))
+            if (!(existing.TrangThai == TrangThaiPhieuNhap.Nhap || existing.TrangThai == TrangThaiPhieuNhap.ChoXacNhan))
             {
                 ModelState.AddModelError(string.Empty, "Phiếu chỉ được sửa khi ở trạng thái Nháp hoặc Chờ xác nhận.");
                 ViewData["MaKho"] = new SelectList(_context.Kho.Where(k => k.TrangThai), "MaKho", "TenKho", phieuNhap.MaKho);
@@ -134,8 +134,8 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
             {
                 try
                 {
-                    // If changing status to 'Đã hoàn tất' (2), apply stock updates atomically
-                    if (phieuNhap.TrangThai == 2 && existing.TrangThai != 2)
+                    // If changing status to 'Đã hoàn tất', apply stock updates atomically
+                    if (phieuNhap.TrangThai == TrangThaiPhieuNhap.DaHoanTat && existing.TrangThai != TrangThaiPhieuNhap.DaHoanTat)
                     {
                         // Load full phieu with details and product info
                         var phFull = await _context.PhieuNhap
@@ -208,11 +208,11 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
                                     MaHang = ct.MaHang,
                                     MaKho = phFull.MaKho,
                                     NgayPhatSinh = DateTime.Now,
-                                    LoaiGiaoDich = "Nhập",
-                                    MaPhieu = phFull.MaPhieuNhap.ToString(),
+                                    LoaiGiaoDich = "Nhập kho",
+                                    MaPhieu = $"PN{phFull.MaPhieuNhap:D4}",
                                     SoLuong = ct.SoLuongNhap,
                                     TonSauGiaoDich = ton.SoLuongTon,
-                                    NguoiThucHien = phFull.NguoiLap,
+                                    NguoiThucHien = HttpContext.Session.GetString("HoTen") ?? phFull.NguoiLap,
                                     GhiChu = phFull.GhiChu
                                 };
                                 _context.LichSuTonKhoes.Add(lichSu);
@@ -246,6 +246,115 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
             ViewData["MaKho"] = new SelectList(_context.Kho, "MaKho", "TenKho", phieuNhap.MaKho);
             ViewData["MaNhaCungCap"] = new SelectList(_context.NhaCungCap.Where(n => n.TrangThai), "MaNhaCungCap", "TenNhaCungCap", phieuNhap.MaNhaCungCap);
             return View(phieuNhap);
+        }
+
+        // POST: PhieuNhaps/HoanTat/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> HoanTat(int id)
+        {
+            var phFull = await _context.PhieuNhap
+                .Include(p => p.ChiTietPhieuNhaps)
+                    .ThenInclude(ct => ct.HangHoa)
+                .Include(p => p.Kho)
+                .Include(p => p.NhaCungCap)
+                .FirstOrDefaultAsync(p => p.MaPhieuNhap == id);
+
+            if (phFull == null)
+            {
+                return NotFound();
+            }
+
+            if (phFull.TrangThai == TrangThaiPhieuNhap.DaHoanTat)
+            {
+                TempData["Error"] = "Phiếu nhập này đã ở trạng thái Hoàn tất, không thể duyệt lại.";
+                return RedirectToAction(nameof(Details), new { id });
+            }
+
+            if (!phFull.ChiTietPhieuNhaps.Any())
+            {
+                TempData["Error"] = "Phiếu chưa có mặt hàng nào. Vui lòng thêm hàng trước khi hoàn tất.";
+                return RedirectToAction(nameof(Details), new { id });
+            }
+
+            if (phFull.Kho != null && !phFull.Kho.TrangThai)
+            {
+                TempData["Error"] = "Kho nhập hiện đang ngừng hoạt động.";
+                return RedirectToAction(nameof(Details), new { id });
+            }
+
+            using var tx = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                foreach (var ct in phFull.ChiTietPhieuNhaps)
+                {
+                    var ton = await _context.TonKhoes.FindAsync(phFull.MaKho, ct.MaHang);
+                    if (ton == null)
+                    {
+                        ton = new TonKho
+                        {
+                            MaKho = phFull.MaKho,
+                            MaHang = ct.MaHang,
+                            SoLuongTon = ct.SoLuongNhap,
+                            NgayCapNhat = DateTime.Now
+                        };
+                        _context.TonKhoes.Add(ton);
+                    }
+                    else
+                    {
+                        ton.SoLuongTon += ct.SoLuongNhap;
+                        ton.NgayCapNhat = DateTime.Now;
+                        _context.TonKhoes.Update(ton);
+                    }
+
+                    var lichSu = new LichSuTonKho
+                    {
+                        MaHang = ct.MaHang,
+                        MaKho = phFull.MaKho,
+                        NgayPhatSinh = DateTime.Now,
+                        LoaiGiaoDich = "Nhập kho",
+                        MaPhieu = $"PN{phFull.MaPhieuNhap:D4}",
+                        SoLuong = ct.SoLuongNhap,
+                        TonSauGiaoDich = ton.SoLuongTon,
+                        NguoiThucHien = HttpContext.Session.GetString("HoTen") ?? phFull.NguoiLap,
+                        GhiChu = $"Nhập kho theo phiếu #{phFull.MaPhieuNhap} từ {phFull.NhaCungCap?.TenNhaCungCap}"
+                    };
+                    _context.LichSuTonKhoes.Add(lichSu);
+                }
+
+                phFull.TrangThai = TrangThaiPhieuNhap.DaHoanTat;
+                await _context.SaveChangesAsync();
+                await tx.CommitAsync();
+
+                TempData["Success"] = "Đã hoàn tất nhập kho và cập nhật số lượng tồn thành công!";
+            }
+            catch (Exception ex)
+            {
+                await tx.RollbackAsync();
+                TempData["Error"] = "Lỗi khi hoàn tất phiếu nhập: " + ex.Message;
+            }
+
+            return RedirectToAction(nameof(Details), new { id });
+        }
+
+        // POST: PhieuNhaps/HuyPhieu/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> HuyPhieu(int id)
+        {
+            var phieu = await _context.PhieuNhap.FindAsync(id);
+            if (phieu == null) return NotFound();
+
+            if (phieu.TrangThai == TrangThaiPhieuNhap.DaHoanTat)
+            {
+                TempData["Error"] = "Không thể hủy phiếu đã hoàn tất nhập kho.";
+                return RedirectToAction(nameof(Details), new { id });
+            }
+
+            phieu.TrangThai = TrangThaiPhieuNhap.DaHuy;
+            await _context.SaveChangesAsync();
+            TempData["Success"] = "Đã hủy phiếu nhập thành công.";
+            return RedirectToAction(nameof(Details), new { id });
         }
 
         // GET: PhieuNhaps/Delete/5
@@ -288,8 +397,15 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
             var phieuNhap = await _context.PhieuNhap.FindAsync(targetId);
             if (phieuNhap != null)
             {
+                if (phieuNhap.TrangThai == TrangThaiPhieuNhap.DaHoanTat)
+                {
+                    TempData["Error"] = "Không thể xóa phiếu đã hoàn tất nhập kho.";
+                    return RedirectToAction(nameof(Index));
+                }
+
                 _context.PhieuNhap.Remove(phieuNhap);
                 await _context.SaveChangesAsync();
+                TempData["Success"] = "Đã xóa phiếu nhập thành công.";
             }
 
             return RedirectToAction(nameof(Index));

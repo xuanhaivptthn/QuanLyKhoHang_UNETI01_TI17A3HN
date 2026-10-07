@@ -365,8 +365,30 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
             var hangHoa = await _context.HangHoa.FindAsync(targetId);
             if (hangHoa != null)
             {
+                var hasTonKho = await _context.TonKhoes.AnyAsync(t => t.MaHang == targetId && t.SoLuongTon > 0);
+                if (hasTonKho)
+                {
+                    TempData["Error"] = "Không thể xóa hàng hóa vì vẫn còn tồn kho trong hệ thống. Hãy xuất hết hàng trước hoặc đổi trạng thái sang ngừng kinh doanh.";
+                    return RedirectToAction(nameof(Index));
+                }
+
+                var hasPhieuNhap = await _context.ChiTietPhieuNhap.AnyAsync(c => c.MaHang == targetId);
+                var hasPhieuXuat = await _context.ChiTietPhieuXuats.AnyAsync(c => c.MaHang == targetId);
+                if (hasPhieuNhap || hasPhieuXuat)
+                {
+                    TempData["Error"] = "Không thể xóa hàng hóa đã từng phát sinh trong phiếu nhập hoặc phiếu xuất. Hãy đổi trạng thái sang ngừng kinh doanh.";
+                    return RedirectToAction(nameof(Index));
+                }
+
+                var emptyStocks = await _context.TonKhoes.Where(t => t.MaHang == targetId).ToListAsync();
+                if (emptyStocks.Any())
+                {
+                    _context.TonKhoes.RemoveRange(emptyStocks);
+                }
+
                 _context.HangHoa.Remove(hangHoa);
                 await _context.SaveChangesAsync();
+                TempData["Success"] = "Đã xóa hàng hóa thành công!";
             }
 
             return RedirectToAction(nameof(Index));

@@ -48,9 +48,9 @@
                 </td>
                 <td class="align-middle text-nowrap">
                     @(
-                        item.TrangThai == 0 ? "Nháp" :
-                        item.TrangThai == 1 ? "Chờ xác nhận" :
-                        item.TrangThai == 2 ? "Đã hoàn tất" : "Đã hủy"
+                        item.TrangThai == TrangThaiPhieuNhap.Nhap ? "Nháp" :
+                        item.TrangThai == TrangThaiPhieuNhap.ChoXacNhan ? "Chờ xác nhận" :
+                        item.TrangThai == TrangThaiPhieuNhap.DaHoanTat ? "Đã hoàn tất" : "Đã hủy"
                     )
                 </td>
                 <td class="align-middle">

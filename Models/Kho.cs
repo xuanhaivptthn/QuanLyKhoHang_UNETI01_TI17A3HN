@@ -1,8 +1,11 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace QuanLyKhoHang_UNETI01_TI17A3HN.Models
 {
+    // Họ và tên: Nguyễn Thị Cúc
+    // Mã sinh viên: 23103100178
+    // Phụ trách Module 2: Quản lý Kho, Hàng hóa & Tra cứu dữ liệu
     [Table("Kho")]
     public class Kho
     {
@@ -27,8 +30,10 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Models
         [Display(Name = "Trạng thái hoạt động")]
         public bool TrangThai { get; set; } = true; // true: Đang hoạt động, false: Ngừng hoạt động
 
-        // Quan hệ điều hướng (Navigation properties - ví dụ: Phiếu Nhập / Phiếu Xuất)
-         public virtual ICollection<PhieuNhap> PhieuNhaps { get; set; } = new List<PhieuNhap>();
-         public virtual ICollection<PhieuXuat> PhieuXuats { get; set; } = new List<PhieuXuat>();
+        // Quan hệ điều hướng (Navigation properties)
+        public virtual ICollection<PhieuNhap> PhieuNhaps { get; set; } = new List<PhieuNhap>();
+        public virtual ICollection<PhieuXuat> PhieuXuats { get; set; } = new List<PhieuXuat>();
+        public virtual ICollection<TonKho> DanhSachTonKho { get; set; } = new List<TonKho>();
+        public virtual ICollection<LichSuTonKho> LichSuTonKhoes { get; set; } = new List<LichSuTonKho>();
     }
 }
