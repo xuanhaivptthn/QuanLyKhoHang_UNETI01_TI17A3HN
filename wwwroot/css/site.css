@@ -351,6 +351,14 @@ body {
   border-radius: 4px !important;
 }
 
+.rounded-circle {
+  border-radius: 4px !important;
+}
+
+.rounded-pill {
+  border-radius: 4px !important;
+}
+
 /* Footer */
 .footer {
   position: absolute;
