@@ -14,7 +14,16 @@
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
                 <label asp-for="MaPhieuNhap" class="control-label"></label>
-                <select asp-for="MaPhieuNhap" class ="form-control" asp-items="ViewBag.MaPhieuNhap"></select>
+                @if (ViewBag.PreselectedPhieuId != null)
+                {
+                    <input asp-for="MaPhieuNhap" type="hidden" value="@ViewBag.PreselectedPhieuId" />
+                    <input class="form-control" value="@ViewBag.PreselectedPhieuId" readonly />
+                }
+                else
+                {
+                    <select asp-for="MaPhieuNhap" class ="form-control" asp-items="ViewBag.MaPhieuNhap"></select>
+                }
+                <span asp-validation-for="MaPhieuNhap" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="MaHang" class="control-label"></label>

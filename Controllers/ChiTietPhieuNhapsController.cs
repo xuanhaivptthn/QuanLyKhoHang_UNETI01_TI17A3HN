@@ -52,11 +52,26 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
         }
 
         // GET: ChiTietPhieuNhaps/Create
-        public IActionResult Create()
+        // optional phieuId to preselect parent PhieuNhap when creating from PhieuNhap details
+        public IActionResult Create(int? phieuId)
         {
             // Only active products and editable PhieuNhap (Nháp/Chờ xác nhận) can be selected
             ViewData["MaHang"] = new SelectList(_context.HangHoa.Where(h => h.TrangThai), "MaHang", "TenHang");
-            ViewData["MaPhieuNhap"] = new SelectList(_context.PhieuNhap.Where(p => p.TrangThai == 0 || p.TrangThai == 1), "MaPhieuNhap", "MaPhieuNhap");
+            if (phieuId.HasValue)
+            {
+                // only allow creating for editable phieu (Nháp/Chờ xác nhận)
+                var ph = _context.PhieuNhap.Find(phieuId.Value);
+                if (ph == null || !(ph.TrangThai == 0 || ph.TrangThai == 1))
+                {
+                    return Forbid();
+                }
+                ViewData["MaPhieuNhap"] = new SelectList(_context.PhieuNhap.Where(p => p.MaPhieuNhap == phieuId.Value), "MaPhieuNhap", "MaPhieuNhap", phieuId.Value);
+                ViewBag.PreselectedPhieuId = phieuId.Value;
+            }
+            else
+            {
+                ViewData["MaPhieuNhap"] = new SelectList(_context.PhieuNhap.Where(p => p.TrangThai == 0 || p.TrangThai == 1), "MaPhieuNhap", "MaPhieuNhap");
+            }
             return View();
         }
 
