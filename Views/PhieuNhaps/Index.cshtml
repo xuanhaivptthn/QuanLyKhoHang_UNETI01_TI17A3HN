@@ -43,7 +43,11 @@
                 @Html.DisplayFor(modelItem => item.NguoiLap)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.TrangThai)
+                @(
+                    item.TrangThai == 0 ? "Nháp" :
+                    item.TrangThai == 1 ? "Chờ xác nhận" :
+                    item.TrangThai == 2 ? "Đã hoàn tất" : "Đã hủy"
+                )
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.GhiChu)

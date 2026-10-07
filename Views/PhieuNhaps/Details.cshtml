@@ -26,7 +26,11 @@
             @Html.DisplayNameFor(model => model.TrangThai)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.TrangThai)
+            @(
+                Model.TrangThai == 0 ? "Nháp" :
+                Model.TrangThai == 1 ? "Chờ xác nhận" :
+                Model.TrangThai == 2 ? "Đã hoàn tất" : "Đã hủy"
+            )
         </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.GhiChu)
