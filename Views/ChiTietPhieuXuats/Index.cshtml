@@ -6,8 +6,13 @@
 
 <h1>Index</h1>
 
+@if (TempData["ErrorMessage"] is string errorMessage)
+{
+    <div class="alert alert-danger" role="alert">@errorMessage</div>
+}
+
 <p>
-    <a asp-action="Create">Create New</a>
+    <a asp-action="Create" asp-route-maPhieuXuat="@ViewData["MaPhieuXuat"]">Thêm chi tiết xuất</a>
 </p>
 <table class="table">
     <thead>
