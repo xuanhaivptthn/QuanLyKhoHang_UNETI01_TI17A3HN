@@ -6,6 +6,11 @@
 
 <h1>Index</h1>
 
+@if (TempData["ErrorMessage"] is string errorMessage)
+{
+    <div class="alert alert-danger" role="alert">@errorMessage</div>
+}
+
 <p>
     <a asp-action="Create">Create New</a>
 </p>
@@ -55,6 +60,7 @@
                 @Html.DisplayFor(modelItem => item.Kho.TenKho)
             </td>
             <td>
+                <a asp-controller="ChiTietPhieuXuats" asp-action="Index" asp-route-maPhieuXuat="@item.MaPhieuXuat">Chi tiết hàng</a> |
                 <a asp-action="Edit" asp-route-id="@item.MaPhieuXuat">Edit</a> |
                 <a asp-action="Details" asp-route-id="@item.MaPhieuXuat">Details</a> |
                 <a asp-action="Delete" asp-route-id="@item.MaPhieuXuat">Delete</a>

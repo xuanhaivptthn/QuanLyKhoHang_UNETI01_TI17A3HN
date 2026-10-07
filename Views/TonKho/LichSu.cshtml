@@ -34,12 +34,18 @@
         {
             foreach (var item in Model)
             {
+                var isInbound = item.LoaiGiaoDich.Contains("Nhập", StringComparison.OrdinalIgnoreCase);
+                var isReturn = item.LoaiGiaoDich.Contains("Hoàn trả", StringComparison.OrdinalIgnoreCase);
                 <tr>
                     <td>@item.NgayPhatSinh.ToString("dd/MM/yyyy HH:mm")</td>
                     <td>
-                        @if (item.LoaiGiaoDich != null && item.LoaiGiaoDich.Contains("Nhập"))
+                        @if (isInbound)
                         {
                             <span class="badge bg-success">Nhập</span>
+                        }
+                        else if (isReturn)
+                        {
+                            <span class="badge bg-warning text-dark">Hoàn trả</span>
                         }
                         else
                         {
@@ -49,8 +55,8 @@
                     <td>@item.MaPhieu</td>
                     <td>@item.Kho.TenKho</td>
                     <td>@item.HangHoa.TenHang</td>
-                    <td class="font-weight-bold @(item.LoaiGiaoDich != null && item.LoaiGiaoDich.Contains("Nhập") ? "text-success" : "text-danger")">
-                        @(item.LoaiGiaoDich != null && item.LoaiGiaoDich.Contains("Nhập") ? "+" : "-")@item.SoLuong
+                    <td class="font-weight-bold @(isInbound || isReturn ? "text-success" : "text-danger")">
+                        @(isInbound || isReturn ? "+" : "-")@item.SoLuong
                     </td>
                     <td>@item.TonSauGiaoDich</td>
                     <td>@item.NguoiThucHien</td>
