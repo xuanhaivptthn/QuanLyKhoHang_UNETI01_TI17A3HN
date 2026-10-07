@@ -60,7 +60,8 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
         public IActionResult Create()
         {
             ViewData["MaKho"] = new SelectList(_context.Kho, "MaKho", "TenKho");
-            ViewData["MaNhaCungCap"] = new SelectList(_context.NhaCungCap, "MaNhaCungCap", "TenNhaCungCap");
+            // Only active suppliers can be selected for new PhieuNhap
+            ViewData["MaNhaCungCap"] = new SelectList(_context.NhaCungCap.Where(n => n.TrangThai), "MaNhaCungCap", "TenNhaCungCap");
             return View();
         }
 
@@ -76,7 +77,7 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
                 return RedirectToAction(nameof(Index));
             }
             ViewData["MaKho"] = new SelectList(_context.Kho, "MaKho", "TenKho", phieuNhap.MaKho);
-            ViewData["MaNhaCungCap"] = new SelectList(_context.NhaCungCap, "MaNhaCungCap", "TenNhaCungCap", phieuNhap.MaNhaCungCap);
+            ViewData["MaNhaCungCap"] = new SelectList(_context.NhaCungCap.Where(n => n.TrangThai), "MaNhaCungCap", "TenNhaCungCap", phieuNhap.MaNhaCungCap);
             return View(phieuNhap);
         }
 
@@ -95,7 +96,7 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
                 return NotFound();
             }
             ViewData["MaKho"] = new SelectList(_context.Kho, "MaKho", "TenKho", phieuNhap.MaKho);
-            ViewData["MaNhaCungCap"] = new SelectList(_context.NhaCungCap, "MaNhaCungCap", "TenNhaCungCap", phieuNhap.MaNhaCungCap);
+            ViewData["MaNhaCungCap"] = new SelectList(_context.NhaCungCap.Where(n => n.TrangThai), "MaNhaCungCap", "TenNhaCungCap", phieuNhap.MaNhaCungCap);
             return View(phieuNhap);
         }
 
@@ -131,7 +132,7 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
                 return RedirectToAction(nameof(Index));
             }
             ViewData["MaKho"] = new SelectList(_context.Kho, "MaKho", "TenKho", phieuNhap.MaKho);
-            ViewData["MaNhaCungCap"] = new SelectList(_context.NhaCungCap, "MaNhaCungCap", "TenNhaCungCap", phieuNhap.MaNhaCungCap);
+            ViewData["MaNhaCungCap"] = new SelectList(_context.NhaCungCap.Where(n => n.TrangThai), "MaNhaCungCap", "TenNhaCungCap", phieuNhap.MaNhaCungCap);
             return View(phieuNhap);
         }
 
