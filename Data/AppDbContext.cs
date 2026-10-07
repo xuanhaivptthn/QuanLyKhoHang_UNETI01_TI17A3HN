@@ -64,6 +64,21 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Data
             modelBuilder.Entity<TonKho>()
                 .HasKey(t => new { t.MaKho, t.MaHang });
 
+
+            // Module 3: PhieuNhap - NhaCungCap - ChiTietPhieuNhap relationships
+            modelBuilder.Entity<PhieuNhap>()
+                .HasOne(p => p.NhaCungCap)
+                .WithMany(n => n.PhieuNhaps)
+                .HasForeignKey(p => p.MaNhaCungCap)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<ChiTietPhieuNhap>()
+                .HasOne(c => c.PhieuNhap)
+                .WithMany(p => p.ChiTietPhieuNhaps)
+                .HasForeignKey(c => c.MaPhieuNhap)
+                .OnDelete(DeleteBehavior.Cascade);
+
+
             // Quan hệ Module 4: Phiếu xuất - Bộ phận nhận - Kho
             modelBuilder.Entity<PhieuXuat>()
                 .HasOne(p => p.BoPhanNhan)
