@@ -134,13 +134,13 @@
                             <td class="text-end fw-bold text-primary">@thanhTien.ToString("#,##0") VNĐ</td>
                             @if (Model.TrangThai == 0 || Model.TrangThai == 1)
                             {
-                                <td class="text-center no-print">
-                                    <div class="btn-group btn-group-sm">
-                                        <a asp-controller="ChiTietPhieuNhaps" asp-action="Edit" asp-route-id="@ct.MaChiTietNhap" class="btn btn-outline-primary" title="Sửa">
-                                            <i class="bi bi-pencil"></i>
+                                <td class="text-center no-print text-nowrap">
+                                    <div class="d-inline-flex gap-1">
+                                        <a asp-controller="ChiTietPhieuNhaps" asp-action="Edit" asp-route-id="@ct.MaChiTietNhap" class="btn btn-outline-primary btn-sm text-nowrap" title="Sửa dòng mặt hàng">
+                                            <i class="bi bi-pencil me-1"></i> Sửa
                                         </a>
-                                        <a asp-controller="ChiTietPhieuNhaps" asp-action="Delete" asp-route-id="@ct.MaChiTietNhap" class="btn btn-outline-danger" title="Xóa">
-                                            <i class="bi bi-trash"></i>
+                                        <a asp-controller="ChiTietPhieuNhaps" asp-action="Delete" asp-route-id="@ct.MaChiTietNhap" class="btn btn-outline-danger btn-sm text-nowrap" title="Xóa dòng mặt hàng">
+                                            <i class="bi bi-trash me-1"></i> Xóa
                                         </a>
                                     </div>
                                 </td>

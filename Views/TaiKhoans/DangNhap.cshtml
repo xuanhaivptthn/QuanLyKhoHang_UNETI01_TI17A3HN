@@ -56,8 +56,8 @@
                                 <i class="bi bi-key"></i>
                             </span>
                             <input asp-for="MatKhau" type="password" id="txtPassword" class="form-control border-start-0 border-end-0 px-0" placeholder="Nhập mật khẩu..." autocomplete="current-password" />
-                            <button class="btn btn-outline-secondary border-start-0 bg-light text-muted" type="button" id="btnTogglePassword" title="Hiện/Ẩn mật khẩu">
-                                <i class="bi bi-eye" id="toggleIcon"></i>
+                            <button class="btn btn-outline-secondary border-start-0 bg-light text-muted px-2" type="button" id="btnTogglePassword" title="Hiện hoặc ẩn mật khẩu" aria-label="Hiện hoặc ẩn mật khẩu">
+                                <i class="bi bi-eye me-1" id="toggleIcon"></i><span id="toggleText" class="small">Hiện</span>
                             </button>
                         </div>
                         <span asp-validation-for="MatKhau" class="text-danger small mt-1 d-block"></span>
@@ -110,12 +110,14 @@
             const btnToggle = document.getElementById("btnTogglePassword");
             const txtPassword = document.getElementById("txtPassword");
             const toggleIcon = document.getElementById("toggleIcon");
+            const toggleText = document.getElementById("toggleText");
 
             if (btnToggle && txtPassword && toggleIcon) {
                 btnToggle.addEventListener("click", function () {
                     const isPassword = txtPassword.type === "password";
                     txtPassword.type = isPassword ? "text" : "password";
-                    toggleIcon.className = isPassword ? "bi bi-eye-slash" : "bi bi-eye";
+                    toggleIcon.className = isPassword ? "bi bi-eye-slash me-1" : "bi bi-eye me-1";
+                    if (toggleText) toggleText.textContent = isPassword ? "Ẩn" : "Hiện";
                 });
             }
         });

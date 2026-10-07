@@ -89,18 +89,18 @@
                                         <span class="badge bg-danger">Đã hủy</span>
                                     }
                                 </td>
-                                <td class="text-end pe-4">
-                                    <div class="btn-group btn-group-sm" role="group">
-                                        <a asp-action="Details" asp-route-id="@item.MaPhieuXuat" class="btn btn-outline-info" title="Xem phiếu xuất">
-                                            <i class="bi bi-eye"></i>
+                                <td class="text-end pe-4 text-nowrap">
+                                    <div class="d-inline-flex gap-1" role="group">
+                                        <a asp-action="Details" asp-route-id="@item.MaPhieuXuat" class="btn btn-outline-info btn-sm text-nowrap" title="Xem chi tiết phiếu xuất">
+                                            <i class="bi bi-eye me-1"></i> Xem phiếu
                                         </a>
                                         @if (item.TrangThai == TrangThaiPhieuXuat.Nhap || item.TrangThai == TrangThaiPhieuXuat.ChoXacNhan)
                                         {
-                                            <a asp-action="Edit" asp-route-id="@item.MaPhieuXuat" class="btn btn-outline-primary" title="Sửa thông tin">
-                                                <i class="bi bi-pencil-square"></i>
+                                            <a asp-action="Edit" asp-route-id="@item.MaPhieuXuat" class="btn btn-outline-primary btn-sm text-nowrap" title="Sửa thông tin phiếu xuất">
+                                                <i class="bi bi-pencil-square me-1"></i> Sửa
                                             </a>
-                                            <a asp-action="Delete" asp-route-id="@item.MaPhieuXuat" class="btn btn-outline-danger" title="Xóa">
-                                                <i class="bi bi-trash"></i>
+                                            <a asp-action="Delete" asp-route-id="@item.MaPhieuXuat" class="btn btn-outline-danger btn-sm text-nowrap" title="Xóa phiếu xuất">
+                                                <i class="bi bi-trash me-1"></i> Xóa
                                             </a>
                                         }
                                     </div>

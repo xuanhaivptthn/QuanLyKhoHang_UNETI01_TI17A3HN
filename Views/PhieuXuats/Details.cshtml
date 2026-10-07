@@ -136,13 +136,13 @@
                             <td class="text-muted small">@(string.IsNullOrEmpty(ct.GhiChu) ? "---" : ct.GhiChu)</td>
                             @if (Model.TrangThai == TrangThaiPhieuXuat.Nhap || Model.TrangThai == TrangThaiPhieuXuat.ChoXacNhan)
                             {
-                                <td class="text-center no-print">
-                                    <div class="btn-group btn-group-sm">
-                                        <a asp-controller="ChiTietPhieuXuats" asp-action="Edit" asp-route-id="@ct.MaChiTietXuat" class="btn btn-outline-primary" title="Sửa">
-                                            <i class="bi bi-pencil"></i>
+                                <td class="text-center no-print text-nowrap">
+                                    <div class="d-inline-flex gap-1">
+                                        <a asp-controller="ChiTietPhieuXuats" asp-action="Edit" asp-route-id="@ct.MaChiTietXuat" class="btn btn-outline-primary btn-sm text-nowrap" title="Sửa dòng mặt hàng">
+                                            <i class="bi bi-pencil me-1"></i> Sửa
                                         </a>
-                                        <a asp-controller="ChiTietPhieuXuats" asp-action="Delete" asp-route-id="@ct.MaChiTietXuat" class="btn btn-outline-danger" title="Xóa">
-                                            <i class="bi bi-trash"></i>
+                                        <a asp-controller="ChiTietPhieuXuats" asp-action="Delete" asp-route-id="@ct.MaChiTietXuat" class="btn btn-outline-danger btn-sm text-nowrap" title="Xóa dòng mặt hàng">
+                                            <i class="bi bi-trash me-1"></i> Xóa
                                         </a>
                                     </div>
                                 </td>

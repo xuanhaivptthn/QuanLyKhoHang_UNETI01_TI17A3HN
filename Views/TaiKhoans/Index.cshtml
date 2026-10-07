@@ -106,16 +106,16 @@
                                         </span>
                                     }
                                 </td>
-                                <td class="text-end pe-4">
-                                    <div class="btn-group btn-group-sm" role="group">
-                                        <a asp-action="Edit" asp-route-id="@item.MaTaiKhoan" class="btn btn-outline-primary" title="Chỉnh sửa">
-                                            <i class="bi bi-pencil-square"></i>
+                                <td class="text-end pe-4 text-nowrap">
+                                    <div class="d-inline-flex gap-1" role="group">
+                                        <a asp-action="Edit" asp-route-id="@item.MaTaiKhoan" class="btn btn-outline-primary btn-sm text-nowrap" title="Chỉnh sửa tài khoản">
+                                            <i class="bi bi-pencil-square me-1"></i> Sửa
                                         </a>
-                                        <a asp-action="Details" asp-route-id="@item.MaTaiKhoan" class="btn btn-outline-info" title="Xem chi tiết">
-                                            <i class="bi bi-eye"></i>
+                                        <a asp-action="Details" asp-route-id="@item.MaTaiKhoan" class="btn btn-outline-info btn-sm text-nowrap" title="Xem chi tiết tài khoản">
+                                            <i class="bi bi-eye me-1"></i> Chi tiết
                                         </a>
-                                        <a asp-action="Delete" asp-route-id="@item.MaTaiKhoan" class="btn btn-outline-danger" title="Xóa tài khoản">
-                                            <i class="bi bi-trash"></i>
+                                        <a asp-action="Delete" asp-route-id="@item.MaTaiKhoan" class="btn btn-outline-danger btn-sm text-nowrap" title="Xóa tài khoản">
+                                            <i class="bi bi-trash me-1"></i> Xóa
                                         </a>
                                     </div>
                                 </td>
