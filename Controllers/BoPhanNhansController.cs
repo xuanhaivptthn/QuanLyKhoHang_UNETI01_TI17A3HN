@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using QuanLyKhoHang_UNETI01_TI17A3HN.Data;
+using QuanLyKhoHang_UNETI01_TI17A3HN.Filters;
 using QuanLyKhoHang_UNETI01_TI17A3HN.Models;
 
 // Họ và tên: Nguyễn Việt Dũng
@@ -14,6 +15,7 @@ using QuanLyKhoHang_UNETI01_TI17A3HN.Models;
 
 namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
 {
+    [AuthorizeRole("Admin")]
     public class BoPhanNhansController : Controller
     {
         private readonly AppDbContext _context;
@@ -24,9 +26,33 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
         }
 
         // GET: BoPhanNhans
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string? searchString, bool? trangThai)
         {
-            return View(await _context.BoPhanNhans.ToListAsync());
+            var boPhanNhans = _context.BoPhanNhans.AsNoTracking();
+            var searchTerm = searchString?.Trim();
+
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                boPhanNhans = boPhanNhans.Where(b =>
+                    b.TenBoPhan.Contains(searchTerm)
+                    || (b.NguoiDaiDien != null && b.NguoiDaiDien.Contains(searchTerm))
+                    || (b.SoDienThoai != null && b.SoDienThoai.Contains(searchTerm)));
+            }
+
+            if (trangThai.HasValue)
+            {
+                boPhanNhans = boPhanNhans.Where(b => b.TrangThai == trangThai.Value);
+            }
+
+            ViewData["SearchString"] = searchTerm;
+            ViewData["TrangThaiFilter"] = new List<SelectListItem>
+            {
+                new() { Value = "", Text = "Tất cả trạng thái", Selected = !trangThai.HasValue },
+                new() { Value = "true", Text = "Đang hoạt động", Selected = trangThai == true },
+                new() { Value = "false", Text = "Ngừng hoạt động", Selected = trangThai == false }
+            };
+
+            return View(await boPhanNhans.ToListAsync());
         }
 
         // GET: BoPhanNhans/Details/5
@@ -45,6 +71,8 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
                 return NotFound();
             }
 
+            ViewData["DraftExportCount"] = await _context.PhieuXuats
+                .CountAsync(p => p.MaBoPhan == targetId && p.TrangThai == TrangThaiPhieuXuat.Nhap);
             return View(boPhanNhan);
         }
 
@@ -59,10 +87,30 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("MaBoPhan,TenBoPhan,NguoiDaiDien,SoDienThoai,MoTa,TrangThai")] BoPhanNhan boPhanNhan)
         {
+            boPhanNhan.TenBoPhan = (boPhanNhan.TenBoPhan ?? string.Empty).Trim();
+            if (await _context.BoPhanNhans.AnyAsync(b => b.TenBoPhan == boPhanNhan.TenBoPhan))
+            {
+                ModelState.AddModelError(nameof(boPhanNhan.TenBoPhan), "Tên bộ phận đã tồn tại.");
+            }
+
             if (ModelState.IsValid)
             {
                 _context.Add(boPhanNhan);
-                await _context.SaveChangesAsync();
+                try
+                {
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateException)
+                {
+                    _context.Entry(boPhanNhan).State = EntityState.Detached;
+                    if (!await _context.BoPhanNhans.AnyAsync(b => b.TenBoPhan == boPhanNhan.TenBoPhan))
+                    {
+                        throw;
+                    }
+
+                    ModelState.AddModelError(nameof(boPhanNhan.TenBoPhan), "Tên bộ phận đã tồn tại.");
+                    return View(boPhanNhan);
+                }
                 return RedirectToAction(nameof(Index));
             }
             return View(boPhanNhan);
@@ -96,11 +144,27 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
                 return NotFound();
             }
 
+            boPhanNhan.TenBoPhan = (boPhanNhan.TenBoPhan ?? string.Empty).Trim();
+            if (await _context.BoPhanNhans.AnyAsync(b => b.MaBoPhan != targetId && b.TenBoPhan == boPhanNhan.TenBoPhan))
+            {
+                ModelState.AddModelError(nameof(boPhanNhan.TenBoPhan), "Tên bộ phận đã tồn tại.");
+            }
+
             if (ModelState.IsValid)
             {
                 try
                 {
-                    _context.Update(boPhanNhan);
+                    var existing = await _context.BoPhanNhans.FindAsync(targetId);
+                    if (existing == null)
+                    {
+                        return NotFound();
+                    }
+
+                    existing.TenBoPhan = boPhanNhan.TenBoPhan;
+                    existing.NguoiDaiDien = boPhanNhan.NguoiDaiDien;
+                    existing.SoDienThoai = boPhanNhan.SoDienThoai;
+                    existing.MoTa = boPhanNhan.MoTa;
+                    existing.TrangThai = boPhanNhan.TrangThai;
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
@@ -109,10 +173,17 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
                     {
                         return NotFound();
                     }
-                    else
+                    throw;
+                }
+                catch (DbUpdateException)
+                {
+                    if (!await _context.BoPhanNhans.AnyAsync(b => b.MaBoPhan != targetId && b.TenBoPhan == boPhanNhan.TenBoPhan))
                     {
                         throw;
                     }
+
+                    ModelState.AddModelError(nameof(boPhanNhan.TenBoPhan), "Tên bộ phận đã tồn tại.");
+                    return View(boPhanNhan);
                 }
                 return RedirectToAction(nameof(Index));
             }
@@ -157,8 +228,19 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
             var boPhanNhan = await _context.BoPhanNhans.FindAsync(targetId);
             if (boPhanNhan != null)
             {
-                _context.BoPhanNhans.Remove(boPhanNhan);
+                var draftExportCount = await _context.PhieuXuats
+                    .CountAsync(p => p.MaBoPhan == targetId && p.TrangThai == TrangThaiPhieuXuat.Nhap);
+                if (draftExportCount > 0)
+                {
+                    TempData["ErrorMessage"] =
+                        $"Không thể ngừng hoạt động bộ phận này vì còn {draftExportCount} phiếu xuất Nháp. " +
+                        "Hãy xóa hoặc chuyển các phiếu Nháp sang bộ phận khác trước.";
+                    return RedirectToAction(nameof(Index));
+                }
+
+                boPhanNhan.TrangThai = false;
                 await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = "Bộ phận đã được ngừng hoạt động. Các phiếu xuất cũ vẫn được giữ lại.";
             }
 
             return RedirectToAction(nameof(Index));

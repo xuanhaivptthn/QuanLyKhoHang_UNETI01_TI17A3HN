@@ -2,11 +2,19 @@
 
 @{
     ViewData["Title"] = "Delete";
+    var draftExportCount = ViewData["DraftExportCount"] as int? ?? 0;
 }
 
 <h1>Delete</h1>
 
-<h3>Are you sure you want to delete this?</h3>
+<h3>Ngừng hoạt động bộ phận này? Dữ liệu phiếu xuất cũ sẽ được giữ nguyên.</h3>
+@if (draftExportCount > 0)
+{
+    <div class="alert alert-warning" role="alert">
+        Không thể ngừng hoạt động vì bộ phận này đang được dùng trong @draftExportCount phiếu xuất Nháp.
+        Hãy xóa hoặc chuyển các phiếu Nháp sang bộ phận khác trước.
+    </div>
+}
 <div>
     <h4>BoPhanNhan</h4>
     <hr />
@@ -45,7 +53,7 @@
     
     <form asp-action="Delete">
         <input type="hidden" asp-for="MaBoPhan" />
-        <input type="submit" value="Delete" class="btn btn-danger" /> |
+        <input type="submit" value="Ngừng hoạt động" class="btn btn-danger" disabled="@(draftExportCount > 0)" /> |
         <a asp-action="Index">Back to List</a>
     </form>
 </div>

@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using QuanLyKhoHang_UNETI01_TI17A3HN.Data;
+using QuanLyKhoHang_UNETI01_TI17A3HN.Filters;
 using QuanLyKhoHang_UNETI01_TI17A3HN.Models;
 
 // Họ và tên: Nguyễn Việt Dũng
@@ -62,39 +63,65 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
         }
 
         // GET: ChiTietPhieuXuats/Create
+        [AuthorizeRole("Admin", "NhanVienKho")]
         public async Task<IActionResult> Create(int? maPhieuXuat)
         {
             if (maPhieuXuat.HasValue && !await IsEditableExportAsync(maPhieuXuat.Value))
             {
-                TempData["ErrorMessage"] = "Chỉ có thể thêm chi tiết cho phiếu xuất đang ở trạng thái Nháp hoặc Chờ xác nhận.";
+                TempData["ErrorMessage"] = "Chỉ có thể thêm chi tiết cho phiếu xuất đang ở trạng thái Nháp.";
                 return RedirectToAction(nameof(Index), new { maPhieuXuat });
             }
 
-            PopulateCreateEditLists(maPhieuXuat);
+            await PopulateCreateEditListsAsync(maPhieuXuat);
             return View(new ChiTietPhieuXuat { MaPhieuXuat = maPhieuXuat ?? 0 });
         }
 
         // POST: ChiTietPhieuXuats/Create
+        [AuthorizeRole("Admin", "NhanVienKho")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("MaChiTietXuat,MaPhieuXuat,MaHang,SoLuongXuat,DonGiaXuatThamChieu,GhiChu")] ChiTietPhieuXuat chiTietPhieuXuat)
         {
             if (!await IsEditableExportAsync(chiTietPhieuXuat.MaPhieuXuat))
             {
-                ModelState.AddModelError(nameof(chiTietPhieuXuat.MaPhieuXuat), "Chỉ có thể thêm chi tiết cho phiếu xuất đang ở trạng thái Nháp hoặc Chờ xác nhận.");
+                ModelState.AddModelError(nameof(chiTietPhieuXuat.MaPhieuXuat), "Chỉ có thể thêm chi tiết cho phiếu xuất đang ở trạng thái Nháp.");
+            }
+            if (!await IsActiveProductAsync(chiTietPhieuXuat.MaHang))
+            {
+                ModelState.AddModelError(nameof(chiTietPhieuXuat.MaHang), "Chỉ được chọn mặt hàng đang hoạt động.");
+            }
+            if (await HasDuplicateItemAsync(chiTietPhieuXuat.MaPhieuXuat, chiTietPhieuXuat.MaHang))
+            {
+                ModelState.AddModelError(nameof(chiTietPhieuXuat.MaHang), "Mặt hàng này đã có trong phiếu xuất.");
             }
 
             if (ModelState.IsValid)
             {
                 _context.Add(chiTietPhieuXuat);
-                await _context.SaveChangesAsync();
+                try
+                {
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateException)
+                {
+                    _context.Entry(chiTietPhieuXuat).State = EntityState.Detached;
+                    if (!await HasDuplicateItemAsync(chiTietPhieuXuat.MaPhieuXuat, chiTietPhieuXuat.MaHang))
+                    {
+                        throw;
+                    }
+
+                    ModelState.AddModelError(nameof(chiTietPhieuXuat.MaHang), "Mặt hàng này đã có trong phiếu xuất.");
+                    await PopulateCreateEditListsAsync(chiTietPhieuXuat.MaPhieuXuat, chiTietPhieuXuat.MaHang);
+                    return View(chiTietPhieuXuat);
+                }
                 return RedirectToAction(nameof(Index), new { maPhieuXuat = chiTietPhieuXuat.MaPhieuXuat });
             }
-            PopulateCreateEditLists(chiTietPhieuXuat.MaPhieuXuat, chiTietPhieuXuat.MaHang);
+            await PopulateCreateEditListsAsync(chiTietPhieuXuat.MaPhieuXuat, chiTietPhieuXuat.MaHang);
             return View(chiTietPhieuXuat);
         }
 
         // GET: ChiTietPhieuXuats/Edit/5
+        [AuthorizeRole("Admin", "NhanVienKho")]
         public async Task<IActionResult> Edit(int? id, int? machitietxuat)
         {
             var targetId = id ?? machitietxuat;
@@ -112,14 +139,15 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
             }
             if (chiTietPhieuXuat.PhieuXuat == null || !IsEditableExport(chiTietPhieuXuat.PhieuXuat.TrangThai))
             {
-                TempData["ErrorMessage"] = "Không thể sửa chi tiết của phiếu xuất đã hoàn tất hoặc đã hủy.";
+                TempData["ErrorMessage"] = "Chỉ có thể sửa chi tiết của phiếu xuất đang ở trạng thái Nháp.";
                 return RedirectToAction(nameof(Index), new { maPhieuXuat = chiTietPhieuXuat.MaPhieuXuat });
             }
-            PopulateCreateEditLists(chiTietPhieuXuat.MaPhieuXuat, chiTietPhieuXuat.MaHang);
+            await PopulateCreateEditListsAsync(chiTietPhieuXuat.MaPhieuXuat, chiTietPhieuXuat.MaHang);
             return View(chiTietPhieuXuat);
         }
 
         // POST: ChiTietPhieuXuats/Edit/5
+        [AuthorizeRole("Admin", "NhanVienKho")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int? id, int? machitietxuat, [Bind("MaChiTietXuat,MaPhieuXuat,MaHang,SoLuongXuat,DonGiaXuatThamChieu,GhiChu")] ChiTietPhieuXuat chiTietPhieuXuat)
@@ -140,13 +168,24 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
 
             if (existingDetail.PhieuXuat == null || !IsEditableExport(existingDetail.PhieuXuat.TrangThai))
             {
-                TempData["ErrorMessage"] = "Không thể sửa chi tiết của phiếu xuất đã hoàn tất hoặc đã hủy.";
+                TempData["ErrorMessage"] = "Chỉ có thể sửa chi tiết của phiếu xuất đang ở trạng thái Nháp.";
                 return RedirectToAction(nameof(Index), new { maPhieuXuat = existingDetail.MaPhieuXuat });
             }
 
             if (!await IsEditableExportAsync(chiTietPhieuXuat.MaPhieuXuat))
             {
-                ModelState.AddModelError(nameof(chiTietPhieuXuat.MaPhieuXuat), "Chi tiết chỉ có thể chuyển sang phiếu xuất đang ở trạng thái Nháp hoặc Chờ xác nhận.");
+                ModelState.AddModelError(nameof(chiTietPhieuXuat.MaPhieuXuat), "Chi tiết chỉ có thể chuyển sang phiếu xuất đang ở trạng thái Nháp.");
+            }
+            if (!await IsActiveProductAsync(chiTietPhieuXuat.MaHang))
+            {
+                ModelState.AddModelError(nameof(chiTietPhieuXuat.MaHang), "Chỉ được chọn mặt hàng đang hoạt động.");
+            }
+            if (await HasDuplicateItemAsync(
+                chiTietPhieuXuat.MaPhieuXuat,
+                chiTietPhieuXuat.MaHang,
+                chiTietPhieuXuat.MaChiTietXuat))
+            {
+                ModelState.AddModelError(nameof(chiTietPhieuXuat.MaHang), "Mặt hàng này đã có trong phiếu xuất.");
             }
 
             if (ModelState.IsValid)
@@ -156,14 +195,32 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
                 existingDetail.SoLuongXuat = chiTietPhieuXuat.SoLuongXuat;
                 existingDetail.DonGiaXuatThamChieu = chiTietPhieuXuat.DonGiaXuatThamChieu;
                 existingDetail.GhiChu = chiTietPhieuXuat.GhiChu;
-                await _context.SaveChangesAsync();
+                try
+                {
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateException)
+                {
+                    if (!await HasDuplicateItemAsync(
+                        chiTietPhieuXuat.MaPhieuXuat,
+                        chiTietPhieuXuat.MaHang,
+                        chiTietPhieuXuat.MaChiTietXuat))
+                    {
+                        throw;
+                    }
+
+                    ModelState.AddModelError(nameof(chiTietPhieuXuat.MaHang), "Mặt hàng này đã có trong phiếu xuất.");
+                    await PopulateCreateEditListsAsync(chiTietPhieuXuat.MaPhieuXuat, chiTietPhieuXuat.MaHang);
+                    return View(chiTietPhieuXuat);
+                }
                 return RedirectToAction(nameof(Index), new { maPhieuXuat = chiTietPhieuXuat.MaPhieuXuat });
             }
-            PopulateCreateEditLists(chiTietPhieuXuat.MaPhieuXuat, chiTietPhieuXuat.MaHang);
+            await PopulateCreateEditListsAsync(chiTietPhieuXuat.MaPhieuXuat, chiTietPhieuXuat.MaHang);
             return View(chiTietPhieuXuat);
         }
 
         // GET: ChiTietPhieuXuats/Delete/5
+        [AuthorizeRole("Admin", "NhanVienKho")]
         public async Task<IActionResult> Delete(int? id, int? machitietxuat)
         {
             var targetId = id ?? machitietxuat;
@@ -182,7 +239,7 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
             }
             if (chiTietPhieuXuat.PhieuXuat == null || !IsEditableExport(chiTietPhieuXuat.PhieuXuat.TrangThai))
             {
-                TempData["ErrorMessage"] = "Không thể xóa chi tiết của phiếu xuất đã hoàn tất hoặc đã hủy.";
+                TempData["ErrorMessage"] = "Chỉ có thể xóa chi tiết của phiếu xuất đang ở trạng thái Nháp.";
                 return RedirectToAction(nameof(Index), new { maPhieuXuat = chiTietPhieuXuat.MaPhieuXuat });
             }
 
@@ -190,6 +247,7 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
         }
 
         // POST: ChiTietPhieuXuats/Delete/5
+        [AuthorizeRole("Admin", "NhanVienKho")]
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int? id, int? machitietxuat)
@@ -213,7 +271,7 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
             {
                 if (chiTietPhieuXuat.PhieuXuat == null || !IsEditableExport(chiTietPhieuXuat.PhieuXuat.TrangThai))
                 {
-                    TempData["ErrorMessage"] = "Không thể xóa chi tiết của phiếu xuất đã hoàn tất hoặc đã hủy.";
+                    TempData["ErrorMessage"] = "Chỉ có thể xóa chi tiết của phiếu xuất đang ở trạng thái Nháp.";
                     return RedirectToAction(nameof(Index), new { maPhieuXuat });
                 }
 
@@ -224,12 +282,19 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
             return RedirectToAction(nameof(Index), new { maPhieuXuat });
         }
 
-        private void PopulateCreateEditLists(int? maPhieuXuat = null, int? maHang = null)
+        private async Task PopulateCreateEditListsAsync(int? maPhieuXuat = null, int? maHang = null)
         {
-            ViewData["MaHang"] = new SelectList(_context.HangHoa, "MaHang", "TenHang", maHang);
+            ViewData["MaHang"] = new SelectList(
+                await _context.HangHoa
+                    .Where(h => h.TrangThai || h.MaHang == maHang)
+                    .ToListAsync(),
+                "MaHang",
+                "TenHang",
+                maHang);
             ViewData["MaPhieuXuat"] = new SelectList(
-                _context.PhieuXuats.Where(p => p.TrangThai == TrangThaiPhieuXuat.Nhap
-                    || p.TrangThai == TrangThaiPhieuXuat.ChoXacNhan),
+                await _context.PhieuXuats
+                    .Where(p => p.TrangThai == TrangThaiPhieuXuat.Nhap || p.MaPhieuXuat == maPhieuXuat)
+                    .ToListAsync(),
                 "MaPhieuXuat",
                 "MaPhieuXuat",
                 maPhieuXuat);
@@ -246,7 +311,20 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
 
         private static bool IsEditableExport(TrangThaiPhieuXuat status)
         {
-            return status == TrangThaiPhieuXuat.Nhap || status == TrangThaiPhieuXuat.ChoXacNhan;
+            return status == TrangThaiPhieuXuat.Nhap;
+        }
+
+        private Task<bool> IsActiveProductAsync(int maHang)
+        {
+            return _context.HangHoa.AnyAsync(h => h.MaHang == maHang && h.TrangThai);
+        }
+
+        private Task<bool> HasDuplicateItemAsync(int maPhieuXuat, int maHang, int? excludeId = null)
+        {
+            return _context.ChiTietPhieuXuats.AnyAsync(c =>
+                c.MaPhieuXuat == maPhieuXuat
+                && c.MaHang == maHang
+                && (!excludeId.HasValue || c.MaChiTietXuat != excludeId.Value));
         }
     }
 }

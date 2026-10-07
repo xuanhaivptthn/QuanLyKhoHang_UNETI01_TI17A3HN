@@ -6,14 +6,27 @@
 
 <h1>Index</h1>
 
+@{
+    var currentRole = Context.Session.GetString("VaiTro");
+    var isAdmin = string.Equals(currentRole, "Admin", StringComparison.OrdinalIgnoreCase);
+    var canManageExports = isAdmin || string.Equals(currentRole, "NhanVienKho", StringComparison.OrdinalIgnoreCase);
+}
+
 @if (TempData["ErrorMessage"] is string errorMessage)
 {
     <div class="alert alert-danger" role="alert">@errorMessage</div>
 }
+@if (TempData["SuccessMessage"] is string successMessage)
+{
+    <div class="alert alert-success" role="alert">@successMessage</div>
+}
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
+@if (canManageExports)
+{
+    <p>
+        <a asp-action="Create">Tạo phiếu xuất</a>
+    </p>
+}
 <table class="table">
     <thead>
         <tr>
@@ -61,9 +74,17 @@
             </td>
             <td>
                 <a asp-controller="ChiTietPhieuXuats" asp-action="Index" asp-route-maPhieuXuat="@item.MaPhieuXuat">Chi tiết hàng</a> |
-                <a asp-action="Edit" asp-route-id="@item.MaPhieuXuat">Edit</a> |
                 <a asp-action="Details" asp-route-id="@item.MaPhieuXuat">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.MaPhieuXuat">Delete</a>
+                @if (canManageExports && (item.TrangThai == TrangThaiPhieuXuat.Nhap || isAdmin))
+                {
+                    <span> | </span>
+                    <a asp-action="Edit" asp-route-id="@item.MaPhieuXuat">Xử lý phiếu</a>
+                }
+                @if (canManageExports && item.TrangThai == TrangThaiPhieuXuat.Nhap)
+                {
+                    <span> | </span>
+                    <a asp-action="Delete" asp-route-id="@item.MaPhieuXuat">Xóa nháp</a>
+                }
             </td>
         </tr>
 }

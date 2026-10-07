@@ -6,9 +6,32 @@
 
 <h1>Index</h1>
 
+@if (TempData["ErrorMessage"] is string errorMessage)
+{
+    <div class="alert alert-danger" role="alert">@errorMessage</div>
+}
+@if (TempData["SuccessMessage"] is string successMessage)
+{
+    <div class="alert alert-success" role="alert">@successMessage</div>
+}
+
 <p>
     <a asp-action="Create">Create New</a>
 </p>
+<form asp-action="Index" method="get" class="row g-2 mb-3">
+    <div class="col-md-5">
+        <label for="searchString" class="form-label">Tìm theo tên bộ phận, người đại diện hoặc số điện thoại</label>
+        <input id="searchString" name="searchString" value="@ViewData["SearchString"]" class="form-control" />
+    </div>
+    <div class="col-md-3">
+        <label for="trangThai" class="form-label">Trạng thái</label>
+        <select id="trangThai" name="trangThai" class="form-select" asp-items="ViewBag.TrangThaiFilter"></select>
+    </div>
+    <div class="col-md-auto align-self-end">
+        <button type="submit" class="btn btn-primary">Tìm kiếm</button>
+        <a asp-action="Index" class="btn btn-secondary">Xóa lọc</a>
+    </div>
+</form>
 <table class="table">
     <thead>
         <tr>
@@ -46,7 +69,7 @@
                 @Html.DisplayFor(modelItem => item.MoTa)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.TrangThai)
+                @(item.TrangThai ? "Đang hoạt động" : "Ngừng hoạt động")
             </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.MaBoPhan">Edit</a> |

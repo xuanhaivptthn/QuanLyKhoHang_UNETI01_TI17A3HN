@@ -2,6 +2,9 @@
 
 @{
     ViewData["Title"] = "Edit";
+    var currentStatus = ViewData["CurrentStatus"] is TrangThaiPhieuXuat status
+        ? status
+        : Model.TrangThai;
 }
 
 <h1>Edit</h1>
@@ -13,35 +16,58 @@
         <form asp-action="Edit">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="MaPhieuXuat" />
-            <div class="form-group">
-                <label asp-for="MaBoPhan" class="control-label"></label>
-                <select asp-for="MaBoPhan" class="form-control" asp-items="ViewBag.MaBoPhan"></select>
-                <span asp-validation-for="MaBoPhan" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="MaKho" class="control-label"></label>
-                <select asp-for="MaKho" class="form-control" asp-items="ViewBag.MaKho"></select>
-                <span asp-validation-for="MaKho" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="NgayXuat" class="control-label"></label>
-                <input asp-for="NgayXuat" class="form-control" />
-                <span asp-validation-for="NgayXuat" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="NguoiLap" class="control-label"></label>
-                <input asp-for="NguoiLap" class="form-control" />
-                <span asp-validation-for="NguoiLap" class="text-danger"></span>
-            </div>
+            @if (currentStatus == TrangThaiPhieuXuat.Nhap)
+            {
+                <div class="form-group">
+                    <label asp-for="MaBoPhan" class="control-label"></label>
+                    <select asp-for="MaBoPhan" class="form-control" asp-items="ViewBag.MaBoPhan"></select>
+                    <span asp-validation-for="MaBoPhan" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="MaKho" class="control-label"></label>
+                    <select asp-for="MaKho" class="form-control" asp-items="ViewBag.MaKho"></select>
+                    <span asp-validation-for="MaKho" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="NgayXuat" class="control-label"></label>
+                    <input asp-for="NgayXuat" class="form-control" />
+                    <span asp-validation-for="NgayXuat" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="NguoiLap" class="control-label"></label>
+                    <input asp-for="NguoiLap" class="form-control" />
+                    <span asp-validation-for="NguoiLap" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="GhiChu" class="control-label"></label>
+                    <input asp-for="GhiChu" class="form-control" />
+                    <span asp-validation-for="GhiChu" class="text-danger"></span>
+                </div>
+            }
+            else
+            {
+                <input type="hidden" asp-for="MaBoPhan" />
+                <input type="hidden" asp-for="MaKho" />
+                <input type="hidden" asp-for="NgayXuat" />
+                <input type="hidden" asp-for="NguoiLap" />
+                <input type="hidden" asp-for="GhiChu" />
+                <dl class="row">
+                    <dt class="col-sm-4">Bộ phận nhận</dt>
+                    <dd class="col-sm-8">@ViewData["TenBoPhan"]</dd>
+                    <dt class="col-sm-4">Kho xuất</dt>
+                    <dd class="col-sm-8">@ViewData["TenKho"]</dd>
+                    <dt class="col-sm-4">Ngày xuất</dt>
+                    <dd class="col-sm-8">@Model.NgayXuat.ToString("dd/MM/yyyy")</dd>
+                    <dt class="col-sm-4">Người lập</dt>
+                    <dd class="col-sm-8">@Model.NguoiLap</dd>
+                    <dt class="col-sm-4">Ghi chú</dt>
+                    <dd class="col-sm-8">@Model.GhiChu</dd>
+                </dl>
+            }
             <div class="form-group">
                 <label asp-for="TrangThai" class="control-label"></label>
-                <select asp-for="TrangThai" class="form-control" asp-items="Html.GetEnumSelectList<TrangThaiPhieuXuat>()"></select>
+                <select asp-for="TrangThai" class="form-control" asp-items="ViewBag.TrangThai"></select>
                 <span asp-validation-for="TrangThai" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="GhiChu" class="control-label"></label>
-                <input asp-for="GhiChu" class="form-control" />
-                <span asp-validation-for="GhiChu" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-primary" />

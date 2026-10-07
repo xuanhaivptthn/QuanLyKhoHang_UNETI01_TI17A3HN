@@ -106,7 +106,7 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Data
 
             modelBuilder.Entity<PhieuXuat>()
                 .HasOne(p => p.Kho)
-                .WithMany()
+                .WithMany(k => k.PhieuXuats)
                 .HasForeignKey(p => p.MaKho)
                 .OnDelete(DeleteBehavior.Restrict);
 
