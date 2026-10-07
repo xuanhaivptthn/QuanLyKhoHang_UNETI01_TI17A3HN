@@ -9,71 +9,73 @@
 <p>
     <a asp-action="Create">Create New</a>
 </p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.NgayNhap)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.NguoiLap)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.TrangThai)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.GhiChu)
-            </th>
-            <th>
-                Tổng tiền
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.NhaCungCap)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Kho)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
+<div class="table-responsive">
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th class="text-nowrap">
+                    @Html.DisplayNameFor(model => model.NgayNhap)
+                </th>
+                <th class="text-nowrap">
+                    @Html.DisplayNameFor(model => model.NguoiLap)
+                </th>
+                <th class="text-nowrap">
+                    @Html.DisplayNameFor(model => model.TrangThai)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.GhiChu)
+                </th>
+                <th class="text-nowrap">
+                    Tổng tiền
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.NhaCungCap)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Kho)
+                </th>
+                <th class="text-nowrap"></th>
+            </tr>
+        </thead>
+        <tbody>
 @foreach (var item in Model) {
-        <tr>
-            <td>
-                @item.NgayNhap.ToString("yyyy-MM-dd")
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.NguoiLap)
-            </td>
-            <td>
-                @(
-                    item.TrangThai == 0 ? "Nháp" :
-                    item.TrangThai == 1 ? "Chờ xác nhận" :
-                    item.TrangThai == 2 ? "Đã hoàn tất" : "Đã hủy"
-                )
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.GhiChu)
-            </td>
-            <td>
-                @(
-                    (item.TongTienNhap % 1m) == 0m
-                    ? item.TongTienNhap.ToString("N0")
-                    : item.TongTienNhap.ToString("N2")
-                )
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.NhaCungCap.TenNhaCungCap)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Kho.TenKho)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.MaPhieuNhap">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.MaPhieuNhap">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.MaPhieuNhap">Delete</a>
-            </td>
-        </tr>
+            <tr>
+                <td class="align-middle text-nowrap">
+                    @item.NgayNhap.ToString("yyyy-MM-dd")
+                </td>
+                <td class="align-middle text-nowrap">
+                    @Html.DisplayFor(modelItem => item.NguoiLap)
+                </td>
+                <td class="align-middle text-nowrap">
+                    @(
+                        item.TrangThai == 0 ? "Nháp" :
+                        item.TrangThai == 1 ? "Chờ xác nhận" :
+                        item.TrangThai == 2 ? "Đã hoàn tất" : "Đã hủy"
+                    )
+                </td>
+                <td class="align-middle">
+                    @Html.DisplayFor(modelItem => item.GhiChu)
+                </td>
+                <td class="align-middle text-nowrap">
+                    @(
+                        (item.TongTienNhap % 1m) == 0m
+                        ? item.TongTienNhap.ToString("N0")
+                        : item.TongTienNhap.ToString("N2")
+                    )
+                </td>
+                <td class="align-middle">
+                    @Html.DisplayFor(modelItem => item.NhaCungCap.TenNhaCungCap)
+                </td>
+                <td class="align-middle">
+                    @Html.DisplayFor(modelItem => item.Kho.TenKho)
+                </td>
+                <td class="align-middle text-nowrap">
+                    <a asp-action="Edit" asp-route-id="@item.MaPhieuNhap">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.MaPhieuNhap">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.MaPhieuNhap">Delete</a>
+                </td>
+            </tr>
 }
-    </tbody>
-</table>
+        </tbody>
+    </table>
+</div>
