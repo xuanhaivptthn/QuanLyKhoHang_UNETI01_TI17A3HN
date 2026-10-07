@@ -14,7 +14,7 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Data
         public DbSet<LoaiHang> LoaiHangs { get; set; } = default!;
         public DbSet<DonViTinh> DonViTinhs { get; set; } = default!;
 
-        // Danh mục Kho (Đã có từ ban đầu)
+        // Module 2: Hàng hóa, kho
         public DbSet<HangHoa> HangHoa { get; set; } = default!;
         public DbSet<HangHoa> HangHoas => HangHoa;
         public DbSet<Kho> Kho { get; set; } = default!;
@@ -64,6 +64,24 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Data
             modelBuilder.Entity<TonKho>()
                 .HasKey(t => new { t.MaKho, t.MaHang });
 
+            // Quan hệ Module 2: Hàng hóa - Loại hàng - Đơn vị tính, Kho - Phiếu nhập
+            modelBuilder.Entity<HangHoa>()
+                .HasOne(h => h.LoaiHang)
+                .WithMany(l => l.HangHoas)
+                .HasForeignKey(h => h.MaLoaiHang)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<HangHoa>()
+                .HasOne(h => h.DonViTinh)
+                .WithMany(d => d.HangHoas)
+                .HasForeignKey(h => h.MaDonViTinh)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<PhieuNhap>()
+                .HasOne(p => p.Kho)
+                .WithMany(k => k.PhieuNhaps)
+                .HasForeignKey(p => p.MaKho)
+                .OnDelete(DeleteBehavior.Restrict);
 
             // Module 3: PhieuNhap - NhaCungCap - ChiTietPhieuNhap relationships
             modelBuilder.Entity<PhieuNhap>()
