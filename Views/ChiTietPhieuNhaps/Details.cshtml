@@ -23,6 +23,16 @@
             @Html.DisplayFor(model => model.DonGiaNhap)
         </dd>
         <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.ThanhTien)
+        </dt>
+        <dd class = "col-sm-10">
+            @(
+                (Model.ThanhTien % 1m) == 0m
+                ? Model.ThanhTien.ToString("N0")
+                : Model.ThanhTien.ToString("N2")
+            )
+        </dd>
+        <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.PhieuNhap)
         </dt>
         <dd class = "col-sm-10">

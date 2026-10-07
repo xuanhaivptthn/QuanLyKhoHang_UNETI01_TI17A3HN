@@ -43,5 +43,16 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Models
         public virtual Kho? Kho { get; set; }
 
         public virtual ICollection<ChiTietPhieuNhap> ChiTietPhieuNhaps { get; set; } = new List<ChiTietPhieuNhap>();
+
+        [NotMapped]
+        [Display(Name = "Tổng tiền nhập")]
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal TongTienNhap
+        {
+            get
+            {
+                return ChiTietPhieuNhaps?.Sum(d => d.ThanhTien) ?? 0m;
+            }
+        }
     }
 }

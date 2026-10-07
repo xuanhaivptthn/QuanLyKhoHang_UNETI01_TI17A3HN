@@ -39,6 +39,16 @@
             @Html.DisplayFor(model => model.GhiChu)
         </dd>
         <dt class = "col-sm-2">
+            Tổng tiền
+        </dt>
+        <dd class = "col-sm-10">
+            @(
+                (Model.TongTienNhap % 1m) == 0m
+                ? Model.TongTienNhap.ToString("N0")
+                : Model.TongTienNhap.ToString("N2")
+            )
+        </dd>
+        <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.NhaCungCap)
         </dt>
         <dd class = "col-sm-10">
