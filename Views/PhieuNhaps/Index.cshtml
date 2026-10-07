@@ -25,6 +25,9 @@
                 @Html.DisplayNameFor(model => model.GhiChu)
             </th>
             <th>
+                Tổng tiền
+            </th>
+            <th>
                 @Html.DisplayNameFor(model => model.NhaCungCap)
             </th>
             <th>
@@ -51,6 +54,13 @@
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.GhiChu)
+            </td>
+            <td>
+                @(
+                    (item.TongTienNhap % 1m) == 0m
+                    ? item.TongTienNhap.ToString("N0")
+                    : item.TongTienNhap.ToString("N2")
+                )
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.NhaCungCap.TenNhaCungCap)
