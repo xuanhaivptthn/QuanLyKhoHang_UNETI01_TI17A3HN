@@ -38,7 +38,7 @@
             @Html.DisplayNameFor(model => model.TrangThai)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.TrangThai)
+            @(Model.TrangThai ? "Đang hoạt động" : "Ngừng hoạt động")
         </dd>
     </dl>
 </div>

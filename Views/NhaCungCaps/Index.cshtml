@@ -65,7 +65,7 @@
                 @Html.DisplayFor(modelItem => item.DiaChi)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.TrangThai)
+                @(item.TrangThai ? "Đang hoạt động" : "Ngừng hoạt động")
             </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.MaNhaCungCap">Edit</a> |
