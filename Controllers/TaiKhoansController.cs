@@ -1,12 +1,16 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using QuanLyKhoHang_UNETI01_TI17A3HN.Data;
 using QuanLyKhoHang_UNETI01_TI17A3HN.Filters;
 using QuanLyKhoHang_UNETI01_TI17A3HN.Models;
@@ -14,7 +18,7 @@ using QuanLyKhoHang_UNETI01_TI17A3HN.ViewModels;
 
 // Họ và tên: Trần Xuân Hải
 // Mã sinh viên: 23103100135
-// Phụ trách Module 1: Tài khoản, Đăng nhập, Phân quyền, Loại hàng & Đơn vị tính
+// Phụ trách Module 1: Tài khoản, Đăng nhập, Phân quyền, Cookie & Session
 
 namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
 {
@@ -22,21 +26,23 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
     public class TaiKhoansController : Controller
     {
         private readonly AppDbContext _context;
+        private readonly IMemoryCache _cache;
 
-        public TaiKhoansController(AppDbContext context)
+        public TaiKhoansController(AppDbContext context, IMemoryCache cache)
         {
             _context = context;
+            _cache = cache;
         }
 
-        #region Xác thực & Phiên làm việc (Authentication & Session)
+        #region Xác thực & Quản lý Cookie / Session (Authentication & State Management)
 
         // GET: /TaiKhoans/DangNhap hoặc /TaiKhoan/DangNhap
         [AllowAnonymous]
         [HttpGet]
         public IActionResult DangNhap(string? returnUrl = null)
         {
-            // Nếu đã đăng nhập thì điều hướng về returnUrl hoặc trang chủ
-            if (HttpContext.Session.GetInt32("MaTaiKhoan") != null)
+            // Nếu đã xác thực qua Cookie hoặc Session -> điều hướng về returnUrl hoặc trang chủ
+            if (User.Identity?.IsAuthenticated == true || HttpContext.Session.GetInt32("MaTaiKhoan") != null)
             {
                 if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
                 {
@@ -44,8 +50,18 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
                 }
                 return RedirectToAction("Index", "Home");
             }
+
             ViewBag.ReturnUrl = returnUrl;
-            return View();
+
+            // Đọc Cookie "RememberedUser" nếu đã được lưu từ phiên trước
+            var model = new LoginViewModel();
+            if (Request.Cookies.TryGetValue("RememberedUser", out var rememberedUser) && !string.IsNullOrWhiteSpace(rememberedUser))
+            {
+                model.TenDangNhap = rememberedUser;
+                model.GhiNhoDangNhap = true;
+            }
+
+            return View(model);
         }
 
         // POST: /TaiKhoans/DangNhap hoặc /TaiKhoan/DangNhap
@@ -60,24 +76,117 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
                 return View(model);
             }
 
-            // Sử dụng Entity Framework Core và LINQ để kiểm tra tài khoản
+            // Tìm tài khoản theo tên đăng nhập
             var taiKhoan = await _context.TaiKhoans
-                .FirstOrDefaultAsync(t => t.TenDangNhap == model.TenDangNhap 
-                                       && t.MatKhau == model.MatKhau 
-                                       && t.TrangThai == true);
+                .FirstOrDefaultAsync(t => t.TenDangNhap == model.TenDangNhap);
 
             if (taiKhoan == null)
             {
-                ModelState.AddModelError(string.Empty, "Tên đăng nhập hoặc mật khẩu không chính xác, hoặc tài khoản đã bị khóa.");
+                ModelState.AddModelError(string.Empty, "Tên đăng nhập hoặc mật khẩu không chính xác.");
                 ViewBag.ReturnUrl = returnUrl;
                 return View(model);
             }
 
-            // Đăng nhập thành công -> Lưu tối thiểu: Mã tài khoản, Họ tên, Vai trò vào Session
+            // 1. Kiểm tra trạng thái tài khoản bị khóa bởi Quản trị viên
+            if (!taiKhoan.TrangThai)
+            {
+                ModelState.AddModelError(string.Empty, "Tài khoản này hiện đang bị khóa bởi Quản trị viên.");
+                ViewBag.ReturnUrl = returnUrl;
+                return View(model);
+            }
+
+            // 2. Cơ chế khóa tài khoản chống dò mật khẩu (Lockout lưu trực tiếp trong CSDL)
+            if (taiKhoan.KhoaDenUtc.HasValue)
+            {
+                if (taiKhoan.KhoaDenUtc.Value > DateTime.UtcNow)
+                {
+                    var remainingMinutes = (int)Math.Ceiling((taiKhoan.KhoaDenUtc.Value - DateTime.UtcNow).TotalMinutes);
+                    if (remainingMinutes < 1) remainingMinutes = 1;
+                    ModelState.AddModelError(string.Empty, $"Tài khoản tạm thời bị khóa do nhập sai mật khẩu quá 5 lần. Vui lòng thử lại sau {remainingMinutes} phút.");
+                    ViewBag.ReturnUrl = returnUrl;
+                    return View(model);
+                }
+                else
+                {
+                    // Đã hết thời hạn khóa tạm -> mở lại tài khoản
+                    taiKhoan.KhoaDenUtc = null;
+                    taiKhoan.SoLanDangNhapSai = 0;
+                    await _context.SaveChangesAsync();
+                }
+            }
+
+            // 3. Kiểm tra mật khẩu
+            if (taiKhoan.MatKhau != model.MatKhau)
+            {
+                taiKhoan.SoLanDangNhapSai++;
+                if (taiKhoan.SoLanDangNhapSai >= 5)
+                {
+                    taiKhoan.KhoaDenUtc = DateTime.UtcNow.AddMinutes(5);
+                    taiKhoan.SoLanDangNhapSai = 0;
+                    await _context.SaveChangesAsync();
+                    ModelState.AddModelError(string.Empty, "Tài khoản tạm thời bị khóa 5 phút do nhập sai mật khẩu quá 5 lần liên tiếp.");
+                }
+                else
+                {
+                    await _context.SaveChangesAsync();
+                    ModelState.AddModelError(string.Empty, "Tên đăng nhập hoặc mật khẩu không chính xác.");
+                }
+
+                ViewBag.ReturnUrl = returnUrl;
+                return View(model);
+            }
+
+            // 4. Đăng nhập thành công -> Reset bộ đếm số lần sai và trạng thái khóa trong CSDL
+            taiKhoan.SoLanDangNhapSai = 0;
+            taiKhoan.KhoaDenUtc = null;
+            await _context.SaveChangesAsync();
+
+            // 1. Quản lý Cookie "RememberedUser"
+            if (model.GhiNhoDangNhap)
+            {
+                var cookieOption = new CookieOptions
+                {
+                    Expires = DateTime.Now.AddDays(7), // Lưu 7 ngày
+                    HttpOnly = true,                  // Chống XSS
+                    Secure = Request.IsHttps,
+                    SameSite = SameSiteMode.Lax,
+                    IsEssential = true
+                };
+                Response.Cookies.Append("RememberedUser", taiKhoan.TenDangNhap, cookieOption);
+            }
+            else
+            {
+                Response.Cookies.Delete("RememberedUser");
+            }
+
+            // 2. Thiết lập Cookie Authentication & Đóng gói Claims-based
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Name, taiKhoan.TenDangNhap),
+                new Claim(ClaimTypes.Role, taiKhoan.VaiTro),
+                new Claim(ClaimTypes.NameIdentifier, taiKhoan.MaTaiKhoan.ToString()),
+                new Claim(ClaimTypes.Email, taiKhoan.Email ?? string.Empty),
+                new Claim("HoTen", taiKhoan.HoTen ?? string.Empty),
+                new Claim("Department", taiKhoan.VaiTro ?? string.Empty) // Custom Claim Department
+            };
+
+            var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+            var principal = new ClaimsPrincipal(identity);
+
+            var authProperties = new AuthenticationProperties
+            {
+                IsPersistent = model.GhiNhoDangNhap,
+                ExpiresUtc = model.GhiNhoDangNhap ? DateTimeOffset.UtcNow.AddDays(7) : DateTimeOffset.UtcNow.AddMinutes(30)
+            };
+
+            // Sinh Cookie Authentication gửi về Browser
+            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal, authProperties);
+
+            // 3. Đồng bộ vào Session
             HttpContext.Session.SetInt32("MaTaiKhoan", taiKhoan.MaTaiKhoan);
-            HttpContext.Session.SetString("HoTen", taiKhoan.HoTen);
-            HttpContext.Session.SetString("VaiTro", taiKhoan.VaiTro);
-            HttpContext.Session.SetString("TenDangNhap", taiKhoan.TenDangNhap);
+            HttpContext.Session.SetString("HoTen", taiKhoan.HoTen ?? string.Empty);
+            HttpContext.Session.SetString("VaiTro", taiKhoan.VaiTro ?? string.Empty);
+            HttpContext.Session.SetString("TenDangNhap", taiKhoan.TenDangNhap ?? string.Empty);
 
             if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
             {
@@ -90,12 +199,35 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
         // GET: /TaiKhoans/DangXuat hoặc /TaiKhoan/DangXuat
         [AllowAnonymous]
         [HttpGet]
-        public IActionResult DangXuat()
+        public async Task<IActionResult> DangXuat()
         {
-            // Xóa toàn bộ dữ liệu Session khi đăng xuất
+            // 1. Hủy Cookie Authentication khỏi Browser
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
+            // 2. Xóa toàn bộ dữ liệu Session
             HttpContext.Session.Clear();
 
             return RedirectToAction(nameof(DangNhap));
+        }
+
+        // GET: /TaiKhoans/Profile
+        [AuthorizeRole("Admin", "NhanVienKho", "BoPhanNhan")]
+        [HttpGet]
+        public async Task<IActionResult> Profile()
+        {
+            var userName = User.Identity?.Name ?? HttpContext.Session.GetString("TenDangNhap");
+            if (string.IsNullOrEmpty(userName))
+            {
+                return RedirectToAction(nameof(DangNhap));
+            }
+
+            var taiKhoan = await _context.TaiKhoans.FirstOrDefaultAsync(t => t.TenDangNhap == userName);
+            if (taiKhoan == null)
+            {
+                return NotFound();
+            }
+
+            return View(taiKhoan);
         }
 
         #endregion
@@ -148,6 +280,7 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
             {
                 _context.Add(taiKhoan);
                 await _context.SaveChangesAsync();
+                TempData["Success"] = $"Đã tạo mới tài khoản '{taiKhoan.TenDangNhap}' thành công!";
                 return RedirectToAction(nameof(Index));
             }
             return View(taiKhoan);
@@ -194,6 +327,7 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
                 {
                     _context.Update(taiKhoan);
                     await _context.SaveChangesAsync();
+                    TempData["Success"] = $"Đã cập nhật thông tin tài khoản '{taiKhoan.TenDangNhap}' thành công!";
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -249,7 +383,9 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
             var taiKhoan = await _context.TaiKhoans.FindAsync(targetId);
             if (taiKhoan != null)
             {
-                var currentUserId = HttpContext.Session.GetInt32("MaTaiKhoan");
+                int.TryParse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value, out int claimId);
+                var currentUserId = HttpContext.Session.GetInt32("MaTaiKhoan") ?? (claimId > 0 ? claimId : (int?)null);
+
                 if (currentUserId == targetId)
                 {
                     TempData["Error"] = "Bạn không thể tự xóa tài khoản đang đăng nhập.";

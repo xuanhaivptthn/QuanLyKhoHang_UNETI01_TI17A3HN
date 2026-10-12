@@ -12,7 +12,7 @@ using QuanLyKhoHang_UNETI01_TI17A3HN.Data;
 namespace QuanLyKhoHang_UNETI01_TI17A3HN.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260930012242_InitialCreate")]
+    [Migration("20261012162818_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -54,6 +54,9 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Migrations
                         .HasColumnType("bit");
 
                     b.HasKey("MaBoPhan");
+
+                    b.HasIndex("TenBoPhan")
+                        .IsUnique();
 
                     b.ToTable("BoPhanNhan");
                 });
@@ -186,6 +189,9 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Migrations
 
                     b.HasIndex("MaLoaiHang");
 
+                    b.HasIndex("TenHang")
+                        .IsUnique();
+
                     b.ToTable("HangHoa");
                 });
 
@@ -214,6 +220,9 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Migrations
                         .HasColumnType("bit");
 
                     b.HasKey("MaKho");
+
+                    b.HasIndex("TenKho")
+                        .IsUnique();
 
                     b.ToTable("Kho");
                 });
@@ -325,6 +334,9 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Migrations
 
                     b.HasKey("MaNhaCungCap");
 
+                    b.HasIndex("TenNhaCungCap")
+                        .IsUnique();
+
                     b.ToTable("NhaCungCap");
                 });
 
@@ -377,9 +389,6 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
-                    b.Property<int?>("KhoMaKho")
-                        .HasColumnType("int");
-
                     b.Property<int>("MaBoPhan")
                         .HasColumnType("int");
 
@@ -398,8 +407,6 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("MaPhieuXuat");
-
-                    b.HasIndex("KhoMaKho");
 
                     b.HasIndex("MaBoPhan");
 
@@ -426,10 +433,16 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<DateTime?>("KhoaDenUtc")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("MatKhau")
                         .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
+
+                    b.Property<int>("SoLanDangNhapSai")
+                        .HasColumnType("int");
 
                     b.Property<string>("TenDangNhap")
                         .IsRequired()
@@ -478,7 +491,7 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Migrations
                     b.HasOne("QuanLyKhoHang_UNETI01_TI17A3HN.Models.HangHoa", "HangHoa")
                         .WithMany("DanhSachChiTietNhap")
                         .HasForeignKey("MaHang")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("QuanLyKhoHang_UNETI01_TI17A3HN.Models.PhieuNhap", "PhieuNhap")
@@ -497,7 +510,7 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Migrations
                     b.HasOne("QuanLyKhoHang_UNETI01_TI17A3HN.Models.HangHoa", "HangHoa")
                         .WithMany("DanhSachChiTietXuat")
                         .HasForeignKey("MaHang")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("QuanLyKhoHang_UNETI01_TI17A3HN.Models.PhieuXuat", "PhieuXuat")
@@ -516,13 +529,13 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Migrations
                     b.HasOne("QuanLyKhoHang_UNETI01_TI17A3HN.Models.DonViTinh", "DonViTinh")
                         .WithMany("HangHoas")
                         .HasForeignKey("MaDonViTinh")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("QuanLyKhoHang_UNETI01_TI17A3HN.Models.LoaiHang", "LoaiHang")
                         .WithMany("HangHoas")
                         .HasForeignKey("MaLoaiHang")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("DonViTinh");
@@ -533,13 +546,13 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Migrations
             modelBuilder.Entity("QuanLyKhoHang_UNETI01_TI17A3HN.Models.LichSuTonKho", b =>
                 {
                     b.HasOne("QuanLyKhoHang_UNETI01_TI17A3HN.Models.HangHoa", "HangHoa")
-                        .WithMany()
+                        .WithMany("LichSuTonKhoes")
                         .HasForeignKey("MaHang")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("QuanLyKhoHang_UNETI01_TI17A3HN.Models.Kho", "Kho")
-                        .WithMany()
+                        .WithMany("LichSuTonKhoes")
                         .HasForeignKey("MaKho")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -554,13 +567,13 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Migrations
                     b.HasOne("QuanLyKhoHang_UNETI01_TI17A3HN.Models.Kho", "Kho")
                         .WithMany("PhieuNhaps")
                         .HasForeignKey("MaKho")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("QuanLyKhoHang_UNETI01_TI17A3HN.Models.NhaCungCap", "NhaCungCap")
                         .WithMany("PhieuNhaps")
                         .HasForeignKey("MaNhaCungCap")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Kho");
@@ -570,10 +583,6 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Migrations
 
             modelBuilder.Entity("QuanLyKhoHang_UNETI01_TI17A3HN.Models.PhieuXuat", b =>
                 {
-                    b.HasOne("QuanLyKhoHang_UNETI01_TI17A3HN.Models.Kho", null)
-                        .WithMany("PhieuXuats")
-                        .HasForeignKey("KhoMaKho");
-
                     b.HasOne("QuanLyKhoHang_UNETI01_TI17A3HN.Models.BoPhanNhan", "BoPhanNhan")
                         .WithMany("PhieuXuats")
                         .HasForeignKey("MaBoPhan")
@@ -581,7 +590,7 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Migrations
                         .IsRequired();
 
                     b.HasOne("QuanLyKhoHang_UNETI01_TI17A3HN.Models.Kho", "Kho")
-                        .WithMany()
+                        .WithMany("PhieuXuats")
                         .HasForeignKey("MaKho")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -596,11 +605,11 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Migrations
                     b.HasOne("QuanLyKhoHang_UNETI01_TI17A3HN.Models.HangHoa", "HangHoa")
                         .WithMany("DanhSachTonKho")
                         .HasForeignKey("MaHang")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("QuanLyKhoHang_UNETI01_TI17A3HN.Models.Kho", "Kho")
-                        .WithMany()
+                        .WithMany("DanhSachTonKho")
                         .HasForeignKey("MaKho")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -627,10 +636,16 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Migrations
                     b.Navigation("DanhSachChiTietXuat");
 
                     b.Navigation("DanhSachTonKho");
+
+                    b.Navigation("LichSuTonKhoes");
                 });
 
             modelBuilder.Entity("QuanLyKhoHang_UNETI01_TI17A3HN.Models.Kho", b =>
                 {
+                    b.Navigation("DanhSachTonKho");
+
+                    b.Navigation("LichSuTonKhoes");
+
                     b.Navigation("PhieuNhaps");
 
                     b.Navigation("PhieuXuats");

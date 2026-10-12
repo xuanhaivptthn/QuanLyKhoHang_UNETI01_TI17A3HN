@@ -102,7 +102,9 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Migrations
                     HoTen = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Email = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     VaiTro = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    TrangThai = table.Column<bool>(type: "bit", nullable: false)
+                    TrangThai = table.Column<bool>(type: "bit", nullable: false),
+                    SoLanDangNhapSai = table.Column<int>(type: "int", nullable: false),
+                    KhoaDenUtc = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -120,8 +122,7 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Migrations
                     NgayXuat = table.Column<DateTime>(type: "datetime2", nullable: false),
                     NguoiLap = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     TrangThai = table.Column<int>(type: "int", nullable: false),
-                    GhiChu = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
-                    KhoMaKho = table.Column<int>(type: "int", nullable: true)
+                    GhiChu = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -132,11 +133,6 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Migrations
                         principalTable: "BoPhanNhan",
                         principalColumn: "MaBoPhan",
                         onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_PhieuXuat_Kho_KhoMaKho",
-                        column: x => x.KhoMaKho,
-                        principalTable: "Kho",
-                        principalColumn: "MaKho");
                     table.ForeignKey(
                         name: "FK_PhieuXuat_Kho_MaKho",
                         column: x => x.MaKho,
@@ -167,13 +163,13 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Migrations
                         column: x => x.MaDonViTinh,
                         principalTable: "DonViTinh",
                         principalColumn: "MaDonViTinh",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_HangHoa_LoaiHang_MaLoaiHang",
                         column: x => x.MaLoaiHang,
                         principalTable: "LoaiHang",
                         principalColumn: "MaLoaiHang",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -197,13 +193,13 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Migrations
                         column: x => x.MaKho,
                         principalTable: "Kho",
                         principalColumn: "MaKho",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_PhieuNhap_NhaCungCap_MaNhaCungCap",
                         column: x => x.MaNhaCungCap,
                         principalTable: "NhaCungCap",
                         principalColumn: "MaNhaCungCap",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -226,7 +222,7 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Migrations
                         column: x => x.MaHang,
                         principalTable: "HangHoa",
                         principalColumn: "MaHang",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_ChiTietPhieuXuat_PhieuXuat_MaPhieuXuat",
                         column: x => x.MaPhieuXuat,
@@ -259,7 +255,7 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Migrations
                         column: x => x.MaHang,
                         principalTable: "HangHoa",
                         principalColumn: "MaHang",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_LichSuTonKhoes_Kho_MaKho",
                         column: x => x.MaKho,
@@ -285,7 +281,7 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Migrations
                         column: x => x.MaHang,
                         principalTable: "HangHoa",
                         principalColumn: "MaHang",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_TonKhoes_Kho_MaKho",
                         column: x => x.MaKho,
@@ -313,7 +309,7 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Migrations
                         column: x => x.MaHang,
                         principalTable: "HangHoa",
                         principalColumn: "MaHang",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_ChiTietPhieuNhap_PhieuNhap_MaPhieuNhap",
                         column: x => x.MaPhieuNhap,
@@ -321,6 +317,12 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Migrations
                         principalColumn: "MaPhieuNhap",
                         onDelete: ReferentialAction.Cascade);
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_BoPhanNhan_TenBoPhan",
+                table: "BoPhanNhan",
+                column: "TenBoPhan",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_ChiTietPhieuNhap_MaHang",
@@ -359,6 +361,18 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Migrations
                 column: "MaLoaiHang");
 
             migrationBuilder.CreateIndex(
+                name: "IX_HangHoa_TenHang",
+                table: "HangHoa",
+                column: "TenHang",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Kho_TenKho",
+                table: "Kho",
+                column: "TenKho",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_LichSuTonKhoes_MaHang",
                 table: "LichSuTonKhoes",
                 column: "MaHang");
@@ -375,6 +389,12 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_NhaCungCap_TenNhaCungCap",
+                table: "NhaCungCap",
+                column: "TenNhaCungCap",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_PhieuNhap_MaKho",
                 table: "PhieuNhap",
                 column: "MaKho");
@@ -383,11 +403,6 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Migrations
                 name: "IX_PhieuNhap_MaNhaCungCap",
                 table: "PhieuNhap",
                 column: "MaNhaCungCap");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_PhieuXuat_KhoMaKho",
-                table: "PhieuXuat",
-                column: "KhoMaKho");
 
             migrationBuilder.CreateIndex(
                 name: "IX_PhieuXuat_MaBoPhan",

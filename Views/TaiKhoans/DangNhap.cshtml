@@ -27,6 +27,12 @@
                 <input asp-for="MatKhau" class="form-control" />
                 <span asp-validation-for="MatKhau" class="text-danger"></span>
             </div>
+            <div class="form-check mb-3">
+                <input asp-for="GhiNhoDangNhap" class="form-check-input" id="rememberMeCheck" />
+                <label asp-for="GhiNhoDangNhap" class="form-check-label text-muted" for="rememberMeCheck">
+                    Ghi nhớ tài khoản (Lưu Cookie 7 ngày)
+                </label>
+            </div>
             <div class="form-group mb-3">
                 <input type="submit" value="Đăng nhập" class="btn btn-primary" />
             </div>

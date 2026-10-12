@@ -1,4 +1,10 @@
 @inject QuanLyKhoHang_UNETI01_TI17A3HN.Models.DatabaseInfo DbInfo
+@{
+    var isAuthenticated = (User.Identity?.IsAuthenticated == true) || (Context.Session.GetInt32("MaTaiKhoan") != null);
+    var currentUserRole = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value ?? Context.Session.GetString("VaiTro");
+    var currentUserName = User.FindFirst("HoTen")?.Value ?? Context.Session.GetString("HoTen") ?? User.Identity?.Name;
+    var isAdmin = User.IsInRole("Admin") || string.Equals(currentUserRole, "Admin", StringComparison.OrdinalIgnoreCase);
+}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -62,9 +68,12 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="DonViTinhs" asp-action="Index">Đơn vị tính</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="TaiKhoans" asp-action="Index">Tài khoản</a>
-                        </li>
+                        @if (isAdmin)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark fw-semibold" asp-area="" asp-controller="TaiKhoans" asp-action="Index">Tài khoản</a>
+                            </li>
+                        }
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="ThongKe" asp-action="Dashboard">Dashboard Thống kê</a>
                         </li>
@@ -76,13 +85,13 @@
                         </li>
                     </ul>
                     <ul class="navbar-nav align-items-center">
-                        @if (Context.Session.GetInt32("MaTaiKhoan") != null)
+                        @if (isAuthenticated)
                         {
                             <li class="nav-item me-2">
-                                <span class="text-dark me-2">
-                                    Xin chào: <strong>@Context.Session.GetString("HoTen")</strong>
-                                    <span class="badge bg-info text-dark ms-1">@Context.Session.GetString("VaiTro")</span>
-                                </span>
+                                <a class="nav-link text-dark p-0 me-2" asp-area="" asp-controller="TaiKhoans" asp-action="Profile" title="Xem hồ sơ cá nhân">
+                                    Xin chào: <strong>@currentUserName</strong>
+                                    <span class="badge bg-info text-dark ms-1">@currentUserRole</span>
+                                </a>
                             </li>
                             <li class="nav-item">
                                 <a class="btn btn-outline-danger btn-sm" asp-area="" asp-controller="TaiKhoans" asp-action="DangXuat">Đăng xuất</a>

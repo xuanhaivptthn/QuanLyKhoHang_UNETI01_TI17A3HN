@@ -1,0 +1,82 @@
+@*
+    Họ và tên: Trần Xuân Hải
+    Mã sinh viên: 23103100135
+    Phụ trách Module 1: Tài khoản, Đăng nhập, Phân quyền & Quản lý hồ sơ
+*@
+@model QuanLyKhoHang_UNETI01_TI17A3HN.Models.TaiKhoan
+
+@{
+    ViewData["Title"] = "Thông tin Hồ sơ Cá nhân";
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-primary text-white text-center py-3">
+                    <h4 class="mb-0 fw-bold">Thông tin Hồ sơ Cá nhân</h4>
+                </div>
+                <div class="card-body p-4">
+                    <div class="text-center mb-4">
+                        <div class="d-inline-flex align-items-center justify-content-center bg-primary-subtle text-primary rounded-circle mb-2" style="width: 72px; height: 72px; font-size: 2rem;">
+                            <i class="bi bi-person"></i>
+                        </div>
+                        <h4 class="fw-bold mb-1">@Model.HoTen</h4>
+                        <span class="badge bg-info text-dark px-3 py-1 fs-6">@Model.VaiTro</span>
+                    </div>
+
+                    <table class="table table-borderless align-middle mb-4">
+                        <tbody>
+                            <tr>
+                                <th class="text-muted text-nowrap" style="width: 35%;">Mã tài khoản:</th>
+                                <td class="fw-semibold">#@Model.MaTaiKhoan</td>
+                            </tr>
+                            <tr>
+                                <th class="text-muted text-nowrap">Tên đăng nhập:</th>
+                                <td class="fw-bold text-primary">@Model.TenDangNhap</td>
+                            </tr>
+                            <tr>
+                                <th class="text-muted text-nowrap">Email:</th>
+                                <td>@Model.Email</td>
+                            </tr>
+                            <tr>
+                                <th class="text-muted text-nowrap">Vai trò:</th>
+                                <td><span class="badge bg-secondary">@Model.VaiTro</span></td>
+                            </tr>
+                            <tr>
+                                <th class="text-muted text-nowrap">Trạng thái:</th>
+                                <td>
+                                    @if (Model.TrangThai)
+                                    {
+                                        <span class="badge bg-success">Đang hoạt động</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger">Bị khóa</span>
+                                    }
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="d-flex flex-wrap gap-2 justify-content-between pt-2 border-top">
+                        <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary">
+                            <i class="bi bi-house"></i> Về trang chủ
+                        </a>
+                        <div class="d-flex gap-2">
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <a asp-action="Index" class="btn btn-outline-primary">
+                                    <i class="bi bi-people"></i> Quản lý tài khoản
+                                </a>
+                            }
+                            <a asp-action="DangXuat" class="btn btn-danger">
+                                <i class="bi bi-box-arrow-right"></i> Đăng xuất
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

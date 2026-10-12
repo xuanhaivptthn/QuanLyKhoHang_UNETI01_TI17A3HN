@@ -44,5 +44,11 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Models
 
         [Display(Name = "Trạng thái")]
         public bool TrangThai { get; set; } = true; // true: Hoạt động, false: Bị khóa
+
+        [Display(Name = "Số lần đăng nhập sai")]
+        public int SoLanDangNhapSai { get; set; } = 0;
+
+        [Display(Name = "Khóa đến (UTC)")]
+        public DateTime? KhoaDenUtc { get; set; }
     }
 }
