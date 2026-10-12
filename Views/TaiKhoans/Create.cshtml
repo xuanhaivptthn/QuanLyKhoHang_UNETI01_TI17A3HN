@@ -1,7 +1,7 @@
 @*
     Họ và tên: Trần Xuân Hải
     Mã sinh viên: 23103100135
-    Phụ trách Module 1: Tài khoản, Đăng nhập, Phân quyền, Loại hàng & Đơn vị tính
+    Phụ trách Module 1: Tài khoản & Đăng nhập
 *@
 @model QuanLyKhoHang_UNETI01_TI17A3HN.Models.TaiKhoan
 
@@ -13,8 +13,8 @@
     <div class="col-lg-8">
         <div class="page-header">
             <div>
-                <h2 class="page-title"><i class="bi bi-person-plus-fill text-primary"></i> Thêm Tài Khoản Mới</h2>
-                <p class="page-subtitle">Tạo tài khoản mới và cấp quyền đăng nhập hệ thống</p>
+                <h2 class="page-title"><i class="bi bi-person-plus text-primary"></i> Tạo Tài Khoản Mới</h2>
+                <p class="page-subtitle">Cấp mới tài khoản truy cập hệ thống quản lý kho UNETI</p>
             </div>
             <div>
                 <a asp-action="Index" class="btn btn-outline-secondary">
@@ -24,7 +24,7 @@
         </div>
 
         <div class="card border-0 shadow-sm rounded-2">
-            <div class="card-body p-4">
+            <div class="card-body p-4 p-md-5">
                 <form asp-action="Create" method="post">
                     <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-4 py-2" role="alert"></div>
 
@@ -33,7 +33,7 @@
                             <label asp-for="TenDangNhap" class="form-label fw-semibold">
                                 <i class="bi bi-person me-1 text-primary"></i> Tên đăng nhập <span class="text-danger">*</span>
                             </label>
-                            <input asp-for="TenDangNhap" class="form-control" placeholder="Ví dụ: nv_kho01..." />
+                            <input asp-for="TenDangNhap" class="form-control" placeholder="user_warehouse..." />
                             <span asp-validation-for="TenDangNhap" class="text-danger small"></span>
                         </div>
 
@@ -41,7 +41,7 @@
                             <label asp-for="MatKhau" class="form-label fw-semibold">
                                 <i class="bi bi-key me-1 text-primary"></i> Mật khẩu <span class="text-danger">*</span>
                             </label>
-                            <input asp-for="MatKhau" class="form-control" placeholder="Nhập mật khẩu..." />
+                            <input asp-for="MatKhau" type="password" class="form-control" placeholder="Tối thiểu 6 ký tự..." />
                             <span asp-validation-for="MatKhau" class="text-danger small"></span>
                         </div>
 
@@ -49,7 +49,7 @@
                             <label asp-for="HoTen" class="form-label fw-semibold">
                                 <i class="bi bi-card-text me-1 text-primary"></i> Họ và tên <span class="text-danger">*</span>
                             </label>
-                            <input asp-for="HoTen" class="form-control" placeholder="Ví dụ: Nguyễn Văn An..." />
+                            <input asp-for="HoTen" class="form-control" placeholder="Nguyễn Văn A..." />
                             <span asp-validation-for="HoTen" class="text-danger small"></span>
                         </div>
 
@@ -57,7 +57,7 @@
                             <label asp-for="Email" class="form-label fw-semibold">
                                 <i class="bi bi-envelope me-1 text-primary"></i> Email liên hệ
                             </label>
-                            <input asp-for="Email" type="email" class="form-control" placeholder="Ví dụ: nvan@uneti.edu.vn..." />
+                            <input asp-for="Email" type="email" class="form-control" placeholder="example@uneti.edu.vn" />
                             <span asp-validation-for="Email" class="text-danger small"></span>
                         </div>
 
@@ -66,27 +66,29 @@
                                 <i class="bi bi-shield-check me-1 text-primary"></i> Vai trò hệ thống <span class="text-danger">*</span>
                             </label>
                             <select asp-for="VaiTro" class="form-select">
-                                <option value="NhanVienKho">Nhân viên kho (NhanVienKho)</option>
-                                <option value="Admin">Quản trị viên (Admin)</option>
-                                <option value="BoPhanNhan">Bộ phận nhận hàng (BoPhanNhan)</option>
+                                <option value="Admin">Admin (Quản trị viên)</option>
+                                <option value="NhanVienKho" selected>NhanVienKho (Nhân viên kho)</option>
+                                <option value="BoPhanNhan">BoPhanNhan (Bộ phận nhận)</option>
                             </select>
                             <span asp-validation-for="VaiTro" class="text-danger small"></span>
                         </div>
 
-                        <div class="col-md-6 d-flex align-items-center">
-                            <div class="form-check form-switch mt-4">
-                                <input class="form-check-input" type="checkbox" role="switch" asp-for="TrangThai" checked id="chkTrangThai" />
-                                <label class="form-check-label fw-semibold" for="chkTrangThai">
-                                    Kích hoạt tài khoản ngay
-                                </label>
-                            </div>
+                        <div class="col-md-6">
+                            <label asp-for="TrangThai" class="form-label fw-semibold">
+                                <i class="bi bi-toggle-on me-1 text-primary"></i> Trạng thái
+                            </label>
+                            <select asp-for="TrangThai" class="form-select">
+                                <option value="true">Đang hoạt động</option>
+                                <option value="false">Bị khóa / Ngừng hoạt động</option>
+                            </select>
+                            <span asp-validation-for="TrangThai" class="text-danger small"></span>
                         </div>
                     </div>
 
                     <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
                         <a asp-action="Index" class="btn btn-outline-secondary">Hủy bỏ</a>
                         <button type="submit" class="btn btn-primary px-4">
-                            <i class="bi bi-check-circle-fill"></i> Lưu tài khoản
+                            <i class="bi bi-check-circle-fill"></i> Tạo tài khoản
                         </button>
                     </div>
                 </form>

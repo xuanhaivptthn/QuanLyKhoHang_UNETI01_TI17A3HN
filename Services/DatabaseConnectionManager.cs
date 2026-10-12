@@ -158,6 +158,30 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Services
                 cmd.ExecuteScalar();
                 return true;
             }
+            catch (SqlException ex) when (ex.Number == 4060)
+            {
+                // CSDL chưa tồn tại (hoặc vừa bị drop) -> Kiểm tra kết nối tới 'master' bằng tài khoản hiện tại
+                try
+                {
+                    var masterBuilder = new SqlConnectionStringBuilder(connectionString)
+                    {
+                        InitialCatalog = "master",
+                        ConnectTimeout = timeoutSeconds,
+                        TrustServerCertificate = true
+                    };
+                    using var masterConn = new SqlConnection(masterBuilder.ConnectionString);
+                    masterConn.Open();
+                    using var masterCmd = masterConn.CreateCommand();
+                    masterCmd.CommandText = "SELECT 1";
+                    masterCmd.CommandTimeout = timeoutSeconds;
+                    masterCmd.ExecuteScalar();
+                    return true;
+                }
+                catch
+                {
+                    return false;
+                }
+            }
             catch
             {
                 return false;

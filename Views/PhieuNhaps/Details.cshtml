@@ -1,14 +1,20 @@
 @*
     Họ và tên: Lê Văn Hùng
-    Mã sinh viên: 23103100178
+    Mã sinh viên: 23103100177
     Phụ trách Module 3: Nhà cung cấp, Phiếu nhập, Chi tiết phiếu nhập
 *@
 @model QuanLyKhoHang_UNETI01_TI17A3HN.Models.PhieuNhap
 
 @{
     ViewData["Title"] = "Hóa đơn nhập kho #PN-" + Model.MaPhieuNhap;
+    var currentRole = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value ?? Context.Session.GetString("VaiTro");
+    var isAdmin = User.IsInRole("Admin") || string.Equals(currentRole, "Admin", StringComparison.OrdinalIgnoreCase);
+    var isWarehouseStaff = User.IsInRole("NhanVienKho") || string.Equals(currentRole, "NhanVienKho", StringComparison.OrdinalIgnoreCase);
+    var canManage = isAdmin || isWarehouseStaff;
+
     var chiTiets = Model.ChiTietPhieuNhaps?.ToList() ?? new List<QuanLyKhoHang_UNETI01_TI17A3HN.Models.ChiTietPhieuNhap>();
-    decimal tongTien = chiTiets.Sum(c => (decimal)c.SoLuongNhap * c.DonGiaNhap);
+    decimal tongTien = Model.TongTienNhap > 0 ? Model.TongTienNhap : chiTiets.Sum(c => (decimal)c.SoLuongNhap * c.DonGiaNhap);
+    var canEdit = canManage && (Model.TrangThai == TrangThaiPhieuNhap.Nhap || Model.TrangThai == TrangThaiPhieuNhap.ChoXacNhan);
 }
 
 <div class="page-header no-print">
@@ -16,19 +22,38 @@
         <h2 class="page-title"><i class="bi bi-receipt text-success"></i> Hóa Đơn Nhập Kho</h2>
         <p class="page-subtitle">Chi tiết chứng từ nhập hàng vào kho và danh mục sản phẩm</p>
     </div>
-    <div class="d-flex gap-2">
+    <div class="d-flex flex-wrap gap-2">
         <button type="button" class="btn btn-outline-secondary" onclick="window.print()">
             <i class="bi bi-printer"></i> In phiếu
         </button>
-        @if (Model.TrangThai == 0 || Model.TrangThai == 1)
+
+        @if (canEdit)
         {
             <a asp-controller="ChiTietPhieuNhaps" asp-action="Create" asp-route-maPhieuNhap="@Model.MaPhieuNhap" class="btn btn-success">
-                <i class="bi bi-plus-circle"></i> Thêm hàng vào phiếu
+                <i class="bi bi-plus-circle"></i> Thêm mặt hàng
             </a>
             <a asp-action="Edit" asp-route-id="@Model.MaPhieuNhap" class="btn btn-primary">
                 <i class="bi bi-pencil-square"></i> Sửa phiếu
             </a>
         }
+
+        @if (canManage && (Model.TrangThai == TrangThaiPhieuNhap.Nhap || Model.TrangThai == TrangThaiPhieuNhap.ChoXacNhan))
+        {
+            <form asp-action="HoanTat" asp-route-id="@Model.MaPhieuNhap" method="post" class="d-inline" onsubmit="return confirm('Xác nhận hoàn tất phiếu nhập này? Số lượng tồn kho sẽ được cộng dồn.');">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-outline-success">
+                    <i class="bi bi-check-circle"></i> Hoàn tất nhập kho
+                </button>
+            </form>
+
+            <form asp-action="HuyPhieu" asp-route-id="@Model.MaPhieuNhap" method="post" class="d-inline" onsubmit="return confirm('Bạn có chắc chắn muốn hủy phiếu nhập này?');">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-outline-danger">
+                    <i class="bi bi-x-circle"></i> Hủy phiếu
+                </button>
+            </form>
+        }
+
         <a asp-action="Index" class="btn btn-outline-secondary">
             <i class="bi bi-arrow-left"></i> Quay lại
         </a>
@@ -53,21 +78,20 @@
             <h3 class="fw-bold text-primary mb-1">PHIẾU NHẬP KHO</h3>
             <div class="font-monospace fw-bold text-dark fs-5">#PN-@Model.MaPhieuNhap.ToString("D5")</div>
             <div class="mt-2">
-                @if (Model.TrangThai == 0)
+                @switch (Model.TrangThai)
                 {
-                    <span class="badge bg-secondary fs-6">Trạng thái: Nháp</span>
-                }
-                else if (Model.TrangThai == 1)
-                {
-                    <span class="badge bg-warning text-dark fs-6">Trạng thái: Chờ xác nhận</span>
-                }
-                else if (Model.TrangThai == 2)
-                {
-                    <span class="badge bg-success fs-6"><i class="bi bi-check-circle-fill me-1"></i> Đã hoàn tất nhập kho</span>
-                }
-                else
-                {
-                    <span class="badge bg-danger fs-6">Trạng thái: Đã hủy</span>
+                    case TrangThaiPhieuNhap.Nhap:
+                        <span class="badge bg-secondary fs-6">Trạng thái: Nháp</span>
+                        break;
+                    case TrangThaiPhieuNhap.ChoXacNhan:
+                        <span class="badge bg-warning text-dark fs-6">Trạng thái: Chờ xác nhận</span>
+                        break;
+                    case TrangThaiPhieuNhap.DaHoanTat:
+                        <span class="badge bg-success fs-6"><i class="bi bi-check-circle-fill me-1"></i> Đã hoàn tất nhập kho</span>
+                        break;
+                    case TrangThaiPhieuNhap.DaHuy:
+                        <span class="badge bg-danger fs-6">Trạng thái: Đã hủy</span>
+                        break;
                 }
             </div>
         </div>
@@ -94,14 +118,14 @@
                 <div class="fw-bold text-dark fs-6">Kho nhập: @(Model.Kho?.TenKho ?? "Chưa chỉ định")</div>
                 <div class="text-muted small mt-1">Địa điểm: @(Model.Kho?.DiaDiem ?? "---")</div>
                 <div class="text-muted small">Người lập phiếu: <strong>@Model.NguoiLap</strong></div>
-                <div class="text-muted small">Ngày lập: <strong>@Model.NgayNhap.ToString("dd/MM/yyyy HH:mm")</strong></div>
+                <div class="text-muted small">Ngày lập: <strong>@Model.NgayNhap.ToString("dd/MM/yyyy")</strong></div>
             </div>
         </div>
     </div>
 
-    <!-- Bảng Chi Tiết Hàng Nhập -->
+    <!-- Bảng danh sách mặt hàng nhập -->
     <div class="table-responsive mb-4">
-        <table class="table table-bordered align-middle">
+        <table class="table table-bordered align-middle mb-0">
             <thead class="table-light">
                 <tr>
                     <th class="text-center" style="width: 50px;">STT</th>
@@ -110,9 +134,9 @@
                     <th class="text-center">Số lượng</th>
                     <th class="text-end">Đơn giá nhập</th>
                     <th class="text-end">Thành tiền</th>
-                    @if (Model.TrangThai == 0 || Model.TrangThai == 1)
+                    @if (canEdit)
                     {
-                        <th class="text-center no-print" style="width: 100px;">Thao tác</th>
+                        <th class="text-center no-print" style="width: 120px;">Thao tác</th>
                     }
                 </tr>
             </thead>
@@ -122,15 +146,15 @@
                     int stt = 1;
                     foreach (var ct in chiTiets)
                     {
-                        var thanhTien = (decimal)ct.SoLuongNhap * ct.DonGiaNhap;
+                        var thanhTien = ct.ThanhTien > 0 ? ct.ThanhTien : (decimal)ct.SoLuongNhap * ct.DonGiaNhap;
                         <tr>
                             <td class="text-center">@(stt++)</td>
-                            <td class="font-monospace text-muted">#@ct.MaHang</td>
+                            <td class="font-monospace text-muted">@(ct.HangHoa?.MaHang ?? ct.MaHang)</td>
                             <td class="fw-semibold text-dark">@(ct.HangHoa?.TenHang ?? "Sản phẩm #" + ct.MaHang)</td>
                             <td class="text-center font-monospace fw-bold">@ct.SoLuongNhap</td>
                             <td class="text-end">@ct.DonGiaNhap.ToString("#,##0") VNĐ</td>
                             <td class="text-end fw-bold text-primary">@thanhTien.ToString("#,##0") VNĐ</td>
-                            @if (Model.TrangThai == 0 || Model.TrangThai == 1)
+                            @if (canEdit)
                             {
                                 <td class="text-center no-print text-nowrap">
                                     <div class="d-inline-flex gap-1">
@@ -149,17 +173,19 @@
                 else
                 {
                     <tr>
-                        <td colspan="@(Model.TrangThai == 0 || Model.TrangThai == 1 ? 7 : 6)" class="text-center text-muted py-4">
-                            Phiếu chưa có mặt hàng nào. Vui lòng bấm <strong>"Thêm hàng vào phiếu"</strong> để bổ sung.
+                        <td colspan="@(canEdit ? 7 : 6)" class="text-center text-muted py-4">
+                            Phiếu chưa có mặt hàng nào. Vui lòng bấm <strong>"Thêm mặt hàng"</strong> để bổ sung.
                         </td>
                     </tr>
                 }
             </tbody>
             <tfoot>
                 <tr class="table-light">
-                    <th colspan="5" class="text-end fw-bold fs-6">TỔNG CỘNG THANH TOÁN:</th>
+                    <th colspan="3" class="text-end fw-bold fs-6">TỔNG CỘNG:</th>
+                    <th class="text-center font-monospace fw-bold text-primary fs-6">@Model.TongSoLuong</th>
+                    <th></th>
                     <th class="text-end fw-bold text-success fs-5">@tongTien.ToString("#,##0") VNĐ</th>
-                    @if (Model.TrangThai == 0 || Model.TrangThai == 1)
+                    @if (canEdit)
                     {
                         <th class="no-print"></th>
                     }

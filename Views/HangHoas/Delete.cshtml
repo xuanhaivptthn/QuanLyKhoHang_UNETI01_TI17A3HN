@@ -39,6 +39,18 @@
 
                         <dt class="col-sm-4 text-muted">Giá tham khảo:</dt>
                         <dd class="col-sm-8 text-primary fw-semibold">@Model.GiaNhapThamKhao.ToString("#,##0") VNĐ</dd>
+
+                        <dt class="col-sm-4 text-muted">Trạng thái:</dt>
+                        <dd class="col-sm-8">
+                            @if (Model.TrangThai)
+                            {
+                                <span class="badge bg-success">Đang hoạt động</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">Ngừng hoạt động</span>
+                            }
+                        </dd>
                     </dl>
                 </div>
 

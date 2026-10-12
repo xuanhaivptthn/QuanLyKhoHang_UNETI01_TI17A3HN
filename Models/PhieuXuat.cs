@@ -18,6 +18,9 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Models
         DaHuy = 3
     }
 
+    // Họ và tên: Nguyễn Việt Dũng
+    // Mã sinh viên: 23103100127
+    // Phụ trách Module 4: Bộ phận nhận, Phiếu xuất, Chi tiết phiếu xuất
     [Table("PhieuXuat")]
     public class PhieuXuat
     {
@@ -59,5 +62,17 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Models
         public virtual Kho? Kho { get; set; }
 
         public virtual ICollection<ChiTietPhieuXuat> ChiTietPhieuXuats { get; set; } = new List<ChiTietPhieuXuat>();
+
+        [NotMapped]
+        [Display(Name = "Tổng trị giá xuất tham chiếu")]
+        public decimal TongTien => ChiTietPhieuXuats?.Sum(c => c.ThanhTien) ?? 0m;
+
+        [NotMapped]
+        [Display(Name = "Tổng số lượng")]
+        public int TongSoLuong => ChiTietPhieuXuats?.Sum(c => c.SoLuongXuat) ?? 0;
+
+        [NotMapped]
+        [Display(Name = "Số mặt hàng")]
+        public int SoMatHang => ChiTietPhieuXuats?.Count ?? 0;
     }
 }

@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using QuanLyKhoHang_UNETI01_TI17A3HN.Data;
 using QuanLyKhoHang_UNETI01_TI17A3HN.Models;
@@ -38,12 +39,42 @@ builder.Services.AddDbContext<AppDbContext>((serviceProvider, options) =>
 });
 
 // CẤU HÌNH PHIÊN LÀM VIỆC (SESSION) & BỘ NHỚ ĐỆM (CACHE)
-builder.Services.AddDistributedMemoryCache();
+builder.Services.AddDistributedMemoryCache(); // Đăng ký bộ nhớ đệm RAM cho Session
+builder.Services.AddMemoryCache();            // Đăng ký bộ nhớ đệm In-Memory phục vụ Lockout & Cookie
 builder.Services.AddSession(options =>
 {
     options.IdleTimeout = TimeSpan.FromMinutes(30); // Phiên hết hạn sau 30 phút không hoạt động
-    options.Cookie.HttpOnly = true;                 // Ngăn chặn truy cập cookie qua JavaScript (chống XSS)
-    options.Cookie.IsEssential = true;             // Đảm bảo hoạt động theo chính sách Cookie
+    options.Cookie.HttpOnly = true;                 // Bảo mật chống tấn công XSS
+    options.Cookie.IsEssential = true;             // Đảm bảo hoạt động theo chính sách Cookie GDPR
+    options.Cookie.SameSite = SameSiteMode.Lax;    // Bảo mật chống tấn công CSRF
+});
+
+// CẤU HÌNH XÁC THỰC BẰNG COOKIE (COOKIE AUTHENTICATION)
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/login";                       // Đường dẫn khi chưa đăng nhập
+        options.LogoutPath = "/logout";                     // Đường dẫn đăng xuất
+        options.AccessDeniedPath = "/Home/AccessDenied";   // Đường dẫn khi không đủ quyền 403
+        options.ExpireTimeSpan = TimeSpan.FromMinutes(30);  // Hạn dùng mặc định của Cookie xác thực
+        options.SlidingExpiration = true;                   // Tự động gia hạn khi người dùng thao tác
+        options.Cookie.Name = ".QuanLyKhoHang.Auth";        // Tên Authentication Cookie
+        options.Cookie.HttpOnly = true;                     // Chống XSS
+        options.Cookie.SameSite = SameSiteMode.Lax;         // Chống CSRF
+        options.Cookie.IsEssential = true;                  // Cookie thiết yếu cho xác thực
+    });
+
+// CẤU HÌNH PHÂN QUYỀN CHÍNH SÁCH (POLICY-BASED AUTHORIZATION)
+builder.Services.AddAuthorization(options =>
+{
+    // Policy dành riêng cho Quản trị viên (Admin)
+    options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
+
+    // Policy dành cho Nhân viên kho hoặc Admin
+    options.AddPolicy("WarehouseStaff", policy => policy.RequireRole("Admin", "NhanVienKho"));
+
+    // Custom Policy kết hợp Role + Custom Claim Department
+    options.AddPolicy("DepartmentIT", policy => policy.RequireRole("Admin").RequireClaim("Department", "Admin"));
 });
 
 // CẤU HÌNH MVC CONTROLLERS & BẢO MẬT TOÀN CỤC (GLOBAL FILTER)
@@ -63,12 +94,14 @@ if (args.Contains("--seed"))
     {
         var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         DbInitializer.Initialize(context);
+        Console.WriteLine("[DbInitializer] Nạp dữ liệu mẫu hoàn tất thành công!");
     }
     catch (Exception ex)
     {
         var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
         logger.LogError(ex, "Lỗi trong quá trình khởi tạo dữ liệu mẫu (DbInitializer).");
     }
+    return;
 }
 
 // CẤU HÌNH HTTP REQUEST PIPELINE & MIDDLEWARE
@@ -78,8 +111,14 @@ if (!app.Environment.IsDevelopment())
 }
 app.UseRouting();
 
-// Middleware UseSession phải nằm sau UseRouting và trước UseAuthorization
+// CẤU HÌNH THỨ TỰ MIDDLEWARE PIPELINE
+// 1. Session Middleware: Đọc và gán Session ID từ Cookie
 app.UseSession();
+
+// 2. Authentication Middleware: Giải mã Cookie Authentication thành HttpContext.User
+app.UseAuthentication();
+
+// 3. Authorization Middleware: Kiểm tra phân quyền [Authorize] và Roles/Policies
 app.UseAuthorization();
 
 app.MapStaticAssets();
@@ -160,3 +199,5 @@ app.MapControllerRoute(
     .WithStaticAssets();
 
 app.Run();
+
+public partial class Program { }

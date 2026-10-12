@@ -7,6 +7,7 @@
 
 @{
     ViewData["Title"] = "Thêm hàng vào phiếu xuất";
+    var phieuId = Model?.MaPhieuXuat > 0 ? (int?)Model.MaPhieuXuat : (ViewData["MaPhieuXuat"] as int?);
 }
 
 <div class="row justify-content-center">
@@ -17,9 +18,18 @@
                 <p class="page-subtitle">Chọn mặt hàng và số lượng xuất thực tế giao cho đơn vị tiếp nhận</p>
             </div>
             <div>
-                <a asp-controller="PhieuXuats" asp-action="Details" asp-route-id="@Model?.MaPhieuXuat" class="btn btn-outline-secondary">
-                    <i class="bi bi-arrow-left"></i> Quay lại phiếu xuất
-                </a>
+                @if (phieuId != null)
+                {
+                    <a asp-controller="PhieuXuats" asp-action="Details" asp-route-id="@phieuId" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left"></i> Quay lại phiếu xuất
+                    </a>
+                }
+                else
+                {
+                    <a asp-action="Index" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left"></i> Quay lại danh sách
+                    </a>
+                }
             </div>
         </div>
 
@@ -76,7 +86,14 @@
                     </div>
 
                     <div class="d-flex justify-content-end gap-2 pt-3 border-top">
-                        <a asp-controller="PhieuXuats" asp-action="Details" asp-route-id="@Model?.MaPhieuXuat" class="btn btn-outline-secondary">Hủy bỏ</a>
+                        @if (phieuId != null)
+                        {
+                            <a asp-controller="PhieuXuats" asp-action="Details" asp-route-id="@phieuId" class="btn btn-outline-secondary">Hủy bỏ</a>
+                        }
+                        else
+                        {
+                            <a asp-action="Index" class="btn btn-outline-secondary">Hủy bỏ</a>
+                        }
                         <button type="submit" class="btn btn-danger px-4">
                             <i class="bi bi-check-circle-fill"></i> Thêm vào phiếu xuất
                         </button>

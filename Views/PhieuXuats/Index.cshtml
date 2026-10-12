@@ -6,19 +6,31 @@
 @model IEnumerable<QuanLyKhoHang_UNETI01_TI17A3HN.Models.PhieuXuat>
 
 @{
-    ViewData["Title"] = "Danh sách Phiếu xuất kho";
+    ViewData["Title"] = "Danh sách phiếu xuất kho";
+    var currentRole = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value ?? Context.Session.GetString("VaiTro");
+    var isAdmin = User.IsInRole("Admin") || string.Equals(currentRole, "Admin", StringComparison.OrdinalIgnoreCase);
+    var canManageExports = isAdmin || User.IsInRole("NhanVienKho") || string.Equals(currentRole, "NhanVienKho", StringComparison.OrdinalIgnoreCase);
 }
 
-<div class="page-header">
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
     <div>
-        <h2 class="page-title"><i class="bi bi-box-arrow-up-right text-danger"></i> Quản Lý Phiếu Xuất Kho</h2>
-        <p class="page-subtitle">Theo dõi quy trình xuất kho giao hàng cho chi nhánh, bộ phận nhận và khách hàng</p>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-1">
+                <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" class="text-decoration-none">Trang chủ</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Phiếu xuất</li>
+            </ol>
+        </nav>
+        <h3 class="fw-bold mb-0 text-dark">Quản Lý Xuất Kho Hàng Hóa</h3>
     </div>
-    <div>
-        <a asp-action="Create" class="btn btn-primary shadow-sm">
-            <i class="bi bi-plus-circle-fill"></i> Lập phiếu xuất mới
-        </a>
-    </div>
+    @if (canManageExports)
+    {
+        <div class="d-flex gap-2">
+            <a asp-action="Create" class="btn btn-primary d-inline-flex align-items-center gap-2">
+                <i class="bi bi-plus-lg"></i>
+                <span>Tạo phiếu xuất mới</span>
+            </a>
+        </div>
+    }
 </div>
 
 <div class="card border-0 shadow-sm rounded-2">
@@ -47,10 +59,14 @@
                     {
                         foreach (var item in Model)
                         {
-                            var chiTiets = item.ChiTietPhieuXuats ?? new List<QuanLyKhoHang_UNETI01_TI17A3HN.Models.ChiTietPhieuXuat>();
-                            var soMon = chiTiets.Count;
+                            var chiTiets = item.ChiTietPhieuXuats?.ToList() ?? new List<QuanLyKhoHang_UNETI01_TI17A3HN.Models.ChiTietPhieuXuat>();
+                            var soMon = item.SoMatHang > 0 ? item.SoMatHang : chiTiets.Count;
                             <tr>
-                                <td class="ps-4 font-monospace fw-bold text-danger">#PX-@item.MaPhieuXuat</td>
+                                <td class="ps-4">
+                                    <a asp-action="Details" asp-route-id="@item.MaPhieuXuat" class="fw-bold font-monospace text-danger text-decoration-none">
+                                        #PX-@item.MaPhieuXuat.ToString("D4")
+                                    </a>
+                                </td>
                                 <td>
                                     <div class="d-flex align-items-center gap-2">
                                         <i class="bi bi-shop text-secondary"></i>
@@ -72,34 +88,39 @@
                                     <span class="badge bg-secondary-subtle text-secondary">@soMon mặt hàng</span>
                                 </td>
                                 <td class="text-center">
-                                    @if (item.TrangThai == TrangThaiPhieuXuat.Nhap)
+                                    @switch (item.TrangThai)
                                     {
-                                        <span class="badge bg-secondary">Nháp</span>
-                                    }
-                                    else if (item.TrangThai == TrangThaiPhieuXuat.ChoXacNhan)
-                                    {
-                                        <span class="badge bg-warning text-dark">Chờ xác nhận</span>
-                                    }
-                                    else if (item.TrangThai == TrangThaiPhieuXuat.DaHoanTat)
-                                    {
-                                        <span class="badge bg-success"><i class="bi bi-check2-circle me-1"></i> Đã hoàn tất</span>
-                                    }
-                                    else
-                                    {
-                                        <span class="badge bg-danger">Đã hủy</span>
+                                        case TrangThaiPhieuXuat.Nhap:
+                                            <span class="badge bg-secondary">Nháp</span>
+                                            break;
+                                        case TrangThaiPhieuXuat.ChoXacNhan:
+                                            <span class="badge bg-warning text-dark">Chờ xác nhận</span>
+                                            break;
+                                        case TrangThaiPhieuXuat.DaHoanTat:
+                                            <span class="badge bg-success"><i class="bi bi-check2-circle me-1"></i> Đã hoàn tất</span>
+                                            break;
+                                        case TrangThaiPhieuXuat.DaHuy:
+                                            <span class="badge bg-danger">Đã hủy</span>
+                                            break;
                                     }
                                 </td>
                                 <td class="text-end pe-4 text-nowrap">
                                     <div class="d-inline-flex gap-1" role="group">
-                                        <a asp-action="Details" asp-route-id="@item.MaPhieuXuat" class="btn btn-outline-info btn-sm text-nowrap" title="Xem chi tiết phiếu xuất">
+                                        <a asp-controller="ChiTietPhieuXuats" asp-action="Index" asp-route-maPhieuXuat="@item.MaPhieuXuat" class="btn btn-outline-secondary btn-sm text-nowrap" title="Danh sách chi tiết hàng">
+                                            <i class="bi bi-list-ul me-1"></i> Chi tiết
+                                        </a>
+                                        <a asp-action="Details" asp-route-id="@item.MaPhieuXuat" class="btn btn-outline-info btn-sm text-nowrap" title="Xem hóa đơn xuất">
                                             <i class="bi bi-eye me-1"></i> Xem phiếu
                                         </a>
-                                        @if (item.TrangThai == TrangThaiPhieuXuat.Nhap || item.TrangThai == TrangThaiPhieuXuat.ChoXacNhan)
+                                        @if (canManageExports && (item.TrangThai == TrangThaiPhieuXuat.Nhap || isAdmin))
                                         {
                                             <a asp-action="Edit" asp-route-id="@item.MaPhieuXuat" class="btn btn-outline-primary btn-sm text-nowrap" title="Sửa thông tin phiếu xuất">
                                                 <i class="bi bi-pencil-square me-1"></i> Sửa
                                             </a>
-                                            <a asp-action="Delete" asp-route-id="@item.MaPhieuXuat" class="btn btn-outline-danger btn-sm text-nowrap" title="Xóa phiếu xuất">
+                                        }
+                                        @if (canManageExports && item.TrangThai == TrangThaiPhieuXuat.Nhap)
+                                        {
+                                            <a asp-action="Delete" asp-route-id="@item.MaPhieuXuat" class="btn btn-outline-danger btn-sm text-nowrap" title="Xóa phiếu xuất nháp">
                                                 <i class="bi bi-trash me-1"></i> Xóa
                                             </a>
                                         }

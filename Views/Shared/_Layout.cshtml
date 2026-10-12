@@ -1,5 +1,10 @@
 @inject QuanLyKhoHang_UNETI01_TI17A3HN.Models.DatabaseInfo DbInfo
 @{
+    var isAuthenticated = (User.Identity?.IsAuthenticated == true) || (Context.Session.GetInt32("MaTaiKhoan") != null);
+    var currentUserRole = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value ?? Context.Session.GetString("VaiTro") ?? "";
+    var currentUserName = User.FindFirst("HoTen")?.Value ?? Context.Session.GetString("HoTen") ?? User.Identity?.Name ?? "Người dùng";
+    var isAdmin = User.IsInRole("Admin") || string.Equals(currentUserRole, "Admin", StringComparison.OrdinalIgnoreCase);
+
     string CurrentController = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
     string CurrentAction = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
 
@@ -176,10 +181,10 @@
                     </ul>
                 </li>
 
-                @if (Context.Session.GetString("VaiTro") == "Admin")
+                @if (isAdmin)
                 {
                     <li class="nav-item">
-                        <a class="nav-link @(IsController("TaiKhoans") ? "active" : "")" asp-controller="TaiKhoans" asp-action="Index">
+                        <a class="nav-link @(IsController("TaiKhoans") && !IsAction("TaiKhoans", "Profile") && !IsAction("TaiKhoans", "CapNhatProfile") && !IsAction("TaiKhoans", "DoiMatKhau") ? "active" : "")" asp-controller="TaiKhoans" asp-action="Index">
                             <i class="bi bi-people"></i> <span>Quản trị Tài khoản</span>
                         </a>
                     </li>
@@ -188,25 +193,46 @@
         </nav>
 
         <div class="sidebar-footer">
-            @if (Context.Session.GetInt32("MaTaiKhoan") != null)
+            @if (isAuthenticated)
             {
-                <div class="sidebar-user">
-                    <i class="bi bi-person-circle sidebar-user-icon"></i>
-                    <div class="sidebar-user-info">
-                        <div class="sidebar-user-name">@Context.Session.GetString("HoTen")</div>
-                        <span class="badge @(Context.Session.GetString("VaiTro") == "Admin" ? "bg-danger" : "bg-primary")">
-                            @Context.Session.GetString("VaiTro")
-                        </span>
-                    </div>
+                <div class="dropup w-100">
+                    <button class="sidebar-user text-decoration-none dropdown-toggle w-100 border-0 text-start" type="button" id="sidebarUserDropdown" data-bs-toggle="dropdown" aria-expanded="false" title="Menu tài khoản">
+                        <i class="bi bi-person-circle sidebar-user-icon"></i>
+                        <div class="sidebar-user-info flex-grow-1 overflow-hidden">
+                            <div class="sidebar-user-name text-truncate">@currentUserName</div>
+                            <span class="badge @(isAdmin ? "bg-danger" : "bg-primary")">
+                                @currentUserRole
+                            </span>
+                        </div>
+                    </button>
+                    <ul class="dropdown-menu shadow-sm border w-100 mb-2 py-2" aria-labelledby="sidebarUserDropdown">
+                        <li class="px-3 py-2 border-bottom mb-1 bg-light bg-opacity-50">
+                            <div class="fw-bold text-dark text-truncate small">@currentUserName</div>
+                            <small class="text-muted d-block"><i class="bi bi-shield-check me-1"></i>Vai trò: @currentUserRole</small>
+                        </li>
+                        <li>
+                            <a class="dropdown-item d-flex align-items-center gap-2 py-2" asp-controller="TaiKhoans" asp-action="Profile">
+                                <i class="bi bi-person text-primary"></i> <span>Hồ sơ cá nhân</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item d-flex align-items-center gap-2 py-2" asp-controller="TaiKhoans" asp-action="DoiMatKhau">
+                                <i class="bi bi-key text-warning"></i> <span>Đổi mật khẩu</span>
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider my-1"></li>
+                        <li>
+                            <a class="dropdown-item d-flex align-items-center gap-2 py-2 text-danger" asp-controller="TaiKhoans" asp-action="DangXuat">
+                                <i class="bi bi-box-arrow-right"></i> <span>Thoát tài khoản</span>
+                            </a>
+                        </li>
+                    </ul>
                 </div>
-                <a class="btn btn-outline-danger btn-sm w-100" asp-controller="TaiKhoans" asp-action="DangXuat" title="Đăng xuất khỏi hệ thống">
-                    <i class="bi bi-box-arrow-right"></i> Đăng xuất
-                </a>
             }
             else
             {
-                <a class="btn btn-primary btn-sm w-100" asp-controller="TaiKhoans" asp-action="DangNhap">
-                    <i class="bi bi-box-arrow-in-right"></i> Đăng nhập
+                <a class="btn btn-primary btn-sm w-100 d-inline-flex align-items-center justify-content-center gap-1" asp-controller="TaiKhoans" asp-action="DangNhap">
+                    <i class="bi bi-box-arrow-in-right"></i> <span>Đăng nhập</span>
                 </a>
             }
         </div>
@@ -218,10 +244,70 @@
                 <i class="bi bi-list"></i>
             </button>
             <span class="topbar-title">@ViewData["Title"]</span>
+
+            @if (isAuthenticated)
+            {
+                <div class="ms-auto dropdown">
+                    <button class="btn btn-sm btn-light border d-inline-flex align-items-center gap-2 dropdown-toggle shadow-none" type="button" id="topbarUserDropdown" data-bs-toggle="dropdown" aria-expanded="false" title="Menu tài khoản">
+                        <i class="bi bi-person-circle text-primary fs-6"></i>
+                        <span class="fw-semibold text-dark d-none d-sm-inline">@currentUserName</span>
+                        <span class="badge @(isAdmin ? "bg-danger" : "bg-primary") d-none d-md-inline-block">@currentUserRole</span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow-sm border py-2" aria-labelledby="topbarUserDropdown" style="min-width: 220px;">
+                        <li class="px-3 py-2 border-bottom mb-1 bg-light bg-opacity-50">
+                            <div class="fw-bold text-dark text-truncate">@currentUserName</div>
+                            <small class="text-muted d-block"><i class="bi bi-shield-check me-1"></i>Vai trò: @currentUserRole</small>
+                        </li>
+                        <li>
+                            <a class="dropdown-item d-flex align-items-center gap-2 py-2" asp-controller="TaiKhoans" asp-action="Profile">
+                                <i class="bi bi-person text-primary"></i>
+                                <span>Hồ sơ cá nhân</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item d-flex align-items-center gap-2 py-2" asp-controller="TaiKhoans" asp-action="DoiMatKhau">
+                                <i class="bi bi-key text-warning"></i>
+                                <span>Đổi mật khẩu</span>
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider my-1"></li>
+                        <li>
+                            <a class="dropdown-item d-flex align-items-center gap-2 py-2 text-danger" asp-controller="TaiKhoans" asp-action="DangXuat">
+                                <i class="bi bi-box-arrow-right"></i>
+                                <span>Thoát tài khoản</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            }
+            else
+            {
+                <div class="ms-auto">
+                    <a class="btn btn-sm btn-primary d-inline-flex align-items-center gap-1" asp-controller="TaiKhoans" asp-action="DangNhap">
+                        <i class="bi bi-box-arrow-in-right"></i> <span>Đăng nhập</span>
+                    </a>
+                </div>
+            }
         </header>
 
         <div class="app-content">
             <main role="main">
+                @if (TempData["Error"] != null || TempData["ErrorMessage"] != null)
+                {
+                    <div class="alert alert-danger alert-dismissible fade show shadow-sm mb-3" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        @(TempData["Error"] ?? TempData["ErrorMessage"])
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                }
+                @if (TempData["Success"] != null || TempData["SuccessMessage"] != null)
+                {
+                    <div class="alert alert-success alert-dismissible fade show shadow-sm mb-3" role="alert">
+                        <i class="bi bi-check-circle-fill me-2"></i>
+                        @(TempData["Success"] ?? TempData["SuccessMessage"])
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                }
                 @RenderBody()
             </main>
         </div>

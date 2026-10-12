@@ -14,7 +14,7 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Data
         public DbSet<LoaiHang> LoaiHangs { get; set; } = default!;
         public DbSet<DonViTinh> DonViTinhs { get; set; } = default!;
 
-        // Danh mục Kho (Đã có từ ban đầu)
+        // Module 2: Hàng hóa, kho
         public DbSet<HangHoa> HangHoa { get; set; } = default!;
         public DbSet<HangHoa> HangHoas => HangHoa;
         public DbSet<Kho> Kho { get; set; } = default!;
@@ -60,10 +60,45 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Data
                 .HasIndex(d => d.TenDonViTinh)
                 .IsUnique();
 
+            // Unique indexes Module 2, 3, 4
+            modelBuilder.Entity<Kho>()
+                .HasIndex(k => k.TenKho)
+                .IsUnique();
+
+            modelBuilder.Entity<HangHoa>()
+                .HasIndex(h => h.TenHang)
+                .IsUnique();
+
+            modelBuilder.Entity<NhaCungCap>()
+                .HasIndex(n => n.TenNhaCungCap)
+                .IsUnique();
+
+            modelBuilder.Entity<BoPhanNhan>()
+                .HasIndex(b => b.TenBoPhan)
+                .IsUnique();
+
             // Khóa chính hỗn hợp bảng Tồn kho (MaKho, MaHang)
             modelBuilder.Entity<TonKho>()
                 .HasKey(t => new { t.MaKho, t.MaHang });
 
+            // Quan hệ Module 2: Hàng hóa - Loại hàng - Đơn vị tính, Kho - Phiếu nhập
+            modelBuilder.Entity<HangHoa>()
+                .HasOne(h => h.LoaiHang)
+                .WithMany(l => l.HangHoas)
+                .HasForeignKey(h => h.MaLoaiHang)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<HangHoa>()
+                .HasOne(h => h.DonViTinh)
+                .WithMany(d => d.HangHoas)
+                .HasForeignKey(h => h.MaDonViTinh)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<PhieuNhap>()
+                .HasOne(p => p.Kho)
+                .WithMany(k => k.PhieuNhaps)
+                .HasForeignKey(p => p.MaKho)
+                .OnDelete(DeleteBehavior.Restrict);
 
             // Module 3: PhieuNhap - NhaCungCap - ChiTietPhieuNhap relationships
             modelBuilder.Entity<PhieuNhap>()
@@ -78,8 +113,13 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Data
                 .HasForeignKey(c => c.MaPhieuNhap)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            modelBuilder.Entity<ChiTietPhieuNhap>()
+                .HasOne(c => c.HangHoa)
+                .WithMany(h => h.DanhSachChiTietNhap)
+                .HasForeignKey(c => c.MaHang)
+                .OnDelete(DeleteBehavior.Restrict);
 
-            // Quan hệ Module 4: Phiếu xuất - Bộ phận nhận - Kho
+            // Quan hệ Module 4: Phiếu xuất - Bộ phận nhận - Kho - Chi tiết
             modelBuilder.Entity<PhieuXuat>()
                 .HasOne(p => p.BoPhanNhan)
                 .WithMany(b => b.PhieuXuats)
@@ -88,7 +128,7 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Data
 
             modelBuilder.Entity<PhieuXuat>()
                 .HasOne(p => p.Kho)
-                .WithMany()
+                .WithMany(k => k.PhieuXuats)
                 .HasForeignKey(p => p.MaKho)
                 .OnDelete(DeleteBehavior.Restrict);
 
@@ -98,17 +138,35 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Data
                 .HasForeignKey(c => c.MaPhieuXuat)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // Quan hệ Module 5: Tồn kho & Lịch sử tồn kho với Kho
+            modelBuilder.Entity<ChiTietPhieuXuat>()
+                .HasOne(c => c.HangHoa)
+                .WithMany(h => h.DanhSachChiTietXuat)
+                .HasForeignKey(c => c.MaHang)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Quan hệ Module 5: Tồn kho & Lịch sử tồn kho với Kho và Hàng hóa
             modelBuilder.Entity<TonKho>()
                 .HasOne(t => t.Kho)
-                .WithMany()
+                .WithMany(k => k.DanhSachTonKho)
                 .HasForeignKey(t => t.MaKho)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<TonKho>()
+                .HasOne(t => t.HangHoa)
+                .WithMany(h => h.DanhSachTonKho)
+                .HasForeignKey(t => t.MaHang)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<LichSuTonKho>()
                 .HasOne(l => l.Kho)
-                .WithMany()
+                .WithMany(k => k.LichSuTonKhoes)
                 .HasForeignKey(l => l.MaKho)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<LichSuTonKho>()
+                .HasOne(l => l.HangHoa)
+                .WithMany(h => h.LichSuTonKhoes)
+                .HasForeignKey(l => l.MaHang)
                 .OnDelete(DeleteBehavior.Restrict);
         }
     }

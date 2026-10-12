@@ -6,20 +6,32 @@
 @model QuanLyKhoHang_UNETI01_TI17A3HN.Models.BoPhanNhan
 
 @{
-    ViewData["Title"] = "Xác nhận xóa bộ phận nhận";
+    ViewData["Title"] = "Ngừng hoạt động bộ phận nhận";
+    var draftExportCount = ViewData["DraftExportCount"] as int? ?? 0;
 }
 
 <div class="row justify-content-center">
     <div class="col-lg-6">
-        <div class="card border-danger shadow-sm rounded-2 overflow-hidden">
-            <div class="card-header bg-danger text-white p-3 d-flex align-items-center gap-2">
+        <div class="card border-warning shadow-sm rounded-2 overflow-hidden">
+            <div class="card-header bg-warning text-dark p-3 d-flex align-items-center gap-2">
                 <i class="bi bi-exclamation-triangle-fill fs-4"></i>
-                <h5 class="mb-0 fw-bold">Xác Nhận Xóa Bộ Phận Nhận</h5>
+                <h5 class="mb-0 fw-bold">Ngừng Hoạt Động Bộ Phận Nhận</h5>
             </div>
             <div class="card-body p-4">
-                <p class="text-danger fw-semibold">
-                    Bạn có chắc chắn muốn xóa bộ phận nhận này không? Lưu ý: Nếu đơn vị đã phát sinh phiếu xuất hàng, việc xóa có thể bị hệ thống chặn lại để bảo toàn dữ liệu lịch sử xuất kho.
+                <p class="text-secondary fw-semibold">
+                    Ngừng hoạt động bộ phận này? Dữ liệu phiếu xuất cũ sẽ được giữ nguyên trong hệ thống.
                 </p>
+
+                @if (draftExportCount > 0)
+                {
+                    <div class="alert alert-warning d-flex align-items-center gap-2" role="alert">
+                        <i class="bi bi-exclamation-circle-fill fs-5"></i>
+                        <div>
+                            Không thể ngừng hoạt động vì bộ phận này đang được dùng trong <strong>@draftExportCount</strong> phiếu xuất Nháp.
+                            Hãy xóa hoặc chuyển các phiếu Nháp sang bộ phận khác trước.
+                        </div>
+                    </div>
+                }
 
                 <div class="bg-light p-3 rounded-2 border mb-4">
                     <dl class="row gy-2 mb-0">
@@ -34,6 +46,9 @@
 
                         <dt class="col-sm-4 text-muted">Điện thoại:</dt>
                         <dd class="col-sm-8">@(string.IsNullOrEmpty(Model.SoDienThoai) ? "---" : Model.SoDienThoai)</dd>
+
+                        <dt class="col-sm-4 text-muted">Mô tả:</dt>
+                        <dd class="col-sm-8">@(string.IsNullOrEmpty(Model.MoTa) ? "---" : Model.MoTa)</dd>
                     </dl>
                 </div>
 
@@ -42,8 +57,8 @@
                     <a asp-action="Index" class="btn btn-outline-secondary">
                         <i class="bi bi-x-circle"></i> Hủy bỏ
                     </a>
-                    <button type="submit" class="btn btn-danger">
-                        <i class="bi bi-trash-fill"></i> Xác nhận xóa
+                    <button type="submit" class="btn btn-danger" disabled="@(draftExportCount > 0)">
+                        <i class="bi bi-slash-circle"></i> Ngừng hoạt động
                     </button>
                 </form>
             </div>

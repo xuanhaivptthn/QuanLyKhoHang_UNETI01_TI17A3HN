@@ -6,19 +6,27 @@
 @model QuanLyKhoHang_UNETI01_TI17A3HN.Models.Kho
 
 @{
-    ViewData["Title"] = "Chi tiết Kho hàng - " + Model.TenKho;
-    var danhSachTon = ViewBag.DanhSachTonKho as List<QuanLyKhoHang_UNETI01_TI17A3HN.Models.TonKho> ?? new List<QuanLyKhoHang_UNETI01_TI17A3HN.Models.TonKho>();
-    var tongSoLuongTon = danhSachTon.Sum(t => t.SoLuongTon);
+    ViewData["Title"] = "Chi tiết kho hàng - " + Model.TenKho;
+    var tonKhos = (Model?.DanhSachTonKho ?? new List<QuanLyKhoHang_UNETI01_TI17A3HN.Models.TonKho>())
+        .OrderByDescending(t => t.SoLuongTon)
+        .ToList();
+    var tongSoLuongTon = tonKhos.Sum(t => t.SoLuongTon);
 }
 
 <div class="page-header">
     <div>
-        <h2 class="page-title"><i class="bi bi-building text-primary"></i> Chi Tiết Kho Hàng</h2>
-        <p class="page-subtitle">Thông tin kho và danh sách hàng hóa thực tế đang lưu trữ</p>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-1">
+                <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" class="text-decoration-none">Trang chủ</a></li>
+                <li class="breadcrumb-item"><a asp-controller="Khoes" asp-action="Index" class="text-decoration-none">Kho hàng</a></li>
+                <li class="breadcrumb-item active" aria-current="page">#@Model?.MaKho</li>
+            </ol>
+        </nav>
+        <h2 class="page-title"><i class="bi bi-building text-primary"></i> @Model?.TenKho</h2>
     </div>
     <div class="d-flex gap-2">
-        <a asp-action="Edit" asp-route-id="@Model.MaKho" class="btn btn-primary">
-            <i class="bi bi-pencil-square"></i> Chỉnh sửa
+        <a asp-action="Edit" asp-route-id="@Model?.MaKho" class="btn btn-primary">
+            <i class="bi bi-pencil-square"></i> Chỉnh sửa kho
         </a>
         <a asp-action="Index" class="btn btn-outline-secondary">
             <i class="bi bi-arrow-left"></i> Quay lại
@@ -26,28 +34,31 @@
     </div>
 </div>
 
-<div class="row g-4 mb-4">
+<div class="row g-4">
+    <!-- Cột trái: Thông tin tổng quan kho -->
     <div class="col-lg-4">
-        <div class="card border-0 shadow-sm rounded-2 h-100">
+        <div class="card border-0 shadow-sm rounded-2 mb-4">
             <div class="card-header bg-white py-3">
-                <h5 class="fw-bold mb-0 text-dark"><i class="bi bi-info-circle text-primary me-2"></i> Hồ Sơ Kho Hàng</h5>
+                <h5 class="card-title mb-0 fw-bold text-dark">
+                    <i class="bi bi-info-circle text-primary me-2"></i> Thông Tin Kho
+                </h5>
             </div>
             <div class="card-body p-4">
-                <div class="mb-3">
-                    <span class="badge bg-light text-primary border font-monospace px-2 py-1">Mã kho: #@Model.MaKho</span>
-                    <h4 class="fw-bold text-dark mt-2 mb-1">@Model.TenKho</h4>
-                </div>
-                <hr class="text-secondary opacity-25" />
                 <dl class="row gy-3 mb-0">
-                    <dt class="col-sm-4 text-muted">Địa điểm:</dt>
-                    <dd class="col-sm-8 fw-semibold"><i class="bi bi-geo-alt text-danger me-1"></i>@(string.IsNullOrEmpty(Model.DiaDiem) ? "Chưa cập nhật" : Model.DiaDiem)</dd>
+                    <dt class="col-sm-5 text-muted">Mã kho:</dt>
+                    <dd class="col-sm-7 font-monospace fw-bold text-primary">#@Model?.MaKho</dd>
 
-                    <dt class="col-sm-4 text-muted">Mô tả:</dt>
-                    <dd class="col-sm-8 text-muted">@(string.IsNullOrEmpty(Model.MoTa) ? "---" : Model.MoTa)</dd>
+                    <dt class="col-sm-5 text-muted">Tên kho:</dt>
+                    <dd class="col-sm-7 fw-bold">@Model?.TenKho</dd>
 
-                    <dt class="col-sm-4 text-muted">Trạng thái:</dt>
-                    <dd class="col-sm-8">
-                        @if (Model.TrangThai)
+                    <dt class="col-sm-5 text-muted">Địa điểm:</dt>
+                    <dd class="col-sm-7 text-muted">
+                        <i class="bi bi-geo-alt text-danger me-1"></i>@(string.IsNullOrEmpty(Model?.DiaDiem) ? "Chưa thiết lập" : Model?.DiaDiem)
+                    </dd>
+
+                    <dt class="col-sm-5 text-muted">Trạng thái:</dt>
+                    <dd class="col-sm-7">
+                        @if (Model?.TrangThai == true)
                         {
                             <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i> Đang hoạt động</span>
                         }
@@ -56,46 +67,94 @@
                             <span class="badge bg-secondary"><i class="bi bi-pause-circle me-1"></i> Ngừng hoạt động</span>
                         }
                     </dd>
+
+                    <dt class="col-sm-5 text-muted">Mô tả:</dt>
+                    <dd class="col-sm-7 text-muted small">
+                        @(string.IsNullOrEmpty(Model?.MoTa) ? "Chưa có mô tả." : Model?.MoTa)
+                    </dd>
                 </dl>
+            </div>
+        </div>
+
+        <!-- Thống kê nhanh của kho -->
+        <div class="card border-0 shadow-sm rounded-2 bg-light">
+            <div class="card-body p-4 text-center">
+                <div class="display-6 fw-bold text-primary mb-1">@tongSoLuongTon</div>
+                <div class="text-secondary fw-semibold">Tổng Số Lượng Tồn Thực Tế</div>
+                <hr />
+                <div class="d-flex justify-content-around text-center">
+                    <div>
+                        <div class="h5 mb-0 fw-bold text-dark">@tonKhos.Count</div>
+                        <small class="text-muted">Mặt hàng lưu trữ</small>
+                    </div>
+                    <div>
+                        <div class="h5 mb-0 fw-bold text-danger">
+                            @tonKhos.Count(t => t.SoLuongTon <= (t.HangHoa?.MucTonToiThieu ?? 0))
+                        </div>
+                        <small class="text-muted">Mặt hàng chạm ngưỡng</small>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Thống kê nhanh mặt hàng đang có trong kho -->
+    <!-- Cột phải: Danh sách tồn kho theo mặt hàng tại kho này -->
     <div class="col-lg-8">
-        <div class="card border-0 shadow-sm rounded-2 h-100">
+        <div class="card border-0 shadow-sm rounded-2">
             <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
-                <h5 class="fw-bold mb-0 text-dark">
-                    <i class="bi bi-box-seam text-success me-2"></i> Thống Kê Hàng Hóa Trong Kho (@danhSachTon.Count mặt hàng)
+                <h5 class="card-title mb-0 fw-bold text-dark">
+                    <i class="bi bi-boxes text-success me-2"></i> Danh Sách Hàng Hóa Tồn Tại Kho
                 </h5>
-                <span class="badge bg-primary fs-6">
-                    Tổng tồn: @tongSoLuongTon món
-                </span>
+                <span class="badge bg-primary">@tonKhos.Count mặt hàng</span>
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
                     <table class="table table-hover align-middle mb-0">
                         <thead>
                             <tr>
-                                <th class="ps-4">Mã hàng</th>
-                                <th>Tên hàng hóa</th>
+                                <th class="ps-4">Tên hàng hóa</th>
+                                <th>Loại hàng</th>
                                 <th class="text-center">Số lượng tồn</th>
+                                <th class="text-center">Tình trạng</th>
                                 <th class="text-end pe-4">Cập nhật</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @if (danhSachTon.Any())
+                            @if (tonKhos.Any())
                             {
-                                foreach (var item in danhSachTon)
+                                foreach (var t in tonKhos)
                                 {
+                                    var mucToiThieu = t.HangHoa?.MucTonToiThieu ?? 0;
                                     <tr>
-                                        <td class="ps-4 font-monospace text-muted">#@item.MaHang</td>
-                                        <td class="fw-semibold">@(item.HangHoa?.TenHang ?? "Mặt hàng #" + item.MaHang)</td>
-                                        <td class="text-center font-monospace fw-bold fs-6 text-primary">
-                                            @item.SoLuongTon
+                                        <td class="ps-4">
+                                            <a asp-controller="HangHoas" asp-action="Details" asp-route-id="@t.MaHang" class="fw-bold text-dark text-decoration-none">
+                                                @(t.HangHoa?.TenHang ?? "Sản phẩm #" + t.MaHang)
+                                            </a>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-light text-dark border">
+                                                @(t.HangHoa?.LoaiHang?.TenLoaiHang ?? "---")
+                                            </span>
+                                        </td>
+                                        <td class="text-center font-monospace fw-bold fs-6">
+                                            @t.SoLuongTon <small class="text-muted">@(t.HangHoa?.DonViTinh?.TenDonViTinh ?? "")</small>
+                                        </td>
+                                        <td class="text-center">
+                                            @if (t.SoLuongTon == 0)
+                                            {
+                                                <span class="badge bg-danger">Hết hàng</span>
+                                            }
+                                            else if (t.SoLuongTon <= mucToiThieu)
+                                            {
+                                                <span class="badge bg-warning text-dark">Sắp hết (Định mức: @mucToiThieu)</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-success">An toàn</span>
+                                            }
                                         </td>
                                         <td class="text-end pe-4 text-muted small">
-                                            @item.NgayCapNhat.ToString("dd/MM/yyyy HH:mm")
+                                            @t.NgayCapNhat.ToString("dd/MM/yyyy HH:mm")
                                         </td>
                                     </tr>
                                 }
@@ -103,8 +162,9 @@
                             else
                             {
                                 <tr>
-                                    <td colspan="4" class="text-center text-muted py-4">
-                                        Kho hiện chưa có hàng hóa lưu trữ.
+                                    <td colspan="5" class="text-center text-muted py-5">
+                                        <i class="bi bi-inbox fs-2 d-block text-secondary opacity-50 mb-2"></i>
+                                        Kho hiện tại chưa có mặt hàng nào được lưu kho.
                                     </td>
                                 </tr>
                             }

@@ -6,7 +6,7 @@
 @model QuanLyKhoHang_UNETI01_TI17A3HN.Models.PhieuNhap
 
 @{
-    ViewData["Title"] = "Xác nhận xóa phiếu nhập #PN-" + Model.MaPhieuNhap;
+    ViewData["Title"] = "Xác nhận xóa phiếu nhập kho";
 }
 
 <div class="row justify-content-center">
@@ -14,11 +14,11 @@
         <div class="card border-danger shadow-sm rounded-2 overflow-hidden">
             <div class="card-header bg-danger text-white p-3 d-flex align-items-center gap-2">
                 <i class="bi bi-exclamation-triangle-fill fs-4"></i>
-                <h5 class="mb-0 fw-bold">Xác Nhận Xóa Phiếu Nhập Kho</h5>
+                <h5 class="mb-0 fw-bold">Xác Nhận Hủy / Xóa Phiếu Nhập Kho</h5>
             </div>
             <div class="card-body p-4">
                 <p class="text-danger fw-semibold">
-                    Bạn có chắc chắn muốn xóa phiếu nhập này không? Toàn bộ các dòng chi tiết hàng hóa gắn liền với phiếu cũng sẽ bị xóa.
+                    Bạn có chắc chắn muốn xóa phiếu nhập này không? Thao tác này sẽ loại bỏ toàn bộ thông tin phiếu và các dòng hàng nhập kèm theo nếu chưa hoàn tất nhập kho.
                 </p>
 
                 <div class="bg-light p-3 rounded-2 border mb-4">
@@ -27,16 +27,25 @@
                         <dd class="col-sm-8 font-monospace fw-bold text-primary">#PN-@Model.MaPhieuNhap</dd>
 
                         <dt class="col-sm-4 text-muted">Nhà cung cấp:</dt>
-                        <dd class="col-sm-8 fw-semibold">@(Model.NhaCungCap?.TenNhaCungCap ?? "---")</dd>
+                        <dd class="col-sm-8 fw-bold">@(Model.NhaCungCap?.TenNhaCungCap ?? "---")</dd>
 
-                        <dt class="col-sm-4 text-muted">Kho nhập:</dt>
+                        <dt class="col-sm-4 text-muted">Kho tiếp nhận:</dt>
                         <dd class="col-sm-8">@(Model.Kho?.TenKho ?? "---")</dd>
 
-                        <dt class="col-sm-4 text-muted">Ngày lập:</dt>
+                        <dt class="col-sm-4 text-muted">Ngày nhập:</dt>
                         <dd class="col-sm-8">@Model.NgayNhap.ToString("dd/MM/yyyy HH:mm")</dd>
 
                         <dt class="col-sm-4 text-muted">Người lập:</dt>
                         <dd class="col-sm-8">@Model.NguoiLap</dd>
+
+                        <dt class="col-sm-4 text-muted">Trạng thái:</dt>
+                        <dd class="col-sm-8">
+                            @(
+                                Model.TrangThai == TrangThaiPhieuNhap.Nhap ? "Nháp" :
+                                Model.TrangThai == TrangThaiPhieuNhap.ChoXacNhan ? "Chờ xác nhận" :
+                                Model.TrangThai == TrangThaiPhieuNhap.DaHoanTat ? "Đã hoàn tất" : "Đã hủy"
+                            )
+                        </dd>
                     </dl>
                 </div>
 
@@ -46,7 +55,7 @@
                         <i class="bi bi-x-circle"></i> Hủy bỏ
                     </a>
                     <button type="submit" class="btn btn-danger">
-                        <i class="bi bi-trash-fill"></i> Xác nhận xóa
+                        <i class="bi bi-trash-fill"></i> Xác nhận xóa phiếu
                     </button>
                 </form>
             </div>

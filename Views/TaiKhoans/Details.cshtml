@@ -1,7 +1,7 @@
 @*
     Họ và tên: Trần Xuân Hải
     Mã sinh viên: 23103100135
-    Phụ trách Module 1: Tài khoản, Đăng nhập, Phân quyền, Loại hàng & Đơn vị tính
+    Phụ trách Module 1: Tài khoản & Đăng nhập
 *@
 @model QuanLyKhoHang_UNETI01_TI17A3HN.Models.TaiKhoan
 
@@ -40,9 +40,6 @@
                     <dt class="col-sm-4 text-muted">Tên đăng nhập:</dt>
                     <dd class="col-sm-8 fw-semibold">@Model.TenDangNhap</dd>
 
-                    <dt class="col-sm-4 text-muted">Mật khẩu:</dt>
-                    <dd class="col-sm-8"><span class="font-monospace bg-light px-2 py-1 rounded border">@Model.MatKhau</span></dd>
-
                     <dt class="col-sm-4 text-muted">Email liên hệ:</dt>
                     <dd class="col-sm-8">@(string.IsNullOrEmpty(Model.Email) ? "Chưa cập nhật" : Model.Email)</dd>
 
@@ -66,7 +63,7 @@
                         }
                         else
                         {
-                            <span class="badge bg-danger"><i class="bi bi-lock-fill me-1"></i> Đã bị khóa</span>
+                            <span class="badge bg-danger"><i class="bi bi-lock-fill me-1"></i> Bị khóa / Ngừng hoạt động</span>
                         }
                     </dd>
                 </dl>

@@ -6,15 +6,15 @@
 @model QuanLyKhoHang_UNETI01_TI17A3HN.Models.Kho
 
 @{
-    ViewData["Title"] = "Tạo mới kho hàng";
+    ViewData["Title"] = "Thêm kho hàng mới";
 }
 
 <div class="row justify-content-center">
     <div class="col-lg-8">
         <div class="page-header">
             <div>
-                <h2 class="page-title"><i class="bi bi-building-add text-primary"></i> Tạo Mới Kho Hàng</h2>
-                <p class="page-subtitle">Thiết lập kho lưu trữ mới trong hệ thống quản lý chuỗi cửa hàng</p>
+                <h2 class="page-title"><i class="bi bi-building-add text-primary"></i> Khai Báo Kho Hàng Mới</h2>
+                <p class="page-subtitle">Nhập thông tin chi nhánh / điểm kho lưu trữ hàng hóa</p>
             </div>
             <div>
                 <a asp-action="Index" class="btn btn-outline-secondary">
@@ -33,7 +33,7 @@
                             <label asp-for="TenKho" class="form-label fw-semibold">
                                 <i class="bi bi-building me-1 text-primary"></i> Tên kho hàng <span class="text-danger">*</span>
                             </label>
-                            <input asp-for="TenKho" class="form-control" placeholder="Ví dụ: Kho Tổng Hà Nội, Kho Cửa Hàng Minh Khai..." />
+                            <input asp-for="TenKho" class="form-control" placeholder="Ví dụ: Kho Tổng UNETI Lĩnh Nam..." />
                             <span asp-validation-for="TenKho" class="text-danger small"></span>
                         </div>
 
@@ -41,7 +41,7 @@
                             <label asp-for="DiaDiem" class="form-label fw-semibold">
                                 <i class="bi bi-geo-alt me-1 text-primary"></i> Địa điểm / Địa chỉ kho
                             </label>
-                            <input asp-for="DiaDiem" class="form-control" placeholder="Số nhà, đường, quận/huyện, tỉnh/thành phố..." />
+                            <input asp-for="DiaDiem" class="form-control" placeholder="Số nhà, đường, quận/huyện, tỉnh/thành..." />
                             <span asp-validation-for="DiaDiem" class="text-danger small"></span>
                         </div>
 
@@ -49,24 +49,26 @@
                             <label asp-for="MoTa" class="form-label fw-semibold">
                                 <i class="bi bi-card-text me-1 text-primary"></i> Mô tả
                             </label>
-                            <textarea asp-for="MoTa" rows="3" class="form-control" placeholder="Ghi chú về diện tích, thủ kho phụ trách..."></textarea>
+                            <textarea asp-for="MoTa" rows="3" class="form-control" placeholder="Ghi chú về diện tích, người phụ trách kho..."></textarea>
                             <span asp-validation-for="MoTa" class="text-danger small"></span>
                         </div>
 
-                        <div class="col-md-12">
-                            <div class="form-check form-switch mt-2">
-                                <input class="form-check-input" type="checkbox" role="switch" asp-for="TrangThai" checked id="chkTrangThaiKho" />
-                                <label class="form-check-label fw-semibold" for="chkTrangThaiKho">
-                                    Kích hoạt hoạt động cho kho này
-                                </label>
-                            </div>
+                        <div class="col-md-6">
+                            <label asp-for="TrangThai" class="form-label fw-semibold">
+                                <i class="bi bi-toggle-on me-1 text-primary"></i> Trạng thái
+                            </label>
+                            <select asp-for="TrangThai" class="form-select">
+                                <option value="true">Đang hoạt động</option>
+                                <option value="false">Ngừng hoạt động</option>
+                            </select>
+                            <span asp-validation-for="TrangThai" class="text-danger small"></span>
                         </div>
                     </div>
 
                     <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
                         <a asp-action="Index" class="btn btn-outline-secondary">Hủy bỏ</a>
                         <button type="submit" class="btn btn-primary px-4">
-                            <i class="bi bi-check-circle-fill"></i> Lưu thông tin kho
+                            <i class="bi bi-check-circle-fill"></i> Tạo kho hàng
                         </button>
                     </div>
                 </form>

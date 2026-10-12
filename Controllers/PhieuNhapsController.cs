@@ -95,8 +95,10 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
             {
                 return NotFound();
             }
-            // Only allow edit when status is Nháp (0) or Chờ xác nhận (1)
-            if (!(phieuNhap.TrangThai == 0 || phieuNhap.TrangThai == 1))
+
+            var isAdmin = string.Equals(HttpContext.Session.GetString("VaiTro"), "Admin", StringComparison.OrdinalIgnoreCase);
+            var isEditableStatus = phieuNhap.TrangThai == TrangThaiPhieuNhap.Nhap || phieuNhap.TrangThai == TrangThaiPhieuNhap.ChoXacNhan;
+            if (!(isEditableStatus || (isAdmin && phieuNhap.TrangThai != TrangThaiPhieuNhap.DaHoanTat && phieuNhap.TrangThai != TrangThaiPhieuNhap.DaHuy)))
             {
                 return Forbid();
             }
@@ -122,9 +124,12 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
             {
                 return NotFound();
             }
-            if (!(existing.TrangThai == 0 || existing.TrangThai == 1))
+
+            var isAdmin = string.Equals(HttpContext.Session.GetString("VaiTro"), "Admin", StringComparison.OrdinalIgnoreCase);
+            var isEditableStatus = existing.TrangThai == TrangThaiPhieuNhap.Nhap || existing.TrangThai == TrangThaiPhieuNhap.ChoXacNhan;
+            if (!(isEditableStatus || (isAdmin && existing.TrangThai != TrangThaiPhieuNhap.DaHoanTat && existing.TrangThai != TrangThaiPhieuNhap.DaHuy)))
             {
-                ModelState.AddModelError(string.Empty, "Phiếu chỉ được sửa khi ở trạng thái Nháp hoặc Chờ xác nhận.");
+                ModelState.AddModelError(string.Empty, "Phiếu không thể sửa khi đã hoàn tất hoặc đã hủy.");
                 ViewData["MaKho"] = new SelectList(_context.Kho.Where(k => k.TrangThai), "MaKho", "TenKho", phieuNhap.MaKho);
                 ViewData["MaNhaCungCap"] = new SelectList(_context.NhaCungCap.Where(n => n.TrangThai), "MaNhaCungCap", "TenNhaCungCap", phieuNhap.MaNhaCungCap);
                 return View(phieuNhap);
@@ -134,8 +139,101 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
             {
                 try
                 {
-                    _context.Update(phieuNhap);
-                    await _context.SaveChangesAsync();
+                    // If changing status to 'Đã hoàn tất', apply stock updates atomically
+                    if (phieuNhap.TrangThai == TrangThaiPhieuNhap.DaHoanTat && existing.TrangThai != TrangThaiPhieuNhap.DaHoanTat)
+                    {
+                        // Load full phieu with details and product info
+                        var phFull = await _context.PhieuNhap
+                            .Include(p => p.ChiTietPhieuNhaps)
+                                .ThenInclude(ct => ct.HangHoa)
+                            .FirstOrDefaultAsync(p => p.MaPhieuNhap == phieuNhap.MaPhieuNhap);
+
+                        if (phFull == null)
+                        {
+                            ModelState.AddModelError(string.Empty, "Phiếu không tồn tại.");
+                            ViewData["MaKho"] = new SelectList(_context.Kho.Where(k => k.TrangThai), "MaKho", "TenKho", phieuNhap.MaKho);
+                            ViewData["MaNhaCungCap"] = new SelectList(_context.NhaCungCap.Where(n => n.TrangThai), "MaNhaCungCap", "TenNhaCungCap", phieuNhap.MaNhaCungCap);
+                            return View(phieuNhap);
+                        }
+
+                        // Validate supplier and kho active
+                        var supplier = await _context.NhaCungCap.FindAsync(phFull.MaNhaCungCap);
+                        var kho = await _context.Kho.FindAsync(phFull.MaKho);
+                        if (supplier == null || !supplier.TrangThai)
+                        {
+                            ModelState.AddModelError(string.Empty, "Nhà cung cấp không hoạt động hoặc không tồn tại.");
+                        }
+                        if (kho == null || !kho.TrangThai)
+                        {
+                            ModelState.AddModelError(string.Empty, "Kho không hoạt động hoặc không tồn tại.");
+                        }
+
+                        // Validate all products active
+                        var inactiveProducts = phFull.ChiTietPhieuNhaps.Where(ct => ct.HangHoa == null || !ct.HangHoa.TrangThai).ToList();
+                        if (inactiveProducts.Any())
+                        {
+                            ModelState.AddModelError(string.Empty, "Một hoặc nhiều hàng hóa trong chi tiết đã ngưng hoạt động. Không thể hoàn tất phiếu.");
+                        }
+
+                        if (!ModelState.IsValid)
+                        {
+                            ViewData["MaKho"] = new SelectList(_context.Kho.Where(k => k.TrangThai), "MaKho", "TenKho", phieuNhap.MaKho);
+                            ViewData["MaNhaCungCap"] = new SelectList(_context.NhaCungCap.Where(n => n.TrangThai), "MaNhaCungCap", "TenNhaCungCap", phieuNhap.MaNhaCungCap);
+                            return View(phieuNhap);
+                        }
+
+                        // Begin transaction to update stock and history
+                        using (var tx = await _context.Database.BeginTransactionAsync())
+                        {
+                            foreach (var ct in phFull.ChiTietPhieuNhaps)
+                            {
+                                // Find or create TonKho entry
+                                var ton = await _context.TonKhoes.FindAsync(phFull.MaKho, ct.MaHang);
+                                if (ton == null)
+                                {
+                                    ton = new TonKho
+                                    {
+                                        MaKho = phFull.MaKho,
+                                        MaHang = ct.MaHang,
+                                        SoLuongTon = ct.SoLuongNhap,
+                                        NgayCapNhat = DateTime.Now
+                                    };
+                                    _context.TonKhoes.Add(ton);
+                                }
+                                else
+                                {
+                                    ton.SoLuongTon += ct.SoLuongNhap;
+                                    ton.NgayCapNhat = DateTime.Now;
+                                    _context.TonKhoes.Update(ton);
+                                }
+
+                                // Add history record
+                                var lichSu = new LichSuTonKho
+                                {
+                                    MaHang = ct.MaHang,
+                                    MaKho = phFull.MaKho,
+                                    NgayPhatSinh = DateTime.Now,
+                                    LoaiGiaoDich = "Nhập kho",
+                                    MaPhieu = $"PN{phFull.MaPhieuNhap:D4}",
+                                    SoLuong = ct.SoLuongNhap,
+                                    TonSauGiaoDich = ton.SoLuongTon,
+                                    NguoiThucHien = HttpContext.Session.GetString("HoTen") ?? phFull.NguoiLap,
+                                    GhiChu = phFull.GhiChu
+                                };
+                                _context.LichSuTonKhoes.Add(lichSu);
+                            }
+
+                            // Update phieu status and save all
+                            _context.Update(phieuNhap);
+                            await _context.SaveChangesAsync();
+                            await tx.CommitAsync();
+                        }
+                    }
+                    else
+                    {
+                        _context.Update(phieuNhap);
+                        await _context.SaveChangesAsync();
+                    }
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -153,6 +251,115 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
             ViewData["MaKho"] = new SelectList(_context.Kho, "MaKho", "TenKho", phieuNhap.MaKho);
             ViewData["MaNhaCungCap"] = new SelectList(_context.NhaCungCap.Where(n => n.TrangThai), "MaNhaCungCap", "TenNhaCungCap", phieuNhap.MaNhaCungCap);
             return View(phieuNhap);
+        }
+
+        // POST: PhieuNhaps/HoanTat/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> HoanTat(int id)
+        {
+            var phFull = await _context.PhieuNhap
+                .Include(p => p.ChiTietPhieuNhaps)
+                    .ThenInclude(ct => ct.HangHoa)
+                .Include(p => p.Kho)
+                .Include(p => p.NhaCungCap)
+                .FirstOrDefaultAsync(p => p.MaPhieuNhap == id);
+
+            if (phFull == null)
+            {
+                return NotFound();
+            }
+
+            if (phFull.TrangThai == TrangThaiPhieuNhap.DaHoanTat)
+            {
+                TempData["Error"] = "Phiếu nhập này đã ở trạng thái Hoàn tất, không thể duyệt lại.";
+                return RedirectToAction(nameof(Details), new { id });
+            }
+
+            if (!phFull.ChiTietPhieuNhaps.Any())
+            {
+                TempData["Error"] = "Phiếu chưa có mặt hàng nào. Vui lòng thêm hàng trước khi hoàn tất.";
+                return RedirectToAction(nameof(Details), new { id });
+            }
+
+            if (phFull.Kho != null && !phFull.Kho.TrangThai)
+            {
+                TempData["Error"] = "Kho nhập hiện đang ngừng hoạt động.";
+                return RedirectToAction(nameof(Details), new { id });
+            }
+
+            using var tx = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                foreach (var ct in phFull.ChiTietPhieuNhaps)
+                {
+                    var ton = await _context.TonKhoes.FindAsync(phFull.MaKho, ct.MaHang);
+                    if (ton == null)
+                    {
+                        ton = new TonKho
+                        {
+                            MaKho = phFull.MaKho,
+                            MaHang = ct.MaHang,
+                            SoLuongTon = ct.SoLuongNhap,
+                            NgayCapNhat = DateTime.Now
+                        };
+                        _context.TonKhoes.Add(ton);
+                    }
+                    else
+                    {
+                        ton.SoLuongTon += ct.SoLuongNhap;
+                        ton.NgayCapNhat = DateTime.Now;
+                        _context.TonKhoes.Update(ton);
+                    }
+
+                    var lichSu = new LichSuTonKho
+                    {
+                        MaHang = ct.MaHang,
+                        MaKho = phFull.MaKho,
+                        NgayPhatSinh = DateTime.Now,
+                        LoaiGiaoDich = "Nhập kho",
+                        MaPhieu = $"PN{phFull.MaPhieuNhap:D4}",
+                        SoLuong = ct.SoLuongNhap,
+                        TonSauGiaoDich = ton.SoLuongTon,
+                        NguoiThucHien = HttpContext.Session.GetString("HoTen") ?? phFull.NguoiLap,
+                        GhiChu = $"Nhập kho theo phiếu #{phFull.MaPhieuNhap} từ {phFull.NhaCungCap?.TenNhaCungCap}"
+                    };
+                    _context.LichSuTonKhoes.Add(lichSu);
+                }
+
+                phFull.TrangThai = TrangThaiPhieuNhap.DaHoanTat;
+                await _context.SaveChangesAsync();
+                await tx.CommitAsync();
+
+                TempData["Success"] = "Đã hoàn tất nhập kho và cập nhật số lượng tồn thành công!";
+            }
+            catch (Exception ex)
+            {
+                await tx.RollbackAsync();
+                TempData["Error"] = "Lỗi khi hoàn tất phiếu nhập: " + ex.Message;
+            }
+
+            return RedirectToAction(nameof(Details), new { id });
+        }
+
+        // POST: PhieuNhaps/HuyPhieu/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> HuyPhieu(int id)
+        {
+            var phieu = await _context.PhieuNhap.FindAsync(id);
+            if (phieu == null) return NotFound();
+
+            if (phieu.TrangThai == TrangThaiPhieuNhap.DaHoanTat)
+            {
+                TempData["Error"] = "Không thể hủy phiếu đã hoàn tất nhập kho.";
+                return RedirectToAction(nameof(Details), new { id });
+            }
+
+            phieu.TrangThai = TrangThaiPhieuNhap.DaHuy;
+            await _context.SaveChangesAsync();
+            TempData["Success"] = "Đã hủy phiếu nhập thành công.";
+            return RedirectToAction(nameof(Details), new { id });
         }
 
         // GET: PhieuNhaps/Delete/5
@@ -195,8 +402,15 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
             var phieuNhap = await _context.PhieuNhap.FindAsync(targetId);
             if (phieuNhap != null)
             {
+                if (phieuNhap.TrangThai == TrangThaiPhieuNhap.DaHoanTat)
+                {
+                    TempData["Error"] = "Không thể xóa phiếu đã hoàn tất nhập kho.";
+                    return RedirectToAction(nameof(Index));
+                }
+
                 _context.PhieuNhap.Remove(phieuNhap);
                 await _context.SaveChangesAsync();
+                TempData["Success"] = "Đã xóa phiếu nhập thành công.";
             }
 
             return RedirectToAction(nameof(Index));

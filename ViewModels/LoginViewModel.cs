@@ -16,5 +16,8 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.ViewModels
         [DataType(DataType.Password)]
         [Display(Name = "Mật khẩu")]
         public string MatKhau { get; set; } = string.Empty;
+
+        [Display(Name = "Ghi nhớ đăng nhập (Lưu Cookie)")]
+        public bool GhiNhoDangNhap { get; set; } = false;
     }
 }

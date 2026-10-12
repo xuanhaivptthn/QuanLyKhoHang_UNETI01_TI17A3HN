@@ -1,7 +1,7 @@
 @*
     Họ và tên: Trần Xuân Hải
     Mã sinh viên: 23103100135
-    Phụ trách Module 1: Tài khoản, Đăng nhập, Phân quyền, Loại hàng & Đơn vị tính
+    Phụ trách Module 1: Tài khoản & Đăng nhập
 *@
 @model QuanLyKhoHang_UNETI01_TI17A3HN.ViewModels.LoginViewModel
 
@@ -47,7 +47,7 @@
                     </div>
 
                     <!-- Mật khẩu -->
-                    <div class="mb-4">
+                    <div class="mb-3">
                         <label asp-for="MatKhau" class="form-label fw-semibold text-secondary small">
                             <i class="bi bi-shield-lock-fill text-primary me-1"></i> Mật khẩu
                         </label>
@@ -61,6 +61,14 @@
                             </button>
                         </div>
                         <span asp-validation-for="MatKhau" class="text-danger small mt-1 d-block"></span>
+                    </div>
+
+                    <!-- Ghi nhớ đăng nhập -->
+                    <div class="form-check mb-4">
+                        <input asp-for="GhiNhoDangNhap" class="form-check-input" id="rememberMeCheck" />
+                        <label asp-for="GhiNhoDangNhap" class="form-check-label text-muted small" for="rememberMeCheck">
+                            Ghi nhớ tài khoản (Lưu Cookie 7 ngày)
+                        </label>
                     </div>
 
                     <!-- Nút Đăng nhập -->
@@ -81,22 +89,21 @@
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const btnToggle = document.getElementById("btnTogglePassword");
-            const txtPassword = document.getElementById("txtPassword");
-            const toggleIcon = document.getElementById("toggleIcon");
-            const toggleText = document.getElementById("toggleText");
-
-            if (btnToggle && txtPassword && toggleIcon) {
-                btnToggle.addEventListener("click", function () {
-                    const isPassword = txtPassword.type === "password";
-                    txtPassword.type = isPassword ? "text" : "password";
-                    toggleIcon.className = isPassword ? "bi bi-eye-slash me-1" : "bi bi-eye me-1";
-                    if (toggleText) toggleText.textContent = isPassword ? "Ẩn" : "Hiện";
-                });
+        document.getElementById('btnTogglePassword')?.addEventListener('click', function () {
+            var pwd = document.getElementById('txtPassword');
+            var icon = document.getElementById('toggleIcon');
+            var txt = document.getElementById('toggleText');
+            if (pwd.type === 'password') {
+                pwd.type = 'text';
+                icon.className = 'bi bi-eye-slash me-1';
+                txt.textContent = 'Ẩn';
+            } else {
+                pwd.type = 'password';
+                icon.className = 'bi bi-eye me-1';
+                txt.textContent = 'Hiện';
             }
         });
     </script>
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 }

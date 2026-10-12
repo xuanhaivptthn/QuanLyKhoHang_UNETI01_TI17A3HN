@@ -6,7 +6,7 @@
 @model QuanLyKhoHang_UNETI01_TI17A3HN.Models.HangHoa
 
 @{
-    ViewData["Title"] = "Chi tiết Hàng hóa - " + Model.TenHang;
+    ViewData["Title"] = "Chi tiết hàng hóa: " + Model.TenHang;
     var tonKhos = (Model?.DanhSachTonKho ?? new List<QuanLyKhoHang_UNETI01_TI17A3HN.Models.TonKho>())
         .OrderBy(t => t.Kho?.TenKho)
         .ToList();
@@ -15,8 +15,14 @@
 
 <div class="page-header">
     <div>
-        <h2 class="page-title"><i class="bi bi-box-seam-fill text-primary"></i> Chi Tiết Hàng Hóa</h2>
-        <p class="page-subtitle">Xem thông số chi tiết và phân bổ số lượng tồn trên toàn hệ thống kho</p>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-1">
+                <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" class="text-decoration-none">Trang chủ</a></li>
+                <li class="breadcrumb-item"><a asp-controller="HangHoas" asp-action="Index" class="text-decoration-none">Hàng hóa</a></li>
+                <li class="breadcrumb-item active" aria-current="page">#@Model?.MaHang</li>
+            </ol>
+        </nav>
+        <h2 class="page-title"><i class="bi bi-box-seam text-primary"></i> @Model?.TenHang</h2>
     </div>
     <div class="d-flex gap-2">
         <a asp-action="Edit" asp-route-id="@Model?.MaHang" class="btn btn-primary">
@@ -29,55 +35,75 @@
 </div>
 
 <div class="row g-4">
-    <!-- Cột Thông tin cơ bản -->
+    <!-- Cột trái: Thông tin tổng quan hàng hóa -->
     <div class="col-lg-5">
         <div class="card border-0 shadow-sm rounded-2 h-100">
             <div class="card-header bg-white py-3">
-                <h5 class="fw-bold mb-0 text-dark"><i class="bi bi-info-circle text-primary me-2"></i> Thông Tin Sản Phẩm</h5>
+                <h5 class="card-title mb-0 fw-bold text-dark">
+                    <i class="bi bi-info-circle text-primary me-2"></i> Thông Tin Hàng Hóa
+                </h5>
             </div>
             <div class="card-body p-4">
-                <div class="mb-3">
-                    <span class="badge bg-light text-primary border font-monospace px-2 py-1">Mã hàng: #@Model?.MaHang</span>
-                    <h4 class="fw-bold text-dark mt-2 mb-1">@Model?.TenHang</h4>
-                    <p class="text-muted small">@(string.IsNullOrEmpty(Model?.MoTa) ? "Chưa có mô tả chi tiết." : Model.MoTa)</p>
-                </div>
-
-                <hr class="text-secondary opacity-25" />
-
                 <dl class="row gy-3 mb-0">
+                    <dt class="col-sm-5 text-muted">Mã hàng:</dt>
+                    <dd class="col-sm-7 font-monospace fw-bold text-primary">#@Model?.MaHang</dd>
+
                     <dt class="col-sm-5 text-muted">Loại hàng:</dt>
-                    <dd class="col-sm-7 fw-semibold"><span class="badge bg-light text-dark border">@Model?.LoaiHang?.TenLoaiHang</span></dd>
+                    <dd class="col-sm-7">
+                        <span class="badge bg-light text-dark border">
+                            <i class="bi bi-tag-fill text-muted me-1"></i>@(Model?.LoaiHang?.TenLoaiHang ?? "---")
+                        </span>
+                    </dd>
 
                     <dt class="col-sm-5 text-muted">Đơn vị tính:</dt>
-                    <dd class="col-sm-7 fw-semibold"><span class="badge bg-secondary-subtle text-secondary">@Model?.DonViTinh?.TenDonViTinh</span></dd>
+                    <dd class="col-sm-7">
+                        <span class="badge bg-secondary-subtle text-secondary">
+                            @(Model?.DonViTinh?.TenDonViTinh ?? "---")
+                        </span>
+                    </dd>
 
                     <dt class="col-sm-5 text-muted">Giá nhập tham khảo:</dt>
-                    <dd class="col-sm-7 fw-bold text-primary fs-5">@Model?.GiaNhapThamKhao.ToString("#,##0") VNĐ</dd>
+                    <dd class="col-sm-7 text-primary fw-bold fs-6">
+                        @Model?.GiaNhapThamKhao.ToString("#,##0") VNĐ
+                    </dd>
 
                     <dt class="col-sm-5 text-muted">Mức tồn tối thiểu:</dt>
-                    <dd class="col-sm-7 font-monospace fw-bold text-danger">@Model?.MucTonToiThieu @Model?.DonViTinh?.TenDonViTinh</dd>
-
-                    <dt class="col-sm-5 text-muted">Trạng thái kinh doanh:</dt>
                     <dd class="col-sm-7">
-                        @if (Model != null && Model.TrangThai)
+                        <span class="badge bg-warning-subtle text-dark border border-warning-subtle font-monospace">
+                            @Model?.MucTonToiThieu @Model?.DonViTinh?.TenDonViTinh
+                        </span>
+                    </dd>
+
+                    <dt class="col-sm-5 text-muted">Trạng thái:</dt>
+                    <dd class="col-sm-7">
+                        @if (Model?.TrangThai == true)
                         {
-                            <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i> Đang kinh doanh</span>
+                            <span class="badge bg-success-subtle text-success border border-success-subtle">
+                                <i class="bi bi-check-circle-fill me-1"></i> Đang hoạt động
+                            </span>
                         }
                         else
                         {
-                            <span class="badge bg-secondary"><i class="bi bi-pause-circle me-1"></i> Ngừng kinh doanh</span>
+                            <span class="badge bg-secondary-subtle text-muted border">
+                                <i class="bi bi-slash-circle me-1"></i> Ngừng hoạt động
+                            </span>
                         }
+                    </dd>
+
+                    <dt class="col-sm-5 text-muted">Mô tả sản phẩm:</dt>
+                    <dd class="col-sm-7 text-muted small">
+                        @(string.IsNullOrEmpty(Model?.MoTa) ? "Chưa có mô tả chi tiết." : Model?.MoTa)
                     </dd>
                 </dl>
             </div>
         </div>
     </div>
 
-    <!-- Cột Bảng phân bổ tồn kho tại các chi nhánh/kho hàng -->
+    <!-- Cột phải: Phân bổ tồn kho tại các kho -->
     <div class="col-lg-7">
         <div class="card border-0 shadow-sm rounded-2 h-100">
             <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
-                <h5 class="fw-bold mb-0 text-dark">
+                <h5 class="card-title mb-0 fw-bold text-dark">
                     <i class="bi bi-building text-success me-2"></i> Phân Bổ Tồn Kho Tại Các Chi Nhánh
                 </h5>
                 <span class="badge @(tongTonHeThong <= (Model?.MucTonToiThieu ?? 0) ? "bg-warning text-dark" : "bg-success")">

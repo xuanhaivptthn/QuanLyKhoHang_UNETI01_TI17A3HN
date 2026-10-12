@@ -7,8 +7,14 @@
 
 @{
     ViewData["Title"] = "Hóa đơn xuất kho #PX-" + Model.MaPhieuXuat;
+    var currentRole = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value ?? Context.Session.GetString("VaiTro");
+    var isAdmin = User.IsInRole("Admin") || string.Equals(currentRole, "Admin", StringComparison.OrdinalIgnoreCase);
+    var isWarehouseStaff = User.IsInRole("NhanVienKho") || string.Equals(currentRole, "NhanVienKho", StringComparison.OrdinalIgnoreCase);
+    var canManage = isAdmin || isWarehouseStaff;
+
     var chiTiets = Model.ChiTietPhieuXuats?.ToList() ?? new List<QuanLyKhoHang_UNETI01_TI17A3HN.Models.ChiTietPhieuXuat>();
-    decimal tongTien = chiTiets.Sum(c => (decimal)c.SoLuongXuat * c.DonGiaXuatThamChieu);
+    decimal tongTien = Model.TongTien > 0 ? Model.TongTien : chiTiets.Sum(c => (decimal)c.SoLuongXuat * c.DonGiaXuatThamChieu);
+    var canEdit = canManage && (Model.TrangThai == TrangThaiPhieuXuat.Nhap || isAdmin);
 }
 
 <div class="page-header no-print">
@@ -16,19 +22,51 @@
         <h2 class="page-title"><i class="bi bi-receipt-cutoff text-danger"></i> Hóa Đơn Xuất Kho</h2>
         <p class="page-subtitle">Biên bản bàn giao và điều chuyển hàng hóa ra khỏi kho</p>
     </div>
-    <div class="d-flex gap-2">
+    <div class="d-flex flex-wrap gap-2">
         <button type="button" class="btn btn-outline-secondary" onclick="window.print()">
             <i class="bi bi-printer"></i> In phiếu
         </button>
-        @if (Model.TrangThai == TrangThaiPhieuXuat.Nhap || Model.TrangThai == TrangThaiPhieuXuat.ChoXacNhan)
+
+        @if (Model.TrangThai == TrangThaiPhieuXuat.Nhap && canManage)
         {
             <a asp-controller="ChiTietPhieuXuats" asp-action="Create" asp-route-maPhieuXuat="@Model.MaPhieuXuat" class="btn btn-success">
                 <i class="bi bi-plus-circle"></i> Thêm hàng xuất
             </a>
+        }
+
+        @if (canEdit && (Model.TrangThai == TrangThaiPhieuXuat.Nhap || isAdmin))
+        {
             <a asp-action="Edit" asp-route-id="@Model.MaPhieuXuat" class="btn btn-primary">
                 <i class="bi bi-pencil-square"></i> Sửa phiếu
             </a>
         }
+
+        @if (canManage && (Model.TrangThai == TrangThaiPhieuXuat.Nhap || Model.TrangThai == TrangThaiPhieuXuat.ChoXacNhan))
+        {
+            <form asp-action="HoanTat" asp-route-id="@Model.MaPhieuXuat" method="post" class="d-inline" onsubmit="return confirm('Xác nhận hoàn tất xuất kho phiếu này? Số lượng tồn kho sẽ bị trừ đi tương ứng.');">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-outline-success">
+                    <i class="bi bi-check-circle"></i> Hoàn tất xuất kho
+                </button>
+            </form>
+
+            <form asp-action="HuyPhieu" asp-route-id="@Model.MaPhieuXuat" method="post" class="d-inline" onsubmit="return confirm('Bạn có chắc chắn muốn hủy phiếu xuất này?');">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-outline-danger">
+                    <i class="bi bi-x-circle"></i> Hủy phiếu
+                </button>
+            </form>
+        }
+        else if (Model.TrangThai == TrangThaiPhieuXuat.DaHoanTat && isAdmin)
+        {
+            <form asp-action="HuyPhieu" asp-route-id="@Model.MaPhieuXuat" method="post" class="d-inline" onsubmit="return confirm('CẢNH BÁO: Hủy phiếu đã hoàn tất sẽ hoàn trả lại số lượng tồn kho và lưu lịch sử. Bạn có chắc chắn?');">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-danger">
+                    <i class="bi bi-arrow-counterclockwise"></i> Hủy &amp; Hoàn kho
+                </button>
+            </form>
+        }
+
         <a asp-action="Index" class="btn btn-outline-secondary">
             <i class="bi bi-arrow-left"></i> Quay lại
         </a>
@@ -53,21 +91,20 @@
             <h3 class="fw-bold text-danger mb-1">PHIẾU XUẤT KHO</h3>
             <div class="font-monospace fw-bold text-dark fs-5">#PX-@Model.MaPhieuXuat.ToString("D5")</div>
             <div class="mt-2">
-                @if (Model.TrangThai == TrangThaiPhieuXuat.Nhap)
+                @switch (Model.TrangThai)
                 {
-                    <span class="badge bg-secondary fs-6">Trạng thái: Nháp</span>
-                }
-                else if (Model.TrangThai == TrangThaiPhieuXuat.ChoXacNhan)
-                {
-                    <span class="badge bg-warning text-dark fs-6">Trạng thái: Chờ xác nhận</span>
-                }
-                else if (Model.TrangThai == TrangThaiPhieuXuat.DaHoanTat)
-                {
-                    <span class="badge bg-success fs-6"><i class="bi bi-check-circle-fill me-1"></i> Đã hoàn tất xuất kho</span>
-                }
-                else
-                {
-                    <span class="badge bg-danger fs-6">Trạng thái: Đã hủy</span>
+                    case TrangThaiPhieuXuat.Nhap:
+                        <span class="badge bg-secondary fs-6">Trạng thái: Nháp</span>
+                        break;
+                    case TrangThaiPhieuXuat.ChoXacNhan:
+                        <span class="badge bg-warning text-dark fs-6">Trạng thái: Chờ xác nhận</span>
+                        break;
+                    case TrangThaiPhieuXuat.DaHoanTat:
+                        <span class="badge bg-success fs-6"><i class="bi bi-check-circle-fill me-1"></i> Đã hoàn tất xuất kho</span>
+                        break;
+                    case TrangThaiPhieuXuat.DaHuy:
+                        <span class="badge bg-danger fs-6">Trạng thái: Đã hủy</span>
+                        break;
                 }
             </div>
         </div>
@@ -93,27 +130,26 @@
                 </h6>
                 <div class="fw-bold text-dark fs-6">@(Model.BoPhanNhan?.TenBoPhan ?? "Chưa chỉ định")</div>
                 <div class="text-muted small mt-1">Người đại diện: @(Model.BoPhanNhan?.NguoiDaiDien ?? "---")</div>
-                <div class="text-muted small">Số điện thoại: @(Model.BoPhanNhan?.SoDienThoai ?? "---")</div>
-                <div class="text-muted small">Ghi chú / Địa chỉ: @(Model.BoPhanNhan?.MoTa ?? "---")</div>
+                <div class="text-muted small">Điện thoại liên hệ: @(Model.BoPhanNhan?.SoDienThoai ?? "---")</div>
+                <div class="text-muted small">Ghi chú bộ phận: @(Model.BoPhanNhan?.MoTa ?? "---")</div>
             </div>
         </div>
     </div>
 
-    <!-- Bảng Chi Tiết Hàng Xuất -->
+    <!-- Bảng danh sách hàng hóa xuất -->
     <div class="table-responsive mb-4">
-        <table class="table table-bordered align-middle">
+        <table class="table table-bordered align-middle mb-0">
             <thead class="table-light">
                 <tr>
                     <th class="text-center" style="width: 50px;">STT</th>
                     <th>Mã hàng</th>
                     <th>Tên hàng hóa</th>
-                    <th class="text-center">Số lượng xuất</th>
+                    <th class="text-center">Số lượng</th>
                     <th class="text-end">Đơn giá tham chiếu</th>
                     <th class="text-end">Thành tiền</th>
-                    <th>Ghi chú</th>
-                    @if (Model.TrangThai == TrangThaiPhieuXuat.Nhap || Model.TrangThai == TrangThaiPhieuXuat.ChoXacNhan)
+                    @if (Model.TrangThai == TrangThaiPhieuXuat.Nhap)
                     {
-                        <th class="text-center no-print" style="width: 100px;">Thao tác</th>
+                        <th class="text-center no-print" style="width: 120px;">Thao tác</th>
                     }
                 </tr>
             </thead>
@@ -126,20 +162,25 @@
                         var thanhTien = (decimal)ct.SoLuongXuat * ct.DonGiaXuatThamChieu;
                         <tr>
                             <td class="text-center">@(stt++)</td>
-                            <td class="font-monospace text-muted">#@ct.MaHang</td>
-                            <td class="fw-semibold text-dark">@(ct.HangHoa?.TenHang ?? "Sản phẩm #" + ct.MaHang)</td>
+                            <td class="font-monospace text-muted">@(ct.HangHoa?.MaHang ?? ct.MaHang)</td>
+                            <td class="fw-semibold text-dark">
+                                @(ct.HangHoa?.TenHang ?? "Sản phẩm #" + ct.MaHang)
+                                @if (!string.IsNullOrEmpty(ct.GhiChu))
+                                {
+                                    <small class="text-muted d-block font-monospace">(@ct.GhiChu)</small>
+                                }
+                            </td>
                             <td class="text-center font-monospace fw-bold text-danger">@ct.SoLuongXuat</td>
                             <td class="text-end">@ct.DonGiaXuatThamChieu.ToString("#,##0") VNĐ</td>
                             <td class="text-end fw-bold text-dark">@thanhTien.ToString("#,##0") VNĐ</td>
-                            <td class="text-muted small">@(string.IsNullOrEmpty(ct.GhiChu) ? "---" : ct.GhiChu)</td>
-                            @if (Model.TrangThai == TrangThaiPhieuXuat.Nhap || Model.TrangThai == TrangThaiPhieuXuat.ChoXacNhan)
+                            @if (Model.TrangThai == TrangThaiPhieuXuat.Nhap)
                             {
                                 <td class="text-center no-print text-nowrap">
                                     <div class="d-inline-flex gap-1">
-                                        <a asp-controller="ChiTietPhieuXuats" asp-action="Edit" asp-route-id="@ct.MaChiTietXuat" class="btn btn-outline-primary btn-sm text-nowrap" title="Sửa dòng mặt hàng">
+                                        <a asp-controller="ChiTietPhieuXuats" asp-action="Edit" asp-route-id="@ct.MaChiTietXuat" class="btn btn-outline-primary btn-sm text-nowrap" title="Sửa dòng xuất">
                                             <i class="bi bi-pencil me-1"></i> Sửa
                                         </a>
-                                        <a asp-controller="ChiTietPhieuXuats" asp-action="Delete" asp-route-id="@ct.MaChiTietXuat" class="btn btn-outline-danger btn-sm text-nowrap" title="Xóa dòng mặt hàng">
+                                        <a asp-controller="ChiTietPhieuXuats" asp-action="Delete" asp-route-id="@ct.MaChiTietXuat" class="btn btn-outline-danger btn-sm text-nowrap" title="Xóa dòng xuất">
                                             <i class="bi bi-trash me-1"></i> Xóa
                                         </a>
                                     </div>
@@ -151,7 +192,7 @@
                 else
                 {
                     <tr>
-                        <td colspan="@(Model.TrangThai == TrangThaiPhieuXuat.Nhap || Model.TrangThai == TrangThaiPhieuXuat.ChoXacNhan ? 8 : 7)" class="text-center text-muted py-4">
+                        <td colspan="@(Model.TrangThai == TrangThaiPhieuXuat.Nhap ? 7 : 6)" class="text-center text-muted py-4">
                             Phiếu chưa có mặt hàng nào. Vui lòng bấm <strong>"Thêm hàng xuất"</strong> để bổ sung.
                         </td>
                     </tr>
@@ -159,29 +200,34 @@
             </tbody>
             <tfoot>
                 <tr class="table-light">
-                    <th colspan="5" class="text-end fw-bold fs-6">TỔNG TRỊ GIÁ XUẤT THAM CHIẾU:</th>
-                    <th class="text-end fw-bold text-danger fs-5">@tongTien.ToString("#,##0") VNĐ</th>
-                    <th colspan="@(Model.TrangThai == TrangThaiPhieuXuat.Nhap || Model.TrangThai == TrangThaiPhieuXuat.ChoXacNhan ? 2 : 1)" class="no-print"></th>
+                    <th colspan="3" class="text-end fw-bold fs-6">TỔNG CỘNG:</th>
+                    <th class="text-center font-monospace fw-bold text-danger fs-6">@Model.TongSoLuong</th>
+                    <th></th>
+                    <th class="text-end fw-bold text-dark fs-5">@tongTien.ToString("#,##0") VNĐ</th>
+                    @if (Model.TrangThai == TrangThaiPhieuXuat.Nhap)
+                    {
+                        <th class="no-print"></th>
+                    }
                 </tr>
             </tfoot>
         </table>
     </div>
 
-    <!-- Ghi chú & Chữ ký -->
+    <!-- Ghi chú & Chữ ký bàn giao -->
     <div class="row pt-3">
         <div class="col-sm-6">
-            <h6 class="fw-bold small text-muted">Ghi chú xuất kho:</h6>
+            <h6 class="fw-bold small text-muted">Ghi chú lệnh xuất:</h6>
             <p class="text-secondary small fst-italic">@(string.IsNullOrEmpty(Model.GhiChu) ? "Không có ghi chú thêm." : Model.GhiChu)</p>
         </div>
         <div class="col-sm-6">
             <div class="row text-center mt-4 pt-2">
                 <div class="col-6">
-                    <div class="fw-bold small">Thủ kho giao hàng</div>
-                    <div class="text-muted small fst-italic mt-5">@Model.NguoiLap</div>
+                    <div class="fw-bold small">Người nhận hàng</div>
+                    <div class="text-muted small fst-italic mt-5">@(Model.BoPhanNhan?.NguoiDaiDien ?? "(Ký, họ tên)")</div>
                 </div>
                 <div class="col-6">
-                    <div class="fw-bold small">Người nhận hàng</div>
-                    <div class="text-muted small fst-italic mt-5">@(Model.BoPhanNhan?.NguoiDaiDien ?? "(Ký, ghi rõ họ tên)")</div>
+                    <div class="fw-bold small">Thủ kho xuất hàng</div>
+                    <div class="text-muted small fst-italic mt-5">@Model.NguoiLap</div>
                 </div>
             </div>
         </div>

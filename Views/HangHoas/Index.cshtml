@@ -6,115 +6,130 @@
 @model IEnumerable<QuanLyKhoHang_UNETI01_TI17A3HN.Models.HangHoa>
 
 @{
-    ViewData["Title"] = "Danh mục Hàng hóa";
-    var tongTonDict = ViewBag.TongTon as Dictionary<int, int> ?? new Dictionary<int, int>();
+    ViewData["Title"] = "Quản lý hàng hóa";
+    var tongTonDict = (Dictionary<int, int>?)ViewBag.TongTon ?? new Dictionary<int, int>();
 }
 
-<div class="page-header">
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
     <div>
-        <h2 class="page-title"><i class="bi bi-box-seam-fill text-primary"></i> Quản Lý Danh Mục Hàng Hóa</h2>
-        <p class="page-subtitle">Quản lý sản phẩm, đơn vị tính, giá nhập và định mức tồn kho tối thiểu</p>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-1">
+                <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" class="text-decoration-none">Trang chủ</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Hàng hóa</li>
+            </ol>
+        </nav>
+        <h3 class="fw-bold mb-0 text-dark">Quản Lý Danh Mục Hàng Hóa</h3>
     </div>
-    <div>
-        <a asp-action="Create" class="btn btn-primary shadow-sm">
-            <i class="bi bi-plus-circle-fill"></i> Thêm hàng hóa mới
+    <div class="d-flex gap-2">
+        <a asp-action="Create" class="btn btn-primary d-inline-flex align-items-center gap-2">
+            <i class="bi bi-plus-lg"></i>
+            <span>Thêm hàng hóa mới</span>
         </a>
     </div>
 </div>
 
-<!-- Bộ lọc đa năng (Multi-criteria Filter Bar) -->
+<!-- Bộ lọc tìm kiếm & Phân loại nâng cao -->
 <div class="card border-0 shadow-sm rounded-2 mb-4">
-    <div class="card-body p-4">
-        <form asp-action="Index" method="get">
-            <div class="row g-3">
-                <div class="col-md-4 col-lg-3">
-                    <label class="form-label small fw-semibold text-muted">Từ khóa tìm kiếm</label>
-                    <div class="input-group">
-                        <span class="input-group-text bg-light text-muted border-end-0"><i class="bi bi-search"></i></span>
-                        <input type="text" name="searchString" value="@ViewBag.SearchString" class="form-control border-start-0 ps-0" placeholder="Mã, tên, kho..." />
-                    </div>
+    <div class="card-body p-3">
+        <form asp-action="Index" method="get" class="row g-2 align-items-end">
+            <!-- Tìm kiếm theo tên / mô tả -->
+            <div class="col-md-3">
+                <label class="form-label small fw-semibold text-secondary mb-1">Tìm kiếm</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
+                    <input type="text" name="searchString" value="@ViewBag.SearchString" class="form-control border-start-0" placeholder="Tên hàng hóa, quy cách..." />
                 </div>
+            </div>
 
-                <div class="col-md-4 col-lg-2">
-                    <label class="form-label small fw-semibold text-muted">Loại hàng</label>
-                    <select name="maLoaiHang" class="form-select" asp-items="ViewBag.LoaiHangs">
-                        <option value="">-- Tất cả loại --</option>
-                    </select>
-                </div>
+            <!-- Loại hàng -->
+            <div class="col-md-2">
+                <label class="form-label small fw-semibold text-secondary mb-1">Loại hàng</label>
+                <select name="maLoaiHang" class="form-select" asp-items="ViewBag.LoaiHangs">
+                    <option value="">-- Tất cả loại hàng --</option>
+                </select>
+            </div>
 
-                <div class="col-md-4 col-lg-2">
-                    <label class="form-label small fw-semibold text-muted">Đơn vị tính</label>
-                    <select name="maDonViTinh" class="form-select" asp-items="ViewBag.DonViTinhs">
-                        <option value="">-- Tất cả ĐVT --</option>
-                    </select>
-                </div>
+            <!-- Đơn vị tính -->
+            <div class="col-md-2">
+                <label class="form-label small fw-semibold text-secondary mb-1">Đơn vị tính</label>
+                <select name="maDonViTinh" class="form-select" asp-items="ViewBag.DonViTinhs">
+                    <option value="">-- Tất cả ĐVT --</option>
+                </select>
+            </div>
 
-                <div class="col-md-4 col-lg-2">
-                    <label class="form-label small fw-semibold text-muted">Kho lưu trữ</label>
-                    <select name="maKho" class="form-select" asp-items="ViewBag.Khos">
-                        <option value="">-- Tất cả kho --</option>
-                    </select>
-                </div>
+            <!-- Kho hàng -->
+            <div class="col-md-2">
+                <label class="form-label small fw-semibold text-secondary mb-1">Kho lưu trữ</label>
+                <select name="maKho" class="form-select" asp-items="ViewBag.Khos">
+                    <option value="">-- Tất cả kho --</option>
+                </select>
+            </div>
 
-                <div class="col-md-4 col-lg-3">
-                    <label class="form-label small fw-semibold text-muted">Cảnh báo hạn mức</label>
-                    <select name="canhBao" class="form-select">
-                        <option value="">-- Tất cả mức tồn --</option>
-                        <option value="canh_bao" selected="@(ViewBag.CanhBao == "canh_bao")">Cảnh báo (Tồn &le; Mức tối thiểu)</option>
-                        <option value="binh_thuong" selected="@(ViewBag.CanhBao == "binh_thuong")">Bình thường (An toàn)</option>
-                    </select>
-                </div>
+            <!-- Trạng thái -->
+            <div class="col-md-3">
+                <label class="form-label small fw-semibold text-secondary mb-1">Trạng thái hàng</label>
+                <select name="trangThai" class="form-select">
+                    <option value="">-- Tất cả trạng thái --</option>
+                    <option value="true" selected="@(ViewBag.TrangThai == true)">Đang hoạt động</option>
+                    <option value="false" selected="@(ViewBag.TrangThai == false)">Ngừng hoạt động</option>
+                </select>
+            </div>
 
-                <div class="col-md-3 col-lg-2">
-                    <label class="form-label small fw-semibold text-muted">Giá từ (VNĐ)</label>
-                    <input type="number" name="giaTu" min="0" step="any" value="@ViewBag.GiaTu" class="form-control" placeholder="Từ..." />
-                </div>
+            <!-- Khoảng giá từ -->
+            <div class="col-md-2">
+                <label class="form-label small fw-semibold text-secondary mb-1">Giá từ (VNĐ)</label>
+                <input type="number" name="giaTu" min="0" step="any" value="@ViewBag.GiaTu" class="form-control" placeholder="Tối thiểu" />
+            </div>
 
-                <div class="col-md-3 col-lg-2">
-                    <label class="form-label small fw-semibold text-muted">Giá đến (VNĐ)</label>
-                    <input type="number" name="giaDen" min="0" step="any" value="@ViewBag.GiaDen" class="form-control" placeholder="Đến..." />
-                </div>
+            <!-- Khoảng giá đến -->
+            <div class="col-md-2">
+                <label class="form-label small fw-semibold text-secondary mb-1">Giá đến (VNĐ)</label>
+                <input type="number" name="giaDen" min="0" step="any" value="@ViewBag.GiaDen" class="form-control" placeholder="Tối đa" />
+            </div>
 
-                <div class="col-md-3 col-lg-2">
-                    <label class="form-label small fw-semibold text-muted">Trạng thái KD</label>
-                    <select name="trangThai" class="form-select">
-                        <option value="">-- Tất cả --</option>
-                        <option value="true" selected="@(ViewBag.TrangThai == true)">Đang kinh doanh</option>
-                        <option value="false" selected="@(ViewBag.TrangThai == false)">Ngừng kinh doanh</option>
-                    </select>
-                </div>
+            <!-- Cảnh báo tồn -->
+            <div class="col-md-3">
+                <label class="form-label small fw-semibold text-secondary mb-1">Tình trạng tồn</label>
+                <select name="canhBao" class="form-select">
+                    <option value="">-- Tất cả tình trạng --</option>
+                    <option value="canh_bao" selected="@(ViewBag.CanhBao == "canh_bao")">Cảnh báo (Tồn &le; Mức tối thiểu)</option>
+                    <option value="binh_thuong" selected="@(ViewBag.CanhBao == "binh_thuong")">Đủ an toàn</option>
+                </select>
+            </div>
 
-                <div class="col-md-3 col-lg-3">
-                    <label class="form-label small fw-semibold text-muted">Sắp xếp</label>
-                    <select name="sortOrder" class="form-select">
-                        <option value="">-- Mặc định --</option>
-                        <option value="ten_tang_dan" selected="@(ViewBag.SortOrder == "ten_tang_dan")">Tên A &rarr; Z</option>
-                        <option value="ten_giam_dan" selected="@(ViewBag.SortOrder == "ten_giam_dan")">Tên Z &rarr; A</option>
-                        <option value="gia_tang_dan" selected="@(ViewBag.SortOrder == "gia_tang_dan")">Giá tăng dần</option>
-                        <option value="gia_giam_dan" selected="@(ViewBag.SortOrder == "gia_giam_dan")">Giá giảm dần</option>
-                        <option value="ton_tang" selected="@(ViewBag.SortOrder == "ton_tang")">Tồn kho tăng dần</option>
-                        <option value="ton_giam" selected="@(ViewBag.SortOrder == "ton_giam")">Tồn kho giảm dần</option>
-                    </select>
-                </div>
+            <!-- Sắp xếp -->
+            <div class="col-md-3">
+                <label class="form-label small fw-semibold text-secondary mb-1">Sắp xếp</label>
+                <select name="sortOrder" class="form-select">
+                    <option value="">-- Mặc định --</option>
+                    <option value="ten_tang_dan" selected="@(ViewBag.SortOrder == "ten_tang_dan")">Tên A &rarr; Z</option>
+                    <option value="ten_giam_dan" selected="@(ViewBag.SortOrder == "ten_giam_dan")">Tên Z &rarr; A</option>
+                    <option value="gia_tang_dan" selected="@(ViewBag.SortOrder == "gia_tang_dan")">Giá thấp &rarr; Cao</option>
+                    <option value="gia_giam_dan" selected="@(ViewBag.SortOrder == "gia_giam_dan")">Giá cao &rarr; Thấp</option>
+                    <option value="muc_ton_tang" selected="@(ViewBag.SortOrder == "muc_ton_tang")">Mức tối thiểu &uarr;</option>
+                    <option value="muc_ton_giam" selected="@(ViewBag.SortOrder == "muc_ton_giam")">Mức tối thiểu &darr;</option>
+                    <option value="ton_tang" selected="@(ViewBag.SortOrder == "ton_tang")">Tồn kho &uarr;</option>
+                    <option value="ton_giam" selected="@(ViewBag.SortOrder == "ton_giam")">Tồn kho &darr;</option>
+                </select>
+            </div>
 
-                <div class="col-md-12 col-lg-3 d-flex align-items-end gap-2">
-                    <button type="submit" class="btn btn-primary flex-grow-1">
-                        <i class="bi bi-funnel-fill"></i> Lọc dữ liệu
-                    </button>
-                    <a asp-action="Index" class="btn btn-outline-secondary" title="Xóa bộ lọc">
-                        <i class="bi bi-arrow-counterclockwise"></i> Đặt lại
-                    </a>
-                </div>
+            <!-- Nút bấm -->
+            <div class="col-md-2 d-flex gap-2">
+                <button type="submit" class="btn btn-primary d-inline-flex align-items-center gap-1 flex-grow-1 justify-content-center">
+                    <i class="bi bi-funnel-fill"></i> Lọc
+                </button>
+                <a asp-action="Index" class="btn btn-outline-secondary d-inline-flex align-items-center gap-1">
+                    <i class="bi bi-arrow-counterclockwise"></i>
+                </a>
             </div>
         </form>
     </div>
 </div>
 
-<!-- Bảng Danh Sách Hàng Hóa -->
 <div class="card border-0 shadow-sm rounded-2">
     <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
         <span class="fw-semibold text-secondary">
-            <i class="bi bi-box me-1"></i> Tìm thấy: <strong>@ViewBag.TotalItems</strong> hàng hóa
+            <i class="bi bi-boxes me-1"></i> Danh sách: <strong>@(ViewBag.TotalItems ?? Model?.Count() ?? 0)</strong> sản phẩm
         </span>
     </div>
     <div class="card-body p-0">
@@ -122,7 +137,7 @@
             <table class="table table-hover align-middle mb-0">
                 <thead>
                     <tr>
-                        <th class="ps-4">Mã hàng</th>
+                        <th class="ps-4">Mã</th>
                         <th>Tên hàng hóa</th>
                         <th>Loại hàng</th>
                         <th>ĐVT</th>
@@ -187,11 +202,11 @@
                                 <td class="text-center">
                                     @if (item.TrangThai)
                                     {
-                                        <span class="badge bg-success-subtle text-success border border-success-subtle">Kinh doanh</span>
+                                        <span class="badge bg-success-subtle text-success border border-success-subtle">Hoạt động</span>
                                     }
                                     else
                                     {
-                                        <span class="badge bg-secondary-subtle text-muted border">Ngừng KD</span>
+                                        <span class="badge bg-secondary-subtle text-muted border">Ngừng HĐ</span>
                                     }
                                 </td>
                                 <td class="text-end pe-4 text-nowrap">
@@ -202,6 +217,11 @@
                                         <a asp-action="Edit" asp-route-id="@item.MaHang" class="btn btn-outline-primary btn-sm text-nowrap" title="Chỉnh sửa hàng">
                                             <i class="bi bi-pencil-square me-1"></i> Sửa
                                         </a>
+                                        <form asp-action="DoiTrangThai" asp-route-id="@item.MaHang" method="post" class="d-inline">
+                                            <button type="submit" class="btn btn-outline-secondary btn-sm text-nowrap" title="Đổi trạng thái hoạt động">
+                                                <i class="bi bi-arrow-repeat me-1"></i> @(item.TrangThai ? "Ngừng" : "Bật")
+                                            </button>
+                                        </form>
                                         <a asp-action="Delete" asp-route-id="@item.MaHang" class="btn btn-outline-danger btn-sm text-nowrap" title="Xóa hàng">
                                             <i class="bi bi-trash me-1"></i> Xóa
                                         </a>

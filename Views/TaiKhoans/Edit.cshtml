@@ -1,12 +1,12 @@
 @*
     Họ và tên: Trần Xuân Hải
     Mã sinh viên: 23103100135
-    Phụ trách Module 1: Tài khoản, Đăng nhập, Phân quyền, Loại hàng & Đơn vị tính
+    Phụ trách Module 1: Tài khoản & Đăng nhập
 *@
 @model QuanLyKhoHang_UNETI01_TI17A3HN.Models.TaiKhoan
 
 @{
-    ViewData["Title"] = "Chỉnh sửa tài khoản";
+    ViewData["Title"] = "Chỉnh sửa tài khoản - " + Model.TenDangNhap;
 }
 
 <div class="row justify-content-center">
@@ -24,10 +24,12 @@
         </div>
 
         <div class="card border-0 shadow-sm rounded-2">
-            <div class="card-body p-4">
+            <div class="card-body p-4 p-md-5">
                 <form asp-action="Edit" method="post">
                     <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-4 py-2" role="alert"></div>
                     <input type="hidden" asp-for="MaTaiKhoan" />
+                    <input type="hidden" asp-for="SoLanDangNhapSai" />
+                    <input type="hidden" asp-for="KhoaDenUtc" />
 
                     <div class="row g-3">
                         <div class="col-md-6">
@@ -42,7 +44,7 @@
                             <label asp-for="MatKhau" class="form-label fw-semibold">
                                 <i class="bi bi-key me-1 text-primary"></i> Mật khẩu
                             </label>
-                            <input asp-for="MatKhau" class="form-control" />
+                            <input asp-for="MatKhau" type="password" value="" class="form-control" placeholder="Để trống nếu không muốn đổi mật khẩu" />
                             <span asp-validation-for="MatKhau" class="text-danger small"></span>
                         </div>
 
@@ -67,20 +69,22 @@
                                 <i class="bi bi-shield-check me-1 text-primary"></i> Vai trò hệ thống
                             </label>
                             <select asp-for="VaiTro" class="form-select">
-                                <option value="NhanVienKho">Nhân viên kho (NhanVienKho)</option>
-                                <option value="Admin">Quản trị viên (Admin)</option>
-                                <option value="BoPhanNhan">Bộ phận nhận hàng (BoPhanNhan)</option>
+                                <option value="Admin">Admin (Quản trị viên)</option>
+                                <option value="NhanVienKho">NhanVienKho (Nhân viên kho)</option>
+                                <option value="BoPhanNhan">BoPhanNhan (Bộ phận nhận)</option>
                             </select>
                             <span asp-validation-for="VaiTro" class="text-danger small"></span>
                         </div>
 
-                        <div class="col-md-6 d-flex align-items-center">
-                            <div class="form-check form-switch mt-4">
-                                <input class="form-check-input" type="checkbox" role="switch" asp-for="TrangThai" id="chkEditTrangThai" />
-                                <label class="form-check-label fw-semibold" for="chkEditTrangThai">
-                                    Trạng thái hoạt động
-                                </label>
-                            </div>
+                        <div class="col-md-6">
+                            <label asp-for="TrangThai" class="form-label fw-semibold">
+                                <i class="bi bi-toggle-on me-1 text-primary"></i> Trạng thái hoạt động
+                            </label>
+                            <select asp-for="TrangThai" class="form-select">
+                                <option value="true">Đang hoạt động</option>
+                                <option value="false">Bị khóa / Ngừng hoạt động</option>
+                            </select>
+                            <span asp-validation-for="TrangThai" class="text-danger small"></span>
                         </div>
                     </div>
 

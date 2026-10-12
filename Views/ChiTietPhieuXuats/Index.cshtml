@@ -7,6 +7,7 @@
 
 @{
     ViewData["Title"] = "Chi tiết các mặt hàng xuất";
+    var maPhieuXuat = ViewData["MaPhieuXuat"];
 }
 
 <div class="page-header">
@@ -15,7 +16,7 @@
         <p class="page-subtitle">Nhật ký toàn bộ các dòng hàng hóa được xuất bàn giao từ hệ thống kho</p>
     </div>
     <div>
-        <a asp-action="Create" class="btn btn-primary shadow-sm">
+        <a asp-action="Create" asp-route-maPhieuXuat="@maPhieuXuat" class="btn btn-primary shadow-sm">
             <i class="bi bi-plus-circle-fill"></i> Thêm chi tiết xuất
         </a>
     </div>
@@ -47,6 +48,7 @@
                         foreach (var item in Model)
                         {
                             var thanhTien = (decimal)item.SoLuongXuat * item.DonGiaXuatThamChieu;
+                            var canEdit = item.PhieuXuat?.TrangThai == TrangThaiPhieuXuat.Nhap;
                             <tr>
                                 <td class="ps-4 font-monospace text-muted">#@item.MaChiTietXuat</td>
                                 <td>
@@ -71,12 +73,15 @@
                                         <a asp-action="Details" asp-route-id="@item.MaChiTietXuat" class="btn btn-outline-info btn-sm text-nowrap" title="Xem chi tiết dòng xuất">
                                             <i class="bi bi-eye me-1"></i> Chi tiết
                                         </a>
-                                        <a asp-action="Edit" asp-route-id="@item.MaChiTietXuat" class="btn btn-outline-primary btn-sm text-nowrap" title="Sửa dòng xuất">
-                                            <i class="bi bi-pencil-square me-1"></i> Sửa
-                                        </a>
-                                        <a asp-action="Delete" asp-route-id="@item.MaChiTietXuat" class="btn btn-outline-danger btn-sm text-nowrap" title="Xóa dòng xuất">
-                                            <i class="bi bi-trash me-1"></i> Xóa
-                                        </a>
+                                        @if (canEdit)
+                                        {
+                                            <a asp-action="Edit" asp-route-id="@item.MaChiTietXuat" class="btn btn-outline-primary btn-sm text-nowrap" title="Sửa dòng xuất">
+                                                <i class="bi bi-pencil-square me-1"></i> Sửa
+                                            </a>
+                                            <a asp-action="Delete" asp-route-id="@item.MaChiTietXuat" class="btn btn-outline-danger btn-sm text-nowrap" title="Xóa dòng xuất">
+                                                <i class="bi bi-trash me-1"></i> Xóa
+                                            </a>
+                                        }
                                     </div>
                                 </td>
                             </tr>

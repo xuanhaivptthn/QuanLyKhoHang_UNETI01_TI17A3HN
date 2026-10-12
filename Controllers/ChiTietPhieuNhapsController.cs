@@ -52,12 +52,28 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
         }
 
         // GET: ChiTietPhieuNhaps/Create
-        public IActionResult Create()
+        // optional phieuId or maPhieuNhap to preselect parent PhieuNhap when creating from PhieuNhap details
+        public IActionResult Create(int? maPhieuNhap, int? phieuId)
         {
+            var targetPhieuId = maPhieuNhap ?? phieuId;
             // Only active products and editable PhieuNhap (Nháp/Chờ xác nhận) can be selected
             ViewData["MaHang"] = new SelectList(_context.HangHoa.Where(h => h.TrangThai), "MaHang", "TenHang");
-            ViewData["MaPhieuNhap"] = new SelectList(_context.PhieuNhap.Where(p => p.TrangThai == 0 || p.TrangThai == 1), "MaPhieuNhap", "MaPhieuNhap");
-            return View();
+            if (targetPhieuId.HasValue)
+            {
+                // only allow creating for editable phieu (Nháp/Chờ xác nhận)
+                var ph = _context.PhieuNhap.Find(targetPhieuId.Value);
+                if (ph == null || !(ph.TrangThai == TrangThaiPhieuNhap.Nhap || ph.TrangThai == TrangThaiPhieuNhap.ChoXacNhan))
+                {
+                    return Forbid();
+                }
+                ViewData["MaPhieuNhap"] = new SelectList(_context.PhieuNhap.Where(p => p.MaPhieuNhap == targetPhieuId.Value), "MaPhieuNhap", "MaPhieuNhap", targetPhieuId.Value);
+                ViewBag.PreselectedPhieuId = targetPhieuId.Value;
+            }
+            else
+            {
+                ViewData["MaPhieuNhap"] = new SelectList(_context.PhieuNhap.Where(p => p.TrangThai == TrangThaiPhieuNhap.Nhap || p.TrangThai == TrangThaiPhieuNhap.ChoXacNhan), "MaPhieuNhap", "MaPhieuNhap");
+            }
+            return View(new ChiTietPhieuNhap { MaPhieuNhap = targetPhieuId ?? 0 });
         }
 
         // POST: ChiTietPhieuNhaps/Create
@@ -65,23 +81,32 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("MaChiTietNhap,MaPhieuNhap,MaHang,SoLuongNhap,DonGiaNhap")] ChiTietPhieuNhap chiTietPhieuNhap)
         {
+            // Ensure the selected PhieuNhap is editable
+            var ph = await _context.PhieuNhap.FindAsync(chiTietPhieuNhap.MaPhieuNhap);
+            if (ph == null || !(ph.TrangThai == TrangThaiPhieuNhap.Nhap || ph.TrangThai == TrangThaiPhieuNhap.ChoXacNhan))
+            {
+                ModelState.AddModelError(string.Empty, "Chi tiết chỉ được thêm vào phiếu ở trạng thái Nháp hoặc Chờ xác nhận.");
+            }
+
+            var existingDetail = await _context.ChiTietPhieuNhap
+                .FirstOrDefaultAsync(c => c.MaPhieuNhap == chiTietPhieuNhap.MaPhieuNhap && c.MaHang == chiTietPhieuNhap.MaHang);
+
+            if (existingDetail != null)
+            {
+                existingDetail.SoLuongNhap += chiTietPhieuNhap.SoLuongNhap;
+                existingDetail.DonGiaNhap = chiTietPhieuNhap.DonGiaNhap;
+                await _context.SaveChangesAsync();
+                return RedirectToAction("Details", "PhieuNhaps", new { id = chiTietPhieuNhap.MaPhieuNhap });
+            }
+
             if (ModelState.IsValid)
             {
-                // Ensure the selected PhieuNhap is editable
-                var ph = await _context.PhieuNhap.FindAsync(chiTietPhieuNhap.MaPhieuNhap);
-                if (ph == null || !(ph.TrangThai == 0 || ph.TrangThai == 1))
-                {
-                    ModelState.AddModelError(string.Empty, "Chi tiết chỉ được thêm vào phiếu ở trạng thái Nháp hoặc Chờ xác nhận.");
-                    ViewData["MaHang"] = new SelectList(_context.HangHoa.Where(h => h.TrangThai), "MaHang", "TenHang", chiTietPhieuNhap.MaHang);
-                    ViewData["MaPhieuNhap"] = new SelectList(_context.PhieuNhap.Where(p => p.TrangThai == 0 || p.TrangThai == 1), "MaPhieuNhap", "MaPhieuNhap", chiTietPhieuNhap.MaPhieuNhap);
-                    return View(chiTietPhieuNhap);
-                }
                 _context.Add(chiTietPhieuNhap);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("Details", "PhieuNhaps", new { id = chiTietPhieuNhap.MaPhieuNhap });
             }
             ViewData["MaHang"] = new SelectList(_context.HangHoa.Where(h => h.TrangThai), "MaHang", "TenHang", chiTietPhieuNhap.MaHang);
-            ViewData["MaPhieuNhap"] = new SelectList(_context.PhieuNhap.Where(p => p.TrangThai == 0 || p.TrangThai == 1), "MaPhieuNhap", "MaPhieuNhap", chiTietPhieuNhap.MaPhieuNhap);
+            ViewData["MaPhieuNhap"] = new SelectList(_context.PhieuNhap.Where(p => p.TrangThai == TrangThaiPhieuNhap.Nhap || p.TrangThai == TrangThaiPhieuNhap.ChoXacNhan), "MaPhieuNhap", "MaPhieuNhap", chiTietPhieuNhap.MaPhieuNhap);
             return View(chiTietPhieuNhap);
         }
 
@@ -100,7 +125,7 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
                 return NotFound();
             }
             ViewData["MaHang"] = new SelectList(_context.HangHoa.Where(h => h.TrangThai), "MaHang", "TenHang", chiTietPhieuNhap.MaHang);
-            ViewData["MaPhieuNhap"] = new SelectList(_context.PhieuNhap.Where(p => p.TrangThai == 0 || p.TrangThai == 1), "MaPhieuNhap", "MaPhieuNhap", chiTietPhieuNhap.MaPhieuNhap);
+            ViewData["MaPhieuNhap"] = new SelectList(_context.PhieuNhap.Where(p => p.TrangThai == TrangThaiPhieuNhap.Nhap || p.TrangThai == TrangThaiPhieuNhap.ChoXacNhan), "MaPhieuNhap", "MaPhieuNhap", chiTietPhieuNhap.MaPhieuNhap);
             return View(chiTietPhieuNhap);
         }
 
@@ -115,17 +140,15 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
                 return NotFound();
             }
 
+            // Ensure parent PhieuNhap is editable before saving changes
+            var ph = await _context.PhieuNhap.FindAsync(chiTietPhieuNhap.MaPhieuNhap);
+            if (ph == null || !(ph.TrangThai == TrangThaiPhieuNhap.Nhap || ph.TrangThai == TrangThaiPhieuNhap.ChoXacNhan))
+            {
+                ModelState.AddModelError(string.Empty, "Chi tiết chỉ được sửa khi phiếu ở trạng thái Nháp hoặc Chờ xác nhận.");
+            }
+
             if (ModelState.IsValid)
             {
-                // Ensure parent PhieuNhap is editable before saving changes
-                var ph = await _context.PhieuNhap.FindAsync(chiTietPhieuNhap.MaPhieuNhap);
-                if (ph == null || !(ph.TrangThai == 0 || ph.TrangThai == 1))
-                {
-                    ModelState.AddModelError(string.Empty, "Chi tiết chỉ được sửa khi phiếu ở trạng thái Nháp hoặc Chờ xác nhận.");
-                    ViewData["MaHang"] = new SelectList(_context.HangHoa.Where(h => h.TrangThai), "MaHang", "TenHang", chiTietPhieuNhap.MaHang);
-                    ViewData["MaPhieuNhap"] = new SelectList(_context.PhieuNhap.Where(p => p.TrangThai == 0 || p.TrangThai == 1), "MaPhieuNhap", "MaPhieuNhap", chiTietPhieuNhap.MaPhieuNhap);
-                    return View(chiTietPhieuNhap);
-                }
                 try
                 {
                     _context.Update(chiTietPhieuNhap);
@@ -142,10 +165,10 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("Details", "PhieuNhaps", new { id = chiTietPhieuNhap.MaPhieuNhap });
             }
-            ViewData["MaHang"] = new SelectList(_context.HangHoa, "MaHang", "TenHang", chiTietPhieuNhap.MaHang);
-            ViewData["MaPhieuNhap"] = new SelectList(_context.PhieuNhap, "MaPhieuNhap", "MaPhieuNhap", chiTietPhieuNhap.MaPhieuNhap);
+            ViewData["MaHang"] = new SelectList(_context.HangHoa.Where(h => h.TrangThai), "MaHang", "TenHang", chiTietPhieuNhap.MaHang);
+            ViewData["MaPhieuNhap"] = new SelectList(_context.PhieuNhap.Where(p => p.TrangThai == TrangThaiPhieuNhap.Nhap || p.TrangThai == TrangThaiPhieuNhap.ChoXacNhan), "MaPhieuNhap", "MaPhieuNhap", chiTietPhieuNhap.MaPhieuNhap);
             return View(chiTietPhieuNhap);
         }
 
@@ -186,14 +209,24 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
                 return NotFound();
             }
 
-            var chiTietPhieuNhap = await _context.ChiTietPhieuNhap.FindAsync(targetId);
+            var chiTietPhieuNhap = await _context.ChiTietPhieuNhap
+                .Include(c => c.PhieuNhap)
+                .FirstOrDefaultAsync(c => c.MaChiTietNhap == targetId);
+
+            int maPhieuNhap = chiTietPhieuNhap?.MaPhieuNhap ?? 0;
             if (chiTietPhieuNhap != null)
             {
+                if (chiTietPhieuNhap.PhieuNhap != null && chiTietPhieuNhap.PhieuNhap.TrangThai == TrangThaiPhieuNhap.DaHoanTat)
+                {
+                    TempData["Error"] = "Không thể xóa dòng chi tiết của phiếu đã hoàn tất.";
+                    return RedirectToAction("Details", "PhieuNhaps", new { id = maPhieuNhap });
+                }
+
                 _context.ChiTietPhieuNhap.Remove(chiTietPhieuNhap);
                 await _context.SaveChangesAsync();
             }
 
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction("Details", "PhieuNhaps", new { id = maPhieuNhap });
         }
 
         private bool ChiTietPhieuNhapExists(int id)

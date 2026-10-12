@@ -1,97 +1,110 @@
 @*
     Họ và tên: Nguyễn Văn Cường
     Mã sinh viên: 23103100132
-    Nội dung thực hiện: Tồn kho, cảnh báo tồn, lịch sử nhập xuất, Dashboard và thống kê LINQ.
+    Phụ trách Module 5: Cảnh báo hàng tồn & Lịch sử biến động kho
 *@
 @model QuanLyKhoHang_UNETI01_TI17A3HN.ViewModels.DashboardViewModel
 @using System.Text.Json
 
 @{
-    ViewData["Title"] = "Dashboard Thống kê tổng quan";
-    decimal tongGiaTri = ViewBag.TongGiaTriTonKho is decimal d ? d : 0m;
+    ViewData["Title"] = "Dashboard Thống kê Kho Hàng";
+    decimal tongGiaTri = ViewBag.TongGiaTriTonKho != null ? (decimal)ViewBag.TongGiaTriTonKho : 0;
 }
 
-<div class="page-header">
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
     <div>
-        <h2 class="page-title"><i class="bi bi-speedometer2 text-primary"></i> Dashboard Điều Hành Kho</h2>
-        <p class="page-subtitle">Tổng hợp chỉ số KPI, cảnh báo tồn kho và trực quan hóa luồng Nhập - Xuất</p>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-1">
+                <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" class="text-decoration-none">Trang chủ</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Dashboard</li>
+            </ol>
+        </nav>
+        <h3 class="fw-bold mb-0 text-dark">Trung Tâm Điều Hành &amp; Thống Kê Kho</h3>
     </div>
     <div class="d-flex gap-2">
-        <a asp-action="BaoCaoNhapXuat" class="btn btn-outline-primary">
-            <i class="bi bi-file-earmark-bar-graph"></i> Báo cáo chi tiết
-        </a>
-        <a asp-controller="TonKho" asp-action="CanhBao" class="btn btn-danger">
-            <i class="bi bi-exclamation-triangle-fill"></i> Cảnh báo tồn (@(Model.SoHangHet + Model.SoHangSapHet))
+        <a asp-action="BaoCaoNhapXuat" class="btn btn-outline-primary d-inline-flex align-items-center gap-2">
+            <i class="bi bi-file-earmark-bar-graph"></i>
+            <span>Báo cáo tổng hợp Nhập - Xuất</span>
         </a>
     </div>
 </div>
 
-<!-- 5 Thẻ Số Liệu KPI (Metric Cards) -->
+<!-- Khối 4 Thẻ KPI Chỉ số chính -->
 <div class="row g-3 mb-4">
-    <!-- Thẻ 1: Kho Hoạt Động -->
-    <div class="col-sm-6 col-xl-auto flex-xl-fill">
-        <div class="kpi-card kpi-primary">
-            <i class="bi bi-building kpi-icon"></i>
-            <div class="kpi-label">Kho hoạt động</div>
-            <div class="kpi-value">@Model.TongSoKho</div>
-            <small class="opacity-75">Hệ thống kho cửa hàng</small>
-        </div>
+    <div class="col-sm-6 col-xl-3">
+        <a asp-controller="HangHoas" asp-action="Index" class="text-decoration-none">
+            <div class="card border-0 shadow-sm rounded-2 h-100 hover-lift">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span class="text-secondary small fw-semibold text-uppercase">Tổng Hàng Hóa</span>
+                        <i class="bi bi-box-seam fs-4 text-primary"></i>
+                    </div>
+                    <div class="h2 fw-bold text-dark mb-1">@Model.TongSoHangHoa</div>
+                    <small class="text-muted"><i class="bi bi-arrow-right me-1"></i>Xem danh mục mặt hàng</small>
+                </div>
+            </div>
+        </a>
     </div>
 
-    <!-- Thẻ 2: Tổng Mặt Hàng -->
-    <div class="col-sm-6 col-xl-auto flex-xl-fill">
-        <div class="kpi-card kpi-success">
-            <i class="bi bi-box-seam kpi-icon"></i>
-            <div class="kpi-label">Tổng sản phẩm</div>
-            <div class="kpi-value">@Model.TongSoHangHoa</div>
-            <small class="opacity-75">Mặt hàng trong danh mục</small>
-        </div>
+    <div class="col-sm-6 col-xl-3">
+        <a asp-controller="Khoes" asp-action="Index" class="text-decoration-none">
+            <div class="card border-0 shadow-sm rounded-2 h-100 hover-lift">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span class="text-secondary small fw-semibold text-uppercase">Kho Đang Hoạt Động</span>
+                        <i class="bi bi-building fs-4 text-success"></i>
+                    </div>
+                    <div class="h2 fw-bold text-dark mb-1">@Model.TongSoKho</div>
+                    <small class="text-muted"><i class="bi bi-arrow-right me-1"></i>Hệ thống điểm kho bãi</small>
+                </div>
+            </div>
+        </a>
     </div>
 
-    <!-- Thẻ 3: Phiếu Nhập Hôm Nay -->
-    <div class="col-sm-6 col-xl-auto flex-xl-fill">
-        <div class="kpi-card kpi-purple">
-            <i class="bi bi-box-arrow-in-down kpi-icon"></i>
-            <div class="kpi-label">Phiếu nhập hôm nay</div>
-            <div class="kpi-value">@Model.SoPhieuNhapTrongNgay</div>
-            <small class="opacity-75">Giao dịch tiếp nhận</small>
-        </div>
+    <div class="col-sm-6 col-xl-3">
+        <a asp-controller="PhieuNhaps" asp-action="Index" class="text-decoration-none">
+            <div class="card border-0 shadow-sm rounded-2 h-100 hover-lift">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span class="text-secondary small fw-semibold text-uppercase">Phiếu Nhập Hôm Nay</span>
+                        <i class="bi bi-box-arrow-in-down fs-4 text-info"></i>
+                    </div>
+                    <div class="h2 fw-bold text-info mb-1">@Model.SoPhieuNhapTrongNgay</div>
+                    <small class="text-muted"><i class="bi bi-arrow-right me-1"></i>Quản lý nhập kho</small>
+                </div>
+            </div>
+        </a>
     </div>
 
-    <!-- Thẻ 4: Phiếu Xuất Hôm Nay -->
-    <div class="col-sm-6 col-xl-auto flex-xl-fill">
-        <div class="kpi-card kpi-info">
-            <i class="bi bi-box-arrow-up-right kpi-icon"></i>
-            <div class="kpi-label">Phiếu xuất hôm nay</div>
-            <div class="kpi-value">@Model.SoPhieuXuatTrongNgay</div>
-            <small class="opacity-75">Giao dịch phân phối</small>
-        </div>
-    </div>
-
-    <!-- Thẻ 5: Hàng Hết / Sắp Hết -->
-    <div class="col-sm-6 col-xl-auto flex-xl-fill">
-        <div class="kpi-card @(Model.SoHangHet > 0 ? "kpi-danger" : "kpi-warning")">
-            <i class="bi bi-exclamation-triangle-fill kpi-icon"></i>
-            <div class="kpi-label">Hàng cảnh báo</div>
-            <div class="kpi-value">@(Model.SoHangHet + Model.SoHangSapHet)</div>
-            <small class="opacity-75">@Model.SoHangHet hết, @Model.SoHangSapHet sắp hết</small>
-        </div>
+    <div class="col-sm-6 col-xl-3">
+        <a asp-controller="PhieuXuats" asp-action="Index" class="text-decoration-none">
+            <div class="card border-0 shadow-sm rounded-2 h-100 hover-lift">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span class="text-secondary small fw-semibold text-uppercase">Phiếu Xuất Hôm Nay</span>
+                        <i class="bi bi-box-arrow-up-right fs-4 text-danger"></i>
+                    </div>
+                    <div class="h2 fw-bold text-danger mb-1">@Model.SoPhieuXuatTrongNgay</div>
+                    <small class="text-muted"><i class="bi bi-arrow-right me-1"></i>Quản lý xuất kho</small>
+                </div>
+            </div>
+        </a>
     </div>
 </div>
 
-<!-- Hàng Thông Báo & Cảnh Báo Tồn Kho -->
+<!-- Khối Cảnh Báo Tồn Kho Khẩn Cấp -->
 <div class="row g-3 mb-4">
     <div class="col-md-6">
-        <div class="card border-0 shadow-sm rounded-2 h-100 border-start border-4 border-danger">
-            <div class="card-body p-4 d-flex align-items-center justify-content-between flex-wrap gap-2">
-                <div class="d-flex align-items-center gap-3">
-                    <i class="bi bi-x-circle-fill text-danger fs-1"></i>
-                    <div>
-                        <h5 class="fw-bold mb-1 text-danger">Cảnh Báo Hết Hàng (@Model.SoHangHet sản phẩm)</h5>
-                        <p class="text-muted small mb-0">Các mặt hàng có số lượng tồn bằng 0, nguy cơ gián đoạn bán hàng.</p>
+        <div class="card border-0 shadow-sm rounded-2 border-start border-danger border-4">
+            <div class="card-body p-4 d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="d-flex align-items-center gap-2 mb-1">
+                        <i class="bi bi-x-octagon-fill text-danger fs-4"></i>
+                        <h5 class="fw-bold mb-0 text-dark">Cảnh Báo Hết Hàng</h5>
                     </div>
+                    <p class="text-muted small mb-0">Hiện có <strong>@Model.SoHangHet</strong> sản phẩm có lượng tồn bằng 0.</p>
                 </div>
-                <a asp-controller="TonKho" asp-action="CanhBao" class="btn btn-sm btn-outline-danger">
+                <a asp-controller="TonKho" asp-action="CanhBao" class="btn btn-danger btn-sm text-nowrap">
                     Xem chi tiết <i class="bi bi-arrow-right"></i>
                 </a>
             </div>
@@ -99,16 +112,16 @@
     </div>
 
     <div class="col-md-6">
-        <div class="card border-0 shadow-sm rounded-2 h-100 border-start border-4 border-warning">
-            <div class="card-body p-4 d-flex align-items-center justify-content-between flex-wrap gap-2">
-                <div class="d-flex align-items-center gap-3">
-                    <i class="bi bi-exclamation-triangle-fill text-warning fs-1"></i>
-                    <div>
-                        <h5 class="fw-bold mb-1 text-warning">Cảnh Báo Sắp Hết Hàng (@Model.SoHangSapHet sản phẩm)</h5>
-                        <p class="text-muted small mb-0">Các mặt hàng đã chạm hoặc dưới mức tồn tối thiểu cần lên đơn nhập.</p>
+        <div class="card border-0 shadow-sm rounded-2 border-start border-warning border-4">
+            <div class="card-body p-4 d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="d-flex align-items-center gap-2 mb-1">
+                        <i class="bi bi-exclamation-triangle-fill text-warning fs-4"></i>
+                        <h5 class="fw-bold mb-0 text-dark">Cảnh Báo Sắp Hết Hàng</h5>
                     </div>
+                    <p class="text-muted small mb-0">Hiện có <strong>@Model.SoHangSapHet</strong> sản phẩm chạm hoặc dưới mức tối thiểu.</p>
                 </div>
-                <a asp-controller="TonKho" asp-action="CanhBao" class="btn btn-sm btn-outline-warning">
+                <a asp-controller="TonKho" asp-action="CanhBao" class="btn btn-warning btn-sm text-dark text-nowrap">
                     Xem chi tiết <i class="bi bi-arrow-right"></i>
                 </a>
             </div>
@@ -116,16 +129,16 @@
     </div>
 </div>
 
-<!-- Hàng 2 Biểu Đồ Chart.js (Cơ Cấu Loại Hàng & Xu Hướng Nhập - Xuất) -->
+<!-- Hàng Biểu Đồ Trực Quan -->
 <div class="row g-4 mb-4">
-    <!-- Biểu đồ cột: Nhập - Xuất 7 ngày gần nhất -->
+    <!-- Biểu đồ cột: So sánh Nhập - Xuất 7 ngày gần nhất -->
     <div class="col-lg-8">
         <div class="card border-0 shadow-sm rounded-2 h-100">
             <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
                 <h5 class="fw-bold mb-0 text-dark">
-                    <i class="bi bi-bar-chart-fill text-primary me-2"></i> So Sánh Số Lượng Nhập - Xuất (7 Ngày Gần Nhất)
+                    <i class="bi bi-bar-chart-line-fill text-primary me-2"></i> Xu Hướng Nhập &amp; Xuất (7 Ngày Gần Nhất)
                 </h5>
-                <span class="badge bg-light text-secondary border">Thực tế</span>
+                <span class="badge bg-light text-secondary border">Chứng từ</span>
             </div>
             <div class="card-body p-4">
                 <div style="position: relative; height: 320px; width: 100%;">

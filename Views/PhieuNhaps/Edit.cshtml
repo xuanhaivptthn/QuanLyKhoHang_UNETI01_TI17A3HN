@@ -6,7 +6,7 @@
 @model QuanLyKhoHang_UNETI01_TI17A3HN.Models.PhieuNhap
 
 @{
-    ViewData["Title"] = "Chỉnh sửa phiếu nhập #PN-" + Model.MaPhieuNhap;
+    ViewData["Title"] = "Chỉnh sửa phiếu nhập kho #" + Model.MaPhieuNhap;
 }
 
 <div class="row justify-content-center">
@@ -50,7 +50,7 @@
                             <label asp-for="NgayNhap" class="form-label fw-semibold">
                                 <i class="bi bi-calendar-event me-1 text-primary"></i> Ngày nhập hàng <span class="text-danger">*</span>
                             </label>
-                            <input asp-for="NgayNhap" type="datetime-local" class="form-control" />
+                            <input asp-for="NgayNhap" type="date" class="form-control" />
                             <span asp-validation-for="NgayNhap" class="text-danger small"></span>
                         </div>
 
@@ -67,8 +67,10 @@
                                 <i class="bi bi-flag me-1 text-primary"></i> Trạng thái phiếu
                             </label>
                             <select asp-for="TrangThai" class="form-select">
-                                <option value="0">Nháp (0)</option>
-                                <option value="1">Chờ xác nhận (1)</option>
+                                <option value="0">Nháp</option>
+                                <option value="1">Chờ xác nhận</option>
+                                <option value="2">Đã hoàn tất</option>
+                                <option value="3">Đã hủy</option>
                             </select>
                             <span asp-validation-for="TrangThai" class="text-danger small"></span>
                         </div>

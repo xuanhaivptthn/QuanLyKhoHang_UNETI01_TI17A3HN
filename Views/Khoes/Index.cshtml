@@ -6,17 +6,23 @@
 @model IEnumerable<QuanLyKhoHang_UNETI01_TI17A3HN.Models.Kho>
 
 @{
-    ViewData["Title"] = "Quản lý Kho hàng";
+    ViewData["Title"] = "Danh sách kho hàng";
 }
 
-<div class="page-header">
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
     <div>
-        <h2 class="page-title"><i class="bi bi-building-fill text-primary"></i> Quản Lý Kho Hàng</h2>
-        <p class="page-subtitle">Hệ thống kho tổng và các kho chi nhánh, điểm bán hàng</p>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-1">
+                <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" class="text-decoration-none">Trang chủ</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Kho hàng</li>
+            </ol>
+        </nav>
+        <h3 class="fw-bold mb-0 text-dark">Hệ Thống Kho Bãi &amp; Điểm Lưu Trữ</h3>
     </div>
-    <div>
-        <a asp-action="Create" class="btn btn-primary shadow-sm">
-            <i class="bi bi-plus-circle-fill"></i> Tạo mới kho hàng
+    <div class="d-flex gap-2">
+        <a asp-action="Create" class="btn btn-primary d-inline-flex align-items-center gap-2">
+            <i class="bi bi-plus-lg"></i>
+            <span>Thêm kho mới</span>
         </a>
     </div>
 </div>

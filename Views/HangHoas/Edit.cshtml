@@ -6,15 +6,15 @@
 @model QuanLyKhoHang_UNETI01_TI17A3HN.Models.HangHoa
 
 @{
-    ViewData["Title"] = "Chỉnh sửa hàng hóa - " + Model.TenHang;
+    ViewData["Title"] = "Cập nhật hàng hóa";
 }
 
 <div class="row justify-content-center">
-    <div class="col-lg-9">
+    <div class="col-lg-8">
         <div class="page-header">
             <div>
-                <h2 class="page-title"><i class="bi bi-pencil-square text-primary"></i> Chỉnh Sửa Hàng Hóa</h2>
-                <p class="page-subtitle">Cập nhật thông tin mã hàng #@Model.MaHang: <strong>@Model.TenHang</strong></p>
+                <h2 class="page-title"><i class="bi bi-pencil-square text-primary"></i> Cập Nhật Hàng Hóa</h2>
+                <p class="page-subtitle">Chỉnh sửa thông số, mức cảnh báo tồn kho và trạng thái</p>
             </div>
             <div>
                 <a asp-action="Index" class="btn btn-outline-secondary">
@@ -86,13 +86,15 @@
                         </div>
 
                         <!-- Trạng thái -->
-                        <div class="col-md-12">
-                            <div class="form-check form-switch mt-2">
-                                <input class="form-check-input" type="checkbox" role="switch" asp-for="TrangThai" id="chkEditTrangThaiHang" />
-                                <label class="form-check-label fw-semibold" for="chkEditTrangThaiHang">
-                                    Đang kinh doanh
-                                </label>
-                            </div>
+                        <div class="col-md-6">
+                            <label asp-for="TrangThai" class="form-label fw-semibold">
+                                <i class="bi bi-toggle-on me-1 text-primary"></i> Trạng thái hoạt động
+                            </label>
+                            <select asp-for="TrangThai" class="form-select">
+                                <option value="true">Đang hoạt động</option>
+                                <option value="false">Ngừng hoạt động</option>
+                            </select>
+                            <span asp-validation-for="TrangThai" class="text-danger small"></span>
                         </div>
                     </div>
 

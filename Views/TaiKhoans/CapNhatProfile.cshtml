@@ -1,0 +1,95 @@
+@*
+    Họ và tên: Trần Xuân Hải
+    Mã sinh viên: 23103100135
+    Phụ trách Module 1: Tài khoản, Đăng nhập, Phân quyền & Quản lý hồ sơ
+*@
+@model QuanLyKhoHang_UNETI01_TI17A3HN.ViewModels.CapNhatProfileViewModel
+
+@{
+    ViewData["Title"] = "Cập nhật Hồ sơ Cá nhân";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <div class="page-header">
+            <div>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-1">
+                        <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" class="text-decoration-none">Trang chủ</a></li>
+                        <li class="breadcrumb-item"><a asp-action="Profile" class="text-decoration-none">Hồ sơ cá nhân</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Cập nhật</li>
+                    </ol>
+                </nav>
+                <h2 class="page-title"><i class="bi bi-person-gear text-primary"></i> Cập Nhật Hồ Sơ Cá Nhân</h2>
+                <p class="page-subtitle">Chỉnh sửa họ tên và địa chỉ email liên kết với tài khoản</p>
+            </div>
+            <div>
+                <a asp-action="Profile" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Quay lại hồ sơ
+                </a>
+            </div>
+        </div>
+
+        <div class="card border-0 shadow-sm rounded-2">
+            <div class="card-body p-4 p-md-5">
+                <form asp-action="CapNhatProfile" method="post">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-4 py-2" role="alert"></div>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label asp-for="TenDangNhap" class="form-label fw-semibold text-secondary">
+                                <i class="bi bi-lock-fill me-1 text-muted"></i> Tên đăng nhập (Cố định)
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light text-muted"><i class="bi bi-at"></i></span>
+                                <input asp-for="TenDangNhap" class="form-control bg-light font-monospace text-muted" readonly tabindex="-1" />
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="VaiTro" class="form-label fw-semibold text-secondary">
+                                <i class="bi bi-shield-lock-fill me-1 text-muted"></i> Vai trò tài khoản
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light text-muted"><i class="bi bi-shield-check"></i></span>
+                                <input asp-for="VaiTro" class="form-control bg-light text-muted" readonly tabindex="-1" />
+                            </div>
+                        </div>
+
+                        <div class="col-md-12">
+                            <label asp-for="HoTen" class="form-label fw-semibold">
+                                <i class="bi bi-person me-1 text-primary"></i> Họ và tên <span class="text-danger">*</span>
+                            </label>
+                            <input asp-for="HoTen" class="form-control" placeholder="Nhập đầy đủ họ và tên..." />
+                            <span asp-validation-for="HoTen" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-12">
+                            <label asp-for="Email" class="form-label fw-semibold">
+                                <i class="bi bi-envelope me-1 text-primary"></i> Địa chỉ Email liên hệ <span class="text-danger">*</span>
+                            </label>
+                            <input asp-for="Email" class="form-control" type="email" placeholder="example@uneti.edu.vn" />
+                            <span asp-validation-for="Email" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top flex-wrap gap-2">
+                        <a asp-action="DoiMatKhau" class="btn btn-outline-warning d-inline-flex align-items-center gap-1">
+                            <i class="bi bi-key"></i> Đổi mật khẩu
+                        </a>
+                        <div class="d-flex gap-2">
+                            <a asp-action="Profile" class="btn btn-outline-secondary">Hủy bỏ</a>
+                            <button type="submit" class="btn btn-primary px-4 d-inline-flex align-items-center gap-1">
+                                <i class="bi bi-check-circle-fill"></i> Lưu thay đổi
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

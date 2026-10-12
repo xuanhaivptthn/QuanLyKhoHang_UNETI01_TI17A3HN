@@ -6,14 +6,17 @@
 @model QuanLyKhoHang_UNETI01_TI17A3HN.Models.PhieuXuat
 
 @{
-    ViewData["Title"] = "Chỉnh sửa phiếu xuất #PX-" + Model.MaPhieuXuat;
+    ViewData["Title"] = "Chỉnh sửa phiếu xuất kho #" + Model.MaPhieuXuat;
+    var currentStatus = ViewData["CurrentStatus"] is TrangThaiPhieuXuat status
+        ? status
+        : Model.TrangThai;
 }
 
 <div class="row justify-content-center">
     <div class="col-lg-8">
         <div class="page-header">
             <div>
-                <h2 class="page-title"><i class="bi bi-pencil-square text-primary"></i> Chỉnh Sửa Phiếu Xuất Kho</h2>
+                <h2 class="page-title"><i class="bi bi-pencil-square text-danger"></i> Chỉnh Sửa Phiếu Xuất Kho</h2>
                 <p class="page-subtitle">Cập nhật thông tin phiếu xuất: <strong>#PX-@Model.MaPhieuXuat</strong></p>
             </div>
             <div>
@@ -29,56 +32,85 @@
                     <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-4 py-2" role="alert"></div>
                     <input type="hidden" asp-for="MaPhieuXuat" />
 
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label asp-for="MaBoPhan" class="form-label fw-semibold">
-                                <i class="bi bi-shop me-1 text-success"></i> Bộ phận nhận <span class="text-danger">*</span>
-                            </label>
-                            <select asp-for="MaBoPhan" class="form-select" asp-items="ViewBag.MaBoPhan"></select>
-                            <span asp-validation-for="MaBoPhan" class="text-danger small"></span>
-                        </div>
+                    @if (currentStatus == TrangThaiPhieuXuat.Nhap)
+                    {
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label asp-for="MaBoPhan" class="form-label fw-semibold">
+                                    <i class="bi bi-shop me-1 text-success"></i> Bộ phận nhận <span class="text-danger">*</span>
+                                </label>
+                                <select asp-for="MaBoPhan" class="form-select" asp-items="ViewBag.MaBoPhan"></select>
+                                <span asp-validation-for="MaBoPhan" class="text-danger small"></span>
+                            </div>
 
-                        <div class="col-md-6">
-                            <label asp-for="MaKho" class="form-label fw-semibold">
-                                <i class="bi bi-building me-1 text-primary"></i> Kho xuất hàng <span class="text-danger">*</span>
-                            </label>
-                            <select asp-for="MaKho" class="form-select" asp-items="ViewBag.MaKho"></select>
-                            <span asp-validation-for="MaKho" class="text-danger small"></span>
-                        </div>
+                            <div class="col-md-6">
+                                <label asp-for="MaKho" class="form-label fw-semibold">
+                                    <i class="bi bi-building me-1 text-primary"></i> Kho xuất hàng <span class="text-danger">*</span>
+                                </label>
+                                <select asp-for="MaKho" class="form-select" asp-items="ViewBag.MaKho"></select>
+                                <span asp-validation-for="MaKho" class="text-danger small"></span>
+                            </div>
 
-                        <div class="col-md-6">
-                            <label asp-for="NgayXuat" class="form-label fw-semibold">
-                                <i class="bi bi-calendar-event me-1 text-primary"></i> Ngày xuất hàng <span class="text-danger">*</span>
-                            </label>
-                            <input asp-for="NgayXuat" type="datetime-local" class="form-control" />
-                            <span asp-validation-for="NgayXuat" class="text-danger small"></span>
-                        </div>
+                            <div class="col-md-6">
+                                <label asp-for="NgayXuat" class="form-label fw-semibold">
+                                    <i class="bi bi-calendar-event me-1 text-primary"></i> Ngày xuất hàng <span class="text-danger">*</span>
+                                </label>
+                                <input asp-for="NgayXuat" type="datetime-local" class="form-control" />
+                                <span asp-validation-for="NgayXuat" class="text-danger small"></span>
+                            </div>
 
-                        <div class="col-md-6">
-                            <label asp-for="NguoiLap" class="form-label fw-semibold">
-                                <i class="bi bi-person me-1 text-primary"></i> Người lập phiếu <span class="text-danger">*</span>
-                            </label>
-                            <input asp-for="NguoiLap" class="form-control" />
-                            <span asp-validation-for="NguoiLap" class="text-danger small"></span>
-                        </div>
+                            <div class="col-md-6">
+                                <label asp-for="NguoiLap" class="form-label fw-semibold">
+                                    <i class="bi bi-person me-1 text-primary"></i> Người lập phiếu <span class="text-danger">*</span>
+                                </label>
+                                <input asp-for="NguoiLap" class="form-control" />
+                                <span asp-validation-for="NguoiLap" class="text-danger small"></span>
+                            </div>
 
+                            <div class="col-md-12">
+                                <label asp-for="GhiChu" class="form-label fw-semibold">
+                                    <i class="bi bi-card-text me-1 text-primary"></i> Ghi chú chứng từ
+                                </label>
+                                <textarea asp-for="GhiChu" rows="3" class="form-control"></textarea>
+                                <span asp-validation-for="GhiChu" class="text-danger small"></span>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <input type="hidden" asp-for="MaBoPhan" />
+                        <input type="hidden" asp-for="MaKho" />
+                        <input type="hidden" asp-for="NgayXuat" />
+                        <input type="hidden" asp-for="NguoiLap" />
+                        <input type="hidden" asp-for="GhiChu" />
+
+                        <div class="bg-light p-3 rounded-2 border mb-4">
+                            <dl class="row gy-2 mb-0">
+                                <dt class="col-sm-4 text-muted">Bộ phận nhận:</dt>
+                                <dd class="col-sm-8 fw-bold">@ViewData["TenBoPhan"]</dd>
+
+                                <dt class="col-sm-4 text-muted">Kho xuất:</dt>
+                                <dd class="col-sm-8">@ViewData["TenKho"]</dd>
+
+                                <dt class="col-sm-4 text-muted">Ngày xuất:</dt>
+                                <dd class="col-sm-8">@Model.NgayXuat.ToString("dd/MM/yyyy HH:mm")</dd>
+
+                                <dt class="col-sm-4 text-muted">Người lập:</dt>
+                                <dd class="col-sm-8">@Model.NguoiLap</dd>
+
+                                <dt class="col-sm-4 text-muted">Ghi chú:</dt>
+                                <dd class="col-sm-8">@(string.IsNullOrEmpty(Model.GhiChu) ? "---" : Model.GhiChu)</dd>
+                            </dl>
+                        </div>
+                    }
+
+                    <div class="row g-3 mt-1">
                         <div class="col-md-6">
                             <label asp-for="TrangThai" class="form-label fw-semibold">
-                                <i class="bi bi-flag me-1 text-primary"></i> Trạng thái
+                                <i class="bi bi-flag me-1 text-primary"></i> Trạng thái phiếu
                             </label>
-                            <select asp-for="TrangThai" class="form-select">
-                                <option value="0">Nháp (0)</option>
-                                <option value="1">Chờ xác nhận (1)</option>
-                            </select>
+                            <select asp-for="TrangThai" class="form-select" asp-items="ViewBag.TrangThai"></select>
                             <span asp-validation-for="TrangThai" class="text-danger small"></span>
-                        </div>
-
-                        <div class="col-md-12">
-                            <label asp-for="GhiChu" class="form-label fw-semibold">
-                                <i class="bi bi-card-text me-1 text-primary"></i> Ghi chú chứng từ
-                            </label>
-                            <textarea asp-for="GhiChu" rows="3" class="form-control"></textarea>
-                            <span asp-validation-for="GhiChu" class="text-danger small"></span>
                         </div>
                     </div>
 

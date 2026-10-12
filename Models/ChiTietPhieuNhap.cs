@@ -30,7 +30,7 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Models
         public decimal DonGiaNhap { get; set; }
 
         // Thành tiền = SoLuongNhap * DonGiaNhap (Chỉ xem, không cho nhập)
-        [Column(TypeName = "decimal(18,2)")]
+        [NotMapped]
         [Display(Name = "Thành tiền")]
         public decimal ThanhTien => SoLuongNhap * DonGiaNhap;
 

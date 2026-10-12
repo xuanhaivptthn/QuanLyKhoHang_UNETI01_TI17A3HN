@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using QuanLyKhoHang_UNETI01_TI17A3HN.Data;
+using QuanLyKhoHang_UNETI01_TI17A3HN.Filters;
 using QuanLyKhoHang_UNETI01_TI17A3HN.Models;
 
 // Họ và tên: Nguyễn Việt Dũng
@@ -62,30 +63,77 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
         }
 
         // GET: ChiTietPhieuXuats/Create
-        public IActionResult Create(int? maPhieuXuat)
+        [AuthorizeRole("Admin", "NhanVienKho")]
+        public async Task<IActionResult> Create(int? maPhieuXuat)
         {
-            ViewData["MaHang"] = new SelectList(_context.HangHoa, "MaHang", "TenHang");
-            ViewData["MaPhieuXuat"] = new SelectList(_context.PhieuXuats, "MaPhieuXuat", "MaPhieuXuat", maPhieuXuat);
+            if (maPhieuXuat.HasValue && !await IsEditableExportAsync(maPhieuXuat.Value))
+            {
+                TempData["ErrorMessage"] = "Chỉ có thể thêm chi tiết cho phiếu xuất đang ở trạng thái Nháp.";
+                return RedirectToAction("Details", "PhieuXuats", new { id = maPhieuXuat.Value });
+            }
+
+            await PopulateCreateEditListsAsync(maPhieuXuat);
             return View(new ChiTietPhieuXuat { MaPhieuXuat = maPhieuXuat ?? 0 });
         }
 
         // POST: ChiTietPhieuXuats/Create
+        [AuthorizeRole("Admin", "NhanVienKho")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("MaChiTietXuat,MaPhieuXuat,MaHang,SoLuongXuat,DonGiaXuatThamChieu,GhiChu")] ChiTietPhieuXuat chiTietPhieuXuat)
         {
+            var px = await _context.PhieuXuats.FindAsync(chiTietPhieuXuat.MaPhieuXuat);
+            if (px == null || !IsEditableExport(px.TrangThai))
+            {
+                ModelState.AddModelError(nameof(chiTietPhieuXuat.MaPhieuXuat), "Chỉ có thể thêm chi tiết cho phiếu xuất đang ở trạng thái Nháp.");
+            }
+            if (!await IsActiveProductAsync(chiTietPhieuXuat.MaHang))
+            {
+                ModelState.AddModelError(nameof(chiTietPhieuXuat.MaHang), "Chỉ được chọn mặt hàng đang hoạt động.");
+            }
+            if (await HasDuplicateItemAsync(chiTietPhieuXuat.MaPhieuXuat, chiTietPhieuXuat.MaHang))
+            {
+                ModelState.AddModelError(nameof(chiTietPhieuXuat.MaHang), "Mặt hàng này đã có trong phiếu xuất.");
+            }
+
+            if (px != null)
+            {
+                var tonKho = await _context.TonKhoes.FirstOrDefaultAsync(t => t.MaKho == px.MaKho && t.MaHang == chiTietPhieuXuat.MaHang);
+                var tonHienTai = tonKho?.SoLuongTon ?? 0;
+                if (chiTietPhieuXuat.SoLuongXuat > tonHienTai)
+                {
+                    ModelState.AddModelError(nameof(chiTietPhieuXuat.SoLuongXuat), $"Số lượng xuất ({chiTietPhieuXuat.SoLuongXuat}) vượt quá số lượng tồn kho hiện tại ({tonHienTai}).");
+                }
+            }
+
             if (ModelState.IsValid)
             {
                 _context.Add(chiTietPhieuXuat);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index), new { maPhieuXuat = chiTietPhieuXuat.MaPhieuXuat });
+                try
+                {
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateException)
+                {
+                    _context.Entry(chiTietPhieuXuat).State = EntityState.Detached;
+                    if (!await HasDuplicateItemAsync(chiTietPhieuXuat.MaPhieuXuat, chiTietPhieuXuat.MaHang))
+                    {
+                        throw;
+                    }
+
+                    ModelState.AddModelError(nameof(chiTietPhieuXuat.MaHang), "Mặt hàng này đã có trong phiếu xuất.");
+                    await PopulateCreateEditListsAsync(chiTietPhieuXuat.MaPhieuXuat, chiTietPhieuXuat.MaHang);
+                    return View(chiTietPhieuXuat);
+                }
+                TempData["SuccessMessage"] = "Đã thêm mặt hàng vào phiếu xuất.";
+                return RedirectToAction("Details", "PhieuXuats", new { id = chiTietPhieuXuat.MaPhieuXuat });
             }
-            ViewData["MaHang"] = new SelectList(_context.HangHoa, "MaHang", "TenHang", chiTietPhieuXuat.MaHang);
-            ViewData["MaPhieuXuat"] = new SelectList(_context.PhieuXuats, "MaPhieuXuat", "MaPhieuXuat", chiTietPhieuXuat.MaPhieuXuat);
+            await PopulateCreateEditListsAsync(chiTietPhieuXuat.MaPhieuXuat, chiTietPhieuXuat.MaHang);
             return View(chiTietPhieuXuat);
         }
 
         // GET: ChiTietPhieuXuats/Edit/5
+        [AuthorizeRole("Admin", "NhanVienKho")]
         public async Task<IActionResult> Edit(int? id, int? machitietxuat)
         {
             var targetId = id ?? machitietxuat;
@@ -94,17 +142,24 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
                 return NotFound();
             }
 
-            var chiTietPhieuXuat = await _context.ChiTietPhieuXuats.FindAsync(targetId);
+            var chiTietPhieuXuat = await _context.ChiTietPhieuXuats
+                .Include(c => c.PhieuXuat)
+                .FirstOrDefaultAsync(c => c.MaChiTietXuat == targetId);
             if (chiTietPhieuXuat == null)
             {
                 return NotFound();
             }
-            ViewData["MaHang"] = new SelectList(_context.HangHoa, "MaHang", "TenHang", chiTietPhieuXuat.MaHang);
-            ViewData["MaPhieuXuat"] = new SelectList(_context.PhieuXuats, "MaPhieuXuat", "MaPhieuXuat", chiTietPhieuXuat.MaPhieuXuat);
+            if (chiTietPhieuXuat.PhieuXuat == null || !IsEditableExport(chiTietPhieuXuat.PhieuXuat.TrangThai))
+            {
+                TempData["ErrorMessage"] = "Chỉ có thể sửa chi tiết của phiếu xuất đang ở trạng thái Nháp.";
+                return RedirectToAction("Details", "PhieuXuats", new { id = chiTietPhieuXuat.MaPhieuXuat });
+            }
+            await PopulateCreateEditListsAsync(chiTietPhieuXuat.MaPhieuXuat, chiTietPhieuXuat.MaHang);
             return View(chiTietPhieuXuat);
         }
 
         // POST: ChiTietPhieuXuats/Edit/5
+        [AuthorizeRole("Admin", "NhanVienKho")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int? id, int? machitietxuat, [Bind("MaChiTietXuat,MaPhieuXuat,MaHang,SoLuongXuat,DonGiaXuatThamChieu,GhiChu")] ChiTietPhieuXuat chiTietPhieuXuat)
@@ -115,32 +170,81 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
                 return NotFound();
             }
 
+            var existingDetail = await _context.ChiTietPhieuXuats
+                .Include(c => c.PhieuXuat)
+                .FirstOrDefaultAsync(c => c.MaChiTietXuat == targetId);
+            if (existingDetail == null)
+            {
+                return NotFound();
+            }
+
+            if (existingDetail.PhieuXuat == null || !IsEditableExport(existingDetail.PhieuXuat.TrangThai))
+            {
+                TempData["ErrorMessage"] = "Chỉ có thể sửa chi tiết của phiếu xuất đang ở trạng thái Nháp.";
+                return RedirectToAction("Details", "PhieuXuats", new { id = existingDetail.MaPhieuXuat });
+            }
+
+            if (!await IsEditableExportAsync(chiTietPhieuXuat.MaPhieuXuat))
+            {
+                ModelState.AddModelError(nameof(chiTietPhieuXuat.MaPhieuXuat), "Chi tiết chỉ có thể chuyển sang phiếu xuất đang ở trạng thái Nháp.");
+            }
+            if (!await IsActiveProductAsync(chiTietPhieuXuat.MaHang))
+            {
+                ModelState.AddModelError(nameof(chiTietPhieuXuat.MaHang), "Chỉ được chọn mặt hàng đang hoạt động.");
+            }
+            if (await HasDuplicateItemAsync(
+                chiTietPhieuXuat.MaPhieuXuat,
+                chiTietPhieuXuat.MaHang,
+                chiTietPhieuXuat.MaChiTietXuat))
+            {
+                ModelState.AddModelError(nameof(chiTietPhieuXuat.MaHang), "Mặt hàng này đã có trong phiếu xuất.");
+            }
+
+            var px = await _context.PhieuXuats.FindAsync(chiTietPhieuXuat.MaPhieuXuat);
+            if (px != null)
+            {
+                var tonKho = await _context.TonKhoes.FirstOrDefaultAsync(t => t.MaKho == px.MaKho && t.MaHang == chiTietPhieuXuat.MaHang);
+                var tonHienTai = tonKho?.SoLuongTon ?? 0;
+                if (chiTietPhieuXuat.SoLuongXuat > tonHienTai)
+                {
+                    ModelState.AddModelError(nameof(chiTietPhieuXuat.SoLuongXuat), $"Số lượng xuất ({chiTietPhieuXuat.SoLuongXuat}) vượt quá số lượng tồn kho hiện tại ({tonHienTai}).");
+                }
+            }
+
             if (ModelState.IsValid)
             {
+                existingDetail.MaPhieuXuat = chiTietPhieuXuat.MaPhieuXuat;
+                existingDetail.MaHang = chiTietPhieuXuat.MaHang;
+                existingDetail.SoLuongXuat = chiTietPhieuXuat.SoLuongXuat;
+                existingDetail.DonGiaXuatThamChieu = chiTietPhieuXuat.DonGiaXuatThamChieu;
+                existingDetail.GhiChu = chiTietPhieuXuat.GhiChu;
                 try
                 {
-                    _context.Update(chiTietPhieuXuat);
                     await _context.SaveChangesAsync();
                 }
-                catch (DbUpdateConcurrencyException)
+                catch (DbUpdateException)
                 {
-                    if (!ChiTietPhieuXuatExists(chiTietPhieuXuat.MaChiTietXuat))
-                    {
-                        return NotFound();
-                    }
-                    else
+                    if (!await HasDuplicateItemAsync(
+                        chiTietPhieuXuat.MaPhieuXuat,
+                        chiTietPhieuXuat.MaHang,
+                        chiTietPhieuXuat.MaChiTietXuat))
                     {
                         throw;
                     }
+
+                    ModelState.AddModelError(nameof(chiTietPhieuXuat.MaHang), "Mặt hàng này đã có trong phiếu xuất.");
+                    await PopulateCreateEditListsAsync(chiTietPhieuXuat.MaPhieuXuat, chiTietPhieuXuat.MaHang);
+                    return View(chiTietPhieuXuat);
                 }
-                return RedirectToAction(nameof(Index), new { maPhieuXuat = chiTietPhieuXuat.MaPhieuXuat });
+                TempData["SuccessMessage"] = "Đã cập nhật chi tiết phiếu xuất.";
+                return RedirectToAction("Details", "PhieuXuats", new { id = chiTietPhieuXuat.MaPhieuXuat });
             }
-            ViewData["MaHang"] = new SelectList(_context.HangHoa, "MaHang", "TenHang", chiTietPhieuXuat.MaHang);
-            ViewData["MaPhieuXuat"] = new SelectList(_context.PhieuXuats, "MaPhieuXuat", "MaPhieuXuat", chiTietPhieuXuat.MaPhieuXuat);
+            await PopulateCreateEditListsAsync(chiTietPhieuXuat.MaPhieuXuat, chiTietPhieuXuat.MaHang);
             return View(chiTietPhieuXuat);
         }
 
         // GET: ChiTietPhieuXuats/Delete/5
+        [AuthorizeRole("Admin", "NhanVienKho")]
         public async Task<IActionResult> Delete(int? id, int? machitietxuat)
         {
             var targetId = id ?? machitietxuat;
@@ -157,11 +261,17 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
             {
                 return NotFound();
             }
+            if (chiTietPhieuXuat.PhieuXuat == null || !IsEditableExport(chiTietPhieuXuat.PhieuXuat.TrangThai))
+            {
+                TempData["ErrorMessage"] = "Chỉ có thể xóa chi tiết của phiếu xuất đang ở trạng thái Nháp.";
+                return RedirectToAction("Details", "PhieuXuats", new { id = chiTietPhieuXuat.MaPhieuXuat });
+            }
 
             return View(chiTietPhieuXuat);
         }
 
         // POST: ChiTietPhieuXuats/Delete/5
+        [AuthorizeRole("Admin", "NhanVienKho")]
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int? id, int? machitietxuat)
@@ -177,20 +287,73 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
                 return NotFound();
             }
 
-            var chiTietPhieuXuat = await _context.ChiTietPhieuXuats.FindAsync(targetId);
+            var chiTietPhieuXuat = await _context.ChiTietPhieuXuats
+                .Include(c => c.PhieuXuat)
+                .FirstOrDefaultAsync(c => c.MaChiTietXuat == targetId);
             int? maPhieuXuat = chiTietPhieuXuat?.MaPhieuXuat;
             if (chiTietPhieuXuat != null)
             {
+                if (chiTietPhieuXuat.PhieuXuat == null || !IsEditableExport(chiTietPhieuXuat.PhieuXuat.TrangThai))
+                {
+                    TempData["ErrorMessage"] = "Chỉ có thể xóa chi tiết của phiếu xuất đang ở trạng thái Nháp.";
+                    return RedirectToAction("Details", "PhieuXuats", new { id = maPhieuXuat });
+                }
+
                 _context.ChiTietPhieuXuats.Remove(chiTietPhieuXuat);
                 await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = "Đã xóa mặt hàng khỏi phiếu xuất.";
             }
 
-            return RedirectToAction(nameof(Index), new { maPhieuXuat });
+            if (maPhieuXuat.HasValue)
+            {
+                return RedirectToAction("Details", "PhieuXuats", new { id = maPhieuXuat.Value });
+            }
+            return RedirectToAction("Index", "PhieuXuats");
         }
 
-        private bool ChiTietPhieuXuatExists(int id)
+        private async Task PopulateCreateEditListsAsync(int? maPhieuXuat = null, int? maHang = null)
         {
-            return _context.ChiTietPhieuXuats.Any(e => e.MaChiTietXuat == id);
+            ViewData["MaHang"] = new SelectList(
+                await _context.HangHoa
+                    .Where(h => h.TrangThai || h.MaHang == maHang)
+                    .ToListAsync(),
+                "MaHang",
+                "TenHang",
+                maHang);
+            ViewData["MaPhieuXuat"] = new SelectList(
+                await _context.PhieuXuats
+                    .Where(p => p.TrangThai == TrangThaiPhieuXuat.Nhap || p.MaPhieuXuat == maPhieuXuat)
+                    .ToListAsync(),
+                "MaPhieuXuat",
+                "MaPhieuXuat",
+                maPhieuXuat);
+        }
+
+        private async Task<bool> IsEditableExportAsync(int maPhieuXuat)
+        {
+            var status = await _context.PhieuXuats
+                .Where(p => p.MaPhieuXuat == maPhieuXuat)
+                .Select(p => (TrangThaiPhieuXuat?)p.TrangThai)
+                .FirstOrDefaultAsync();
+            return status.HasValue && IsEditableExport(status.Value);
+        }
+
+        private static bool IsEditableExport(TrangThaiPhieuXuat status)
+        {
+            return status == TrangThaiPhieuXuat.Nhap;
+        }
+
+        private Task<bool> IsActiveProductAsync(int maHang)
+        {
+            return _context.HangHoa.AnyAsync(h => h.MaHang == maHang && h.TrangThai);
+        }
+
+        private Task<bool> HasDuplicateItemAsync(int maPhieuXuat, int maHang, int? excludeId = null)
+        {
+            return _context.ChiTietPhieuXuats.AnyAsync(c =>
+                c.MaPhieuXuat == maPhieuXuat
+                && c.MaHang == maHang
+                && (!excludeId.HasValue || c.MaChiTietXuat != excludeId.Value));
         }
     }
 }

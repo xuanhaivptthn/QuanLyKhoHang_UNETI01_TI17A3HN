@@ -53,7 +53,7 @@
                             <label asp-for="NgayNhap" class="form-label fw-semibold">
                                 <i class="bi bi-calendar-event me-1 text-primary"></i> Ngày nhập hàng <span class="text-danger">*</span>
                             </label>
-                            <input asp-for="NgayNhap" type="datetime-local" class="form-control" value="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")" />
+                            <input asp-for="NgayNhap" type="date" class="form-control" value="@DateTime.Now.ToString("yyyy-MM-dd")" />
                             <span asp-validation-for="NgayNhap" class="text-danger small"></span>
                         </div>
 
@@ -61,7 +61,7 @@
                             <label asp-for="NguoiLap" class="form-label fw-semibold">
                                 <i class="bi bi-person me-1 text-primary"></i> Người lập phiếu <span class="text-danger">*</span>
                             </label>
-                            <input asp-for="NguoiLap" class="form-control" value="@(Context.Session.GetString("HoTen") ?? "Thủ kho")" />
+                            <input asp-for="NguoiLap" class="form-control" value="@(User.FindFirst("HoTen")?.Value ?? Context.Session.GetString("HoTen") ?? "Thủ kho")" />
                             <span asp-validation-for="NguoiLap" class="text-danger small"></span>
                         </div>
 
@@ -70,8 +70,10 @@
                                 <i class="bi bi-flag me-1 text-primary"></i> Trạng thái ban đầu
                             </label>
                             <select asp-for="TrangThai" class="form-select">
-                                <option value="0">Nháp (Đang soạn thảo)</option>
-                                <option value="1">Chờ xác nhận (Chờ kiểm đếm)</option>
+                                <option value="0">Nháp</option>
+                                <option value="1">Chờ xác nhận</option>
+                                <option value="2">Đã hoàn tất</option>
+                                <option value="3">Đã hủy</option>
                             </select>
                             <span asp-validation-for="TrangThai" class="text-danger small"></span>
                         </div>
@@ -88,7 +90,7 @@
                     <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
                         <a asp-action="Index" class="btn btn-outline-secondary">Hủy bỏ</a>
                         <button type="submit" class="btn btn-success px-4">
-                            <i class="bi bi-check-circle-fill"></i> Tạo phiếu & Thêm hàng
+                            <i class="bi bi-check-circle-fill"></i> Tạo phiếu &amp; Thêm hàng
                         </button>
                     </div>
                 </form>
