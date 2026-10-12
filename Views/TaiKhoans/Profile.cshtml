@@ -9,74 +9,29 @@
     ViewData["Title"] = "Thông tin Hồ sơ Cá nhân";
 }
 
-<div class="container py-4">
-    <div class="row justify-content-center">
-        <div class="col-md-8 col-lg-6">
-            <div class="card shadow-sm border-0">
-                <div class="card-header bg-primary text-white text-center py-3">
-                    <h4 class="mb-0 fw-bold">Thông tin Hồ sơ Cá nhân</h4>
-                </div>
-                <div class="card-body p-4">
-                    <div class="text-center mb-4">
-                        <div class="d-inline-flex align-items-center justify-content-center bg-primary-subtle text-primary rounded-circle mb-2" style="width: 72px; height: 72px; font-size: 2rem;">
-                            <i class="bi bi-person"></i>
-                        </div>
-                        <h4 class="fw-bold mb-1">@Model.HoTen</h4>
-                        <span class="badge bg-info text-dark px-3 py-1 fs-6">@Model.VaiTro</span>
-                    </div>
+<div class="container mt-4">
+    <div class="card col-md-6 mx-auto p-4 shadow-sm border">
+        <h4 class="card-title text-center text-primary mb-3">Thông tin Hồ sơ Cá nhân</h4>
+        <hr class="mt-0 mb-3" />
+        <dl class="row mb-0">
+            <dt class="col-sm-4 text-muted">Họ và tên:</dt>
+            <dd class="col-sm-8 fw-semibold">@Model.HoTen</dd>
 
-                    <table class="table table-borderless align-middle mb-4">
-                        <tbody>
-                            <tr>
-                                <th class="text-muted text-nowrap" style="width: 35%;">Mã tài khoản:</th>
-                                <td class="fw-semibold">#@Model.MaTaiKhoan</td>
-                            </tr>
-                            <tr>
-                                <th class="text-muted text-nowrap">Tên đăng nhập:</th>
-                                <td class="fw-bold text-primary">@Model.TenDangNhap</td>
-                            </tr>
-                            <tr>
-                                <th class="text-muted text-nowrap">Email:</th>
-                                <td>@Model.Email</td>
-                            </tr>
-                            <tr>
-                                <th class="text-muted text-nowrap">Vai trò:</th>
-                                <td><span class="badge bg-secondary">@Model.VaiTro</span></td>
-                            </tr>
-                            <tr>
-                                <th class="text-muted text-nowrap">Trạng thái:</th>
-                                <td>
-                                    @if (Model.TrangThai)
-                                    {
-                                        <span class="badge bg-success">Đang hoạt động</span>
-                                    }
-                                    else
-                                    {
-                                        <span class="badge bg-danger">Bị khóa</span>
-                                    }
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+            <dt class="col-sm-4 text-muted">Tên đăng nhập:</dt>
+            <dd class="col-sm-8">@Model.TenDangNhap</dd>
 
-                    <div class="d-flex flex-wrap gap-2 justify-content-between pt-2 border-top">
-                        <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary">
-                            <i class="bi bi-house"></i> Về trang chủ
-                        </a>
-                        <div class="d-flex gap-2">
-                            @if (User.IsInRole("Admin"))
-                            {
-                                <a asp-action="Index" class="btn btn-outline-primary">
-                                    <i class="bi bi-people"></i> Quản lý tài khoản
-                                </a>
-                            }
-                            <a asp-action="DangXuat" class="btn btn-danger">
-                                <i class="bi bi-box-arrow-right"></i> Đăng xuất
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <dt class="col-sm-4 text-muted">Email:</dt>
+            <dd class="col-sm-8">@Model.Email</dd>
+
+            <dt class="col-sm-4 text-muted">Vai trò:</dt>
+            <dd class="col-sm-8">@Model.VaiTro</dd>
+
+            <dt class="col-sm-4 text-muted">Trạng thái:</dt>
+            <dd class="col-sm-8">@(Model.TrangThai ? "Đang hoạt động" : "Bị khóa")</dd>
+        </dl>
+        <div class="text-center mt-3 pt-3 border-top">
+            <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary btn-sm me-2">Về trang chủ</a>
+            <a asp-action="DangXuat" class="btn btn-outline-danger btn-sm">Đăng xuất</a>
         </div>
     </div>
 </div>
