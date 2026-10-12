@@ -416,18 +416,6 @@ h1, h2, h3, h4, h5, h6 {
   padding: 0.4rem 0.5rem;
   border-radius: var(--radius-sm);
   background-color: var(--sidebar-hover-bg);
-  cursor: pointer;
-  transition: background-color 0.15s ease-in-out;
-}
-
-.sidebar-user:hover,
-.sidebar-user:focus {
-  background-color: var(--sidebar-border);
-}
-
-.sidebar-user.dropdown-toggle::after {
-  margin-left: auto;
-  color: var(--ink-500);
 }
 
 .sidebar-user-icon {

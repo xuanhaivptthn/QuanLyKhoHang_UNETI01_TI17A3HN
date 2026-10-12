@@ -191,51 +191,6 @@
                 }
             </ul>
         </nav>
-
-        <div class="sidebar-footer">
-            @if (isAuthenticated)
-            {
-                <div class="dropup w-100">
-                    <button class="sidebar-user text-decoration-none dropdown-toggle w-100 border-0 text-start" type="button" id="sidebarUserDropdown" data-bs-toggle="dropdown" aria-expanded="false" title="Menu tài khoản">
-                        <i class="bi bi-person-circle sidebar-user-icon"></i>
-                        <div class="sidebar-user-info flex-grow-1 overflow-hidden">
-                            <div class="sidebar-user-name text-truncate">@currentUserName</div>
-                            <span class="badge @(isAdmin ? "bg-danger" : "bg-primary")">
-                                @currentUserRole
-                            </span>
-                        </div>
-                    </button>
-                    <ul class="dropdown-menu shadow-sm border w-100 mb-2 py-2" aria-labelledby="sidebarUserDropdown">
-                        <li class="px-3 py-2 border-bottom mb-1 bg-light bg-opacity-50">
-                            <div class="fw-bold text-dark text-truncate small">@currentUserName</div>
-                            <small class="text-muted d-block"><i class="bi bi-shield-check me-1"></i>Vai trò: @currentUserRole</small>
-                        </li>
-                        <li>
-                            <a class="dropdown-item d-flex align-items-center gap-2 py-2" asp-controller="TaiKhoans" asp-action="Profile">
-                                <i class="bi bi-person text-primary"></i> <span>Hồ sơ cá nhân</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a class="dropdown-item d-flex align-items-center gap-2 py-2" asp-controller="TaiKhoans" asp-action="DoiMatKhau">
-                                <i class="bi bi-key text-warning"></i> <span>Đổi mật khẩu</span>
-                            </a>
-                        </li>
-                        <li><hr class="dropdown-divider my-1"></li>
-                        <li>
-                            <a class="dropdown-item d-flex align-items-center gap-2 py-2 text-danger" asp-controller="TaiKhoans" asp-action="DangXuat">
-                                <i class="bi bi-box-arrow-right"></i> <span>Thoát tài khoản</span>
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-            }
-            else
-            {
-                <a class="btn btn-primary btn-sm w-100 d-inline-flex align-items-center justify-content-center gap-1" asp-controller="TaiKhoans" asp-action="DangNhap">
-                    <i class="bi bi-box-arrow-in-right"></i> <span>Đăng nhập</span>
-                </a>
-            }
-        </div>
     </aside>
 
     <div class="app-main">
