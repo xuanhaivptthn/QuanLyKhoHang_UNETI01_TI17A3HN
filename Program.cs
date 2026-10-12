@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using QuanLyKhoHang_UNETI01_TI17A3HN.Data;
 using QuanLyKhoHang_UNETI01_TI17A3HN.Models;
@@ -46,6 +47,15 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;             // Đảm bảo hoạt động theo chính sách Cookie
 });
 
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/TaiKhoans/DangNhap";
+        options.AccessDeniedPath = "/Home/AccessDenied";
+        options.Cookie.HttpOnly = true;
+        options.Cookie.IsEssential = true;
+    });
+
 // CẤU HÌNH MVC CONTROLLERS & BẢO MẬT TOÀN CỤC (GLOBAL FILTER)
 builder.Services.AddControllersWithViews(options =>
 {
@@ -80,6 +90,7 @@ app.UseRouting();
 
 // Middleware UseSession phải nằm sau UseRouting và trước UseAuthorization
 app.UseSession();
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapStaticAssets();
