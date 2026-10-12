@@ -95,8 +95,10 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
             {
                 return NotFound();
             }
-            // Only allow edit when status is Nháp (0) or Chờ xác nhận (1)
-            if (!(phieuNhap.TrangThai == TrangThaiPhieuNhap.Nhap || phieuNhap.TrangThai == TrangThaiPhieuNhap.ChoXacNhan))
+
+            var isAdmin = string.Equals(HttpContext.Session.GetString("VaiTro"), "Admin", StringComparison.OrdinalIgnoreCase);
+            var isEditableStatus = phieuNhap.TrangThai == TrangThaiPhieuNhap.Nhap || phieuNhap.TrangThai == TrangThaiPhieuNhap.ChoXacNhan;
+            if (!(isEditableStatus || (isAdmin && phieuNhap.TrangThai != TrangThaiPhieuNhap.DaHoanTat && phieuNhap.TrangThai != TrangThaiPhieuNhap.DaHuy)))
             {
                 return Forbid();
             }
@@ -122,9 +124,12 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
             {
                 return NotFound();
             }
-            if (!(existing.TrangThai == TrangThaiPhieuNhap.Nhap || existing.TrangThai == TrangThaiPhieuNhap.ChoXacNhan))
+
+            var isAdmin = string.Equals(HttpContext.Session.GetString("VaiTro"), "Admin", StringComparison.OrdinalIgnoreCase);
+            var isEditableStatus = existing.TrangThai == TrangThaiPhieuNhap.Nhap || existing.TrangThai == TrangThaiPhieuNhap.ChoXacNhan;
+            if (!(isEditableStatus || (isAdmin && existing.TrangThai != TrangThaiPhieuNhap.DaHoanTat && existing.TrangThai != TrangThaiPhieuNhap.DaHuy)))
             {
-                ModelState.AddModelError(string.Empty, "Phiếu chỉ được sửa khi ở trạng thái Nháp hoặc Chờ xác nhận.");
+                ModelState.AddModelError(string.Empty, "Phiếu không thể sửa khi đã hoàn tất hoặc đã hủy.");
                 ViewData["MaKho"] = new SelectList(_context.Kho.Where(k => k.TrangThai), "MaKho", "TenKho", phieuNhap.MaKho);
                 ViewData["MaNhaCungCap"] = new SelectList(_context.NhaCungCap.Where(n => n.TrangThai), "MaNhaCungCap", "TenNhaCungCap", phieuNhap.MaNhaCungCap);
                 return View(phieuNhap);

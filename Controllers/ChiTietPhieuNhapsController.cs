@@ -88,10 +88,15 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
                 ModelState.AddModelError(string.Empty, "Chi tiết chỉ được thêm vào phiếu ở trạng thái Nháp hoặc Chờ xác nhận.");
             }
 
-            bool daTonTai = await _context.ChiTietPhieuNhap.AnyAsync(c => c.MaPhieuNhap == chiTietPhieuNhap.MaPhieuNhap && c.MaHang == chiTietPhieuNhap.MaHang);
-            if (daTonTai)
+            var existingDetail = await _context.ChiTietPhieuNhap
+                .FirstOrDefaultAsync(c => c.MaPhieuNhap == chiTietPhieuNhap.MaPhieuNhap && c.MaHang == chiTietPhieuNhap.MaHang);
+
+            if (existingDetail != null)
             {
-                ModelState.AddModelError("MaHang", "Mặt hàng này đã có trong phiếu nhập. Vui lòng chỉnh sửa số lượng tại dòng đã có thay vì thêm mới.");
+                existingDetail.SoLuongNhap += chiTietPhieuNhap.SoLuongNhap;
+                existingDetail.DonGiaNhap = chiTietPhieuNhap.DonGiaNhap;
+                await _context.SaveChangesAsync();
+                return RedirectToAction("Details", "PhieuNhaps", new { id = chiTietPhieuNhap.MaPhieuNhap });
             }
 
             if (ModelState.IsValid)
@@ -162,8 +167,8 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
                 }
                 return RedirectToAction("Details", "PhieuNhaps", new { id = chiTietPhieuNhap.MaPhieuNhap });
             }
-            ViewData["MaHang"] = new SelectList(_context.HangHoa, "MaHang", "TenHang", chiTietPhieuNhap.MaHang);
-            ViewData["MaPhieuNhap"] = new SelectList(_context.PhieuNhap, "MaPhieuNhap", "MaPhieuNhap", chiTietPhieuNhap.MaPhieuNhap);
+            ViewData["MaHang"] = new SelectList(_context.HangHoa.Where(h => h.TrangThai), "MaHang", "TenHang", chiTietPhieuNhap.MaHang);
+            ViewData["MaPhieuNhap"] = new SelectList(_context.PhieuNhap.Where(p => p.TrangThai == TrangThaiPhieuNhap.Nhap || p.TrangThai == TrangThaiPhieuNhap.ChoXacNhan), "MaPhieuNhap", "MaPhieuNhap", chiTietPhieuNhap.MaPhieuNhap);
             return View(chiTietPhieuNhap);
         }
 
