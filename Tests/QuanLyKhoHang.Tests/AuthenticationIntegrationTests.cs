@@ -121,4 +121,93 @@ public sealed class AuthenticationIntegrationTests : WarehouseIntegrationTest
         Assert.Contains("Thông tin Hồ sơ Cá nhân", profileHtml);
         Assert.Contains("admin", profileHtml);
     }
+
+    [Fact]
+    [Trait("TC", "TC_M1_UPDATE_PROFILE")]
+    public async Task Authenticated_user_can_update_their_own_profile()
+    {
+        await LoginAsAdminAsync();
+
+        using var getEditResp = await Client.GetAsync("/TaiKhoan/CapNhatProfile");
+        Assert.Equal(HttpStatusCode.OK, getEditResp.StatusCode);
+
+        var token = await GetAntiForgeryTokenAsync("/TaiKhoan/CapNhatProfile");
+        using var postResp = await PostFormAsync(
+            "/TaiKhoan/CapNhatProfile",
+            token,
+            new Dictionary<string, string>
+            {
+                ["TenDangNhap"] = "admin",
+                ["VaiTro"] = "Admin",
+                ["HoTen"] = "Administrator Cập Nhật",
+                ["Email"] = "admin_new@example.test"
+            });
+
+        Assert.Equal(HttpStatusCode.Redirect, postResp.StatusCode);
+        Assert.Contains("/TaiKhoan/Profile", postResp.Headers.Location?.ToString());
+
+        using var profileResp = await Client.GetAsync("/TaiKhoan/Profile");
+        Assert.Equal(HttpStatusCode.OK, profileResp.StatusCode);
+        var html = await profileResp.Content.ReadAsStringAsync();
+        var decodedHtml = WebUtility.HtmlDecode(html);
+        Assert.Contains("Administrator Cập Nhật", decodedHtml);
+        Assert.Contains("admin_new@example.test", html);
+    }
+
+    [Fact]
+    [Trait("TC", "TC_M1_CHANGE_PASSWORD")]
+    public async Task Authenticated_user_can_access_and_change_password_successfully()
+    {
+        await LoginAsAdminAsync();
+
+        using var getDoiMatKhauResp = await Client.GetAsync("/TaiKhoan/DoiMatKhau");
+        Assert.Equal(HttpStatusCode.OK, getDoiMatKhauResp.StatusCode);
+        var getHtml = await getDoiMatKhauResp.Content.ReadAsStringAsync();
+        var decodedGetHtml = WebUtility.HtmlDecode(getHtml);
+        Assert.Contains("Đổi mật khẩu", decodedGetHtml);
+
+        var token = await GetAntiForgeryTokenAsync("/TaiKhoan/DoiMatKhau");
+        using var postResp = await PostFormAsync(
+            "/TaiKhoan/DoiMatKhau",
+            token,
+            new Dictionary<string, string>
+            {
+                ["MatKhauHienTai"] = "Admin@123",
+                ["MatKhauMoi"] = "Admin@NewPass456",
+                ["XacNhanMatKhau"] = "Admin@NewPass456"
+            });
+
+        Assert.Equal(HttpStatusCode.Redirect, postResp.StatusCode);
+        Assert.Contains("/TaiKhoan/Profile", postResp.Headers.Location?.ToString());
+
+        using var profileResp = await Client.GetAsync("/TaiKhoan/Profile");
+        Assert.Equal(HttpStatusCode.OK, profileResp.StatusCode);
+        var html = await profileResp.Content.ReadAsStringAsync();
+        var decodedHtml = WebUtility.HtmlDecode(html);
+        Assert.Contains("Đổi mật khẩu thành công!", decodedHtml);
+    }
+
+    [Fact]
+    [Trait("TC", "TC_M1_CHANGE_PASSWORD_FAIL")]
+    public async Task Change_password_with_incorrect_current_password_fails()
+    {
+        await LoginAsAdminAsync();
+
+        var token = await GetAntiForgeryTokenAsync("/TaiKhoan/DoiMatKhau");
+        using var postResp = await PostFormAsync(
+            "/TaiKhoan/DoiMatKhau",
+            token,
+            new Dictionary<string, string>
+            {
+                ["MatKhauHienTai"] = "WrongPass123",
+                ["MatKhauMoi"] = "Admin@NewPass456",
+                ["XacNhanMatKhau"] = "Admin@NewPass456"
+            });
+
+        Assert.Equal(HttpStatusCode.OK, postResp.StatusCode);
+        var html = await postResp.Content.ReadAsStringAsync();
+        var decodedHtml = WebUtility.HtmlDecode(html);
+        Assert.Contains("Mật khẩu hiện tại không chính xác.", decodedHtml);
+    }
 }
+

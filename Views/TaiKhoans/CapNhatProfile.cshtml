@@ -1,0 +1,53 @@
+@*
+    Họ và tên: Trần Xuân Hải
+    Mã sinh viên: 23103100135
+    Phụ trách Module 1: Tài khoản, Đăng nhập, Phân quyền & Quản lý hồ sơ
+*@
+@model QuanLyKhoHang_UNETI01_TI17A3HN.ViewModels.CapNhatProfileViewModel
+
+@{
+    ViewData["Title"] = "Cập nhật Hồ sơ Cá nhân";
+}
+
+<div class="container mt-4">
+    <div class="card col-md-6 mx-auto p-4 shadow-sm border">
+        <h4 class="card-title text-center text-primary mb-3">Cập nhật Hồ sơ Cá nhân</h4>
+        <hr class="mt-0 mb-3" />
+
+        <form asp-action="CapNhatProfile" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+            <div class="mb-3">
+                <label asp-for="TenDangNhap" class="form-label fw-semibold text-muted"></label>
+                <input asp-for="TenDangNhap" class="form-control bg-light" readonly tabindex="-1" />
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="VaiTro" class="form-label fw-semibold text-muted"></label>
+                <input asp-for="VaiTro" class="form-control bg-light" readonly tabindex="-1" />
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="HoTen" class="form-label fw-semibold"></label>
+                <input asp-for="HoTen" class="form-control" placeholder="Nhập họ và tên" />
+                <span asp-validation-for="HoTen" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Email" class="form-label fw-semibold"></label>
+                <input asp-for="Email" class="form-control" type="email" placeholder="example@domain.com" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+
+            <div class="text-center mt-4 pt-2 border-top">
+                <button type="submit" class="btn btn-primary btn-sm me-2">Lưu thay đổi</button>
+                <a asp-action="DoiMatKhau" class="btn btn-outline-warning btn-sm me-2">Đổi mật khẩu</a>
+                <a asp-action="Profile" class="btn btn-outline-secondary btn-sm">Quay lại hồ sơ</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

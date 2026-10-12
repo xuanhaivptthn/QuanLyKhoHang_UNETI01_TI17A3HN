@@ -230,6 +230,148 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
             return View(taiKhoan);
         }
 
+        // GET: /TaiKhoans/CapNhatProfile
+        [AuthorizeRole("Admin", "NhanVienKho", "BoPhanNhan")]
+        [HttpGet]
+        public async Task<IActionResult> CapNhatProfile()
+        {
+            var userName = User.Identity?.Name ?? HttpContext.Session.GetString("TenDangNhap");
+            if (string.IsNullOrEmpty(userName))
+            {
+                return RedirectToAction(nameof(DangNhap));
+            }
+
+            var taiKhoan = await _context.TaiKhoans.FirstOrDefaultAsync(t => t.TenDangNhap == userName);
+            if (taiKhoan == null)
+            {
+                return NotFound();
+            }
+
+            var model = new CapNhatProfileViewModel
+            {
+                TenDangNhap = taiKhoan.TenDangNhap,
+                HoTen = taiKhoan.HoTen,
+                Email = taiKhoan.Email,
+                VaiTro = taiKhoan.VaiTro
+            };
+
+            return View(model);
+        }
+
+        // POST: /TaiKhoans/CapNhatProfile
+        [AuthorizeRole("Admin", "NhanVienKho", "BoPhanNhan")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CapNhatProfile(CapNhatProfileViewModel model)
+        {
+            var userName = User.Identity?.Name ?? HttpContext.Session.GetString("TenDangNhap");
+            if (string.IsNullOrEmpty(userName))
+            {
+                return RedirectToAction(nameof(DangNhap));
+            }
+
+            var taiKhoan = await _context.TaiKhoans.FirstOrDefaultAsync(t => t.TenDangNhap == userName);
+            if (taiKhoan == null)
+            {
+                return NotFound();
+            }
+
+            if (!ModelState.IsValid)
+            {
+                model.TenDangNhap = taiKhoan.TenDangNhap;
+                model.VaiTro = taiKhoan.VaiTro;
+                return View(model);
+            }
+
+            // Cập nhật thông tin cơ bản
+            taiKhoan.HoTen = model.HoTen.Trim();
+            taiKhoan.Email = model.Email.Trim();
+
+            _context.Update(taiKhoan);
+            await _context.SaveChangesAsync();
+
+            // Cập nhật lại Session và Cookie Claims với họ tên mới
+            HttpContext.Session.SetString("HoTen", taiKhoan.HoTen);
+
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Name, taiKhoan.TenDangNhap),
+                new Claim(ClaimTypes.Role, taiKhoan.VaiTro),
+                new Claim(ClaimTypes.NameIdentifier, taiKhoan.MaTaiKhoan.ToString()),
+                new Claim(ClaimTypes.Email, taiKhoan.Email),
+                new Claim("HoTen", taiKhoan.HoTen),
+                new Claim("Department", taiKhoan.VaiTro)
+            };
+            var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(identity));
+
+            TempData["Success"] = "Cập nhật thông tin tài khoản thành công!";
+            return RedirectToAction(nameof(Profile));
+        }
+
+        // GET: /TaiKhoans/DoiMatKhau
+        [AuthorizeRole("Admin", "NhanVienKho", "BoPhanNhan")]
+        [HttpGet]
+        public IActionResult DoiMatKhau()
+        {
+            var userName = User.Identity?.Name ?? HttpContext.Session.GetString("TenDangNhap");
+            if (string.IsNullOrEmpty(userName))
+            {
+                return RedirectToAction(nameof(DangNhap));
+            }
+
+            return View(new DoiMatKhauViewModel());
+        }
+
+        // POST: /TaiKhoans/DoiMatKhau
+        [AuthorizeRole("Admin", "NhanVienKho", "BoPhanNhan")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DoiMatKhau(DoiMatKhauViewModel model)
+        {
+            var userName = User.Identity?.Name ?? HttpContext.Session.GetString("TenDangNhap");
+            if (string.IsNullOrEmpty(userName))
+            {
+                return RedirectToAction(nameof(DangNhap));
+            }
+
+            var taiKhoan = await _context.TaiKhoans.FirstOrDefaultAsync(t => t.TenDangNhap == userName);
+            if (taiKhoan == null)
+            {
+                return NotFound();
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            // Kiểm tra mật khẩu hiện tại
+            if (taiKhoan.MatKhau != model.MatKhauHienTai)
+            {
+                ModelState.AddModelError(nameof(model.MatKhauHienTai), "Mật khẩu hiện tại không chính xác.");
+                return View(model);
+            }
+
+            // Kiểm tra mật khẩu mới không được trùng với mật khẩu cũ
+            if (model.MatKhauMoi == model.MatKhauHienTai)
+            {
+                ModelState.AddModelError(nameof(model.MatKhauMoi), "Mật khẩu mới không được trùng với mật khẩu hiện tại.");
+                return View(model);
+            }
+
+            // Cập nhật mật khẩu mới và reset lockout
+            taiKhoan.MatKhau = model.MatKhauMoi.Trim();
+            taiKhoan.SoLanDangNhapSai = 0;
+            taiKhoan.KhoaDenUtc = null;
+
+            _context.Update(taiKhoan);
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] = "Đổi mật khẩu thành công!";
+            return RedirectToAction(nameof(Profile));
+        }
+
         #endregion
 
         #region Quản lý tài khoản (CRUD Admin)
@@ -313,6 +455,22 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
             {
                 return NotFound();
             }
+
+            var existing = await _context.TaiKhoans.AsNoTracking().FirstOrDefaultAsync(t => t.MaTaiKhoan == targetId);
+            if (existing == null)
+            {
+                return NotFound();
+            }
+
+            // Nếu mật khẩu để trống -> Giữ nguyên mật khẩu hiện tại
+            if (string.IsNullOrWhiteSpace(taiKhoan.MatKhau))
+            {
+                taiKhoan.MatKhau = existing.MatKhau;
+                ModelState.Remove(nameof(taiKhoan.MatKhau));
+            }
+
+            taiKhoan.SoLanDangNhapSai = existing.SoLanDangNhapSai;
+            taiKhoan.KhoaDenUtc = existing.KhoaDenUtc;
 
             bool duplicateUser = await _context.TaiKhoans
                 .AnyAsync(t => t.TenDangNhap == taiKhoan.TenDangNhap && t.MaTaiKhoan != taiKhoan.MaTaiKhoan);

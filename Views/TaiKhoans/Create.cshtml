@@ -1,61 +1,71 @@
 @*
     Họ và tên: Trần Xuân Hải
     Mã sinh viên: 23103100135
-    Phụ trách Module 1: Tài khoản, Đăng nhập, Phân quyền, Loại hàng & Đơn vị tính
+    Phụ trách Module 1: Tài khoản, Đăng nhập, Phân quyền & Quản lý hồ sơ
 *@
 @model QuanLyKhoHang_UNETI01_TI17A3HN.Models.TaiKhoan
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Thêm mới Tài khoản";
 }
 
-<h1>Create</h1>
+<div class="container mt-4">
+    <div class="card col-md-6 mx-auto p-4 shadow-sm border">
+        <h4 class="card-title text-center text-primary mb-3">Thêm mới Tài khoản</h4>
+        <hr class="mt-0 mb-3" />
 
-<h4>TaiKhoan</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="TenDangNhap" class="control-label"></label>
-                <input asp-for="TenDangNhap" class="form-control" />
+        <form asp-action="Create" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+            <div class="mb-3">
+                <label asp-for="TenDangNhap" class="form-label fw-semibold"></label>
+                <input asp-for="TenDangNhap" class="form-control" placeholder="Nhập tên đăng nhập" />
                 <span asp-validation-for="TenDangNhap" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="MatKhau" class="control-label"></label>
-                <input asp-for="MatKhau" class="form-control" />
+
+            <div class="mb-3">
+                <label asp-for="MatKhau" class="form-label fw-semibold"></label>
+                <input asp-for="MatKhau" class="form-control" type="password" placeholder="Nhập mật khẩu" />
                 <span asp-validation-for="MatKhau" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="HoTen" class="control-label"></label>
-                <input asp-for="HoTen" class="form-control" />
+
+            <div class="mb-3">
+                <label asp-for="HoTen" class="form-label fw-semibold"></label>
+                <input asp-for="HoTen" class="form-control" placeholder="Nhập họ và tên" />
                 <span asp-validation-for="HoTen" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="Email" class="control-label"></label>
-                <input asp-for="Email" class="form-control" />
+
+            <div class="mb-3">
+                <label asp-for="Email" class="form-label fw-semibold"></label>
+                <input asp-for="Email" class="form-control" type="email" placeholder="example@domain.com" />
                 <span asp-validation-for="Email" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="VaiTro" class="control-label"></label>
-                <input asp-for="VaiTro" class="form-control" />
+
+            <div class="mb-3">
+                <label asp-for="VaiTro" class="form-label fw-semibold"></label>
+                <select asp-for="VaiTro" class="form-select">
+                    <option value="Admin">Admin (Quản trị viên)</option>
+                    <option value="NhanVienKho" selected>NhanVienKho (Nhân viên kho)</option>
+                    <option value="BoPhanNhan">BoPhanNhan (Bộ phận nhận)</option>
+                </select>
                 <span asp-validation-for="VaiTro" class="text-danger"></span>
             </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="TrangThai" /> @Html.DisplayNameFor(model => model.TrangThai)
-                </label>
+
+            <div class="mb-3">
+                <label asp-for="TrangThai" class="form-label fw-semibold"></label>
+                <select asp-for="TrangThai" class="form-select">
+                    <option value="true" selected>Đang hoạt động</option>
+                    <option value="false">Bị khóa / Ngừng hoạt động</option>
+                </select>
+                <span asp-validation-for="TrangThai" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
+
+            <div class="text-center mt-4 pt-2 border-top">
+                <button type="submit" class="btn btn-primary btn-sm me-2">Tạo tài khoản</button>
+                <a asp-action="Index" class="btn btn-outline-secondary btn-sm">Quay lại danh sách</a>
             </div>
         </form>
     </div>
-</div>
-
-<div>
-    <a asp-action="Index">Back to List</a>
 </div>
 
 @section Scripts {

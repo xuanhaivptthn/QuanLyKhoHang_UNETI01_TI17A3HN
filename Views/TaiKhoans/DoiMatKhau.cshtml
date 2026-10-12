@@ -1,0 +1,48 @@
+@*
+    Họ và tên: Trần Xuân Hải
+    Mã sinh viên: 23103100135
+    Phụ trách Module 1: Tài khoản, Đăng nhập, Phân quyền & Quản lý hồ sơ
+*@
+@model QuanLyKhoHang_UNETI01_TI17A3HN.ViewModels.DoiMatKhauViewModel
+
+@{
+    ViewData["Title"] = "Đổi mật khẩu";
+}
+
+<div class="container mt-4">
+    <div class="card col-md-6 mx-auto p-4 shadow-sm border">
+        <h4 class="card-title text-center text-primary mb-3">Đổi mật khẩu</h4>
+        <hr class="mt-0 mb-3" />
+
+        <form asp-action="DoiMatKhau" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+            <div class="mb-3">
+                <label asp-for="MatKhauHienTai" class="form-label fw-semibold"></label>
+                <input asp-for="MatKhauHienTai" class="form-control" type="password" placeholder="Nhập mật khẩu hiện tại" autocomplete="current-password" />
+                <span asp-validation-for="MatKhauHienTai" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="MatKhauMoi" class="form-label fw-semibold"></label>
+                <input asp-for="MatKhauMoi" class="form-control" type="password" placeholder="Nhập mật khẩu mới (tối thiểu 6 ký tự)" autocomplete="new-password" />
+                <span asp-validation-for="MatKhauMoi" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="XacNhanMatKhau" class="form-label fw-semibold"></label>
+                <input asp-for="XacNhanMatKhau" class="form-control" type="password" placeholder="Nhập lại mật khẩu mới" autocomplete="new-password" />
+                <span asp-validation-for="XacNhanMatKhau" class="text-danger"></span>
+            </div>
+
+            <div class="text-center mt-4 pt-2 border-top">
+                <button type="submit" class="btn btn-warning btn-sm me-2">Đổi mật khẩu</button>
+                <a asp-action="Profile" class="btn btn-outline-secondary btn-sm">Quay lại hồ sơ</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
