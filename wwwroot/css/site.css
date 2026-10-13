@@ -143,6 +143,8 @@ html {
   position: relative;
   min-height: 100%;
   -webkit-text-size-adjust: 100%;
+  background-color: var(--surface-muted);
+  color-scheme: light;
 }
 
 body {
@@ -1074,6 +1076,8 @@ h1, h2, h3, h4, h5, h6 {
    ========================================================================== */
 
 [data-theme="dark"] {
+  color-scheme: dark;
+
   /* ── Surfaces ── */
   --surface:        #1e2130;
   --surface-muted:  #151823;

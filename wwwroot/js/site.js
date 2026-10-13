@@ -1,8 +1,16 @@
-// ── Theme: apply before first paint to prevent flash ────────────────────────
+// ── Theme management (Cookie + LocalStorage + OS Sync) ──────────────────────
 (function () {
-    var saved = localStorage.getItem('theme');
-    var theme = saved || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-    document.documentElement.setAttribute('data-theme', theme);
+    try {
+        var doc = document.documentElement;
+        var current = doc.getAttribute("data-theme");
+        if (!current) {
+            var m = document.cookie.match(/(?:^|; )theme=([^;]*)/);
+            var saved = m ? decodeURIComponent(m[1]) : localStorage.getItem("theme");
+            var theme = saved || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+            doc.setAttribute("data-theme", theme);
+            document.cookie = "theme=" + encodeURIComponent(theme) + ";path=/;max-age=31536000;SameSite=Lax";
+        }
+    } catch (e) {}
 }());
 
 // ── Sidebar toggle + theme toggle ───────────────────────────────────────────
@@ -37,16 +45,24 @@ document.addEventListener("DOMContentLoaded", function () {
     const toggleBtn = document.getElementById("themeToggle");
     if (toggleBtn) {
         toggleBtn.addEventListener("click", function () {
-            const next = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
+            const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+            const next = isDark ? "light" : "dark";
             document.documentElement.setAttribute("data-theme", next);
-            localStorage.setItem("theme", next);
+            try {
+                localStorage.setItem("theme", next);
+                document.cookie = "theme=" + encodeURIComponent(next) + ";path=/;max-age=31536000;SameSite=Lax";
+            } catch (e) {}
         });
     }
 
     // Follow OS preference changes only if user hasn't manually set a theme
     window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", function (e) {
         if (!localStorage.getItem("theme")) {
-            document.documentElement.setAttribute("data-theme", e.matches ? "dark" : "light");
+            const next = e.matches ? "dark" : "light";
+            document.documentElement.setAttribute("data-theme", next);
+            try {
+                document.cookie = "theme=" + encodeURIComponent(next) + ";path=/;max-age=31536000;SameSite=Lax";
+            } catch (e) {}
         }
     });
 });

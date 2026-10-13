@@ -19,19 +19,38 @@
     bool groupNhapKho = IsController("PhieuNhaps", "NhaCungCaps");
     bool groupXuatKho = IsController("PhieuXuats", "BoPhanNhans");
     bool groupTonKho = IsController("TonKho") || IsAction("ThongKe", "BaoCaoNhapXuat");
+    var currentTheme = Context.Request.Cookies["theme"];
 }
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="vi"@(string.IsNullOrEmpty(currentTheme) ? "" : $" data-theme=\"{currentTheme}\"")>
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - Quản Lý Kho Hàng UNETI</title>
+    @* Synchronous inline theme check before CSS/DOM to prevent any flash on navigation *@
+    <script>
+        (function () {
+            try {
+                var doc = document.documentElement;
+                var current = doc.getAttribute('data-theme');
+                if (!current) {
+                    var m = document.cookie.match(/(?:^|; )theme=([^;]*)/);
+                    var saved = m ? decodeURIComponent(m[1]) : localStorage.getItem('theme');
+                    var theme = saved || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+                    doc.setAttribute('data-theme', theme);
+                    document.cookie = "theme=" + encodeURIComponent(theme) + ";path=/;max-age=31536000;SameSite=Lax";
+                }
+            } catch (e) {}
+        })();
+    </script>
+    <style>
+        html { background-color: #f8f7fd; color-scheme: light; }
+        html[data-theme="dark"] { background-color: #151823; color-scheme: dark; }
+    </style>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/lib/bootstrap-icons/font/bootstrap-icons.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/QuanLyKhoHang_UNETI01_TI17A3HN.styles.css" asp-append-version="true" />
-    @* Loaded early with defer so the theme IIFE sets data-theme before first paint *@
-    <script src="~/js/site.js" asp-append-version="true" defer></script>
 </head>
 <body class="app-shell">
     <div class="sidebar-backdrop no-print" id="sidebarBackdrop"></div>
@@ -278,6 +297,7 @@
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
