@@ -1,18 +1,3 @@
-// ── Theme management (Cookie + LocalStorage + OS Sync) ──────────────────────
-(function () {
-    try {
-        var doc = document.documentElement;
-        var current = doc.getAttribute("data-theme");
-        if (!current) {
-            var m = document.cookie.match(/(?:^|; )theme=([^;]*)/);
-            var saved = m ? decodeURIComponent(m[1]) : localStorage.getItem("theme");
-            var theme = saved || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
-            doc.setAttribute("data-theme", theme);
-            document.cookie = "theme=" + encodeURIComponent(theme) + ";path=/;max-age=31536000;SameSite=Lax";
-        }
-    } catch (e) {}
-}());
-
 // ── Sidebar toggle + theme toggle ───────────────────────────────────────────
 document.addEventListener("DOMContentLoaded", function () {
     // --- Sidebar (original logic unchanged) ---
@@ -52,6 +37,12 @@ document.addEventListener("DOMContentLoaded", function () {
                 localStorage.setItem("theme", next);
                 document.cookie = "theme=" + encodeURIComponent(next) + ";path=/;max-age=31536000;SameSite=Lax";
             } catch (e) {}
+            // Set cookie via ASP.NET Core controller (Response.Cookies.Append)
+            fetch("/Home/SetTheme", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ theme: next })
+            }).catch(function () {});
         });
     }
 
@@ -63,6 +54,11 @@ document.addEventListener("DOMContentLoaded", function () {
             try {
                 document.cookie = "theme=" + encodeURIComponent(next) + ";path=/;max-age=31536000;SameSite=Lax";
             } catch (e) {}
+            fetch("/Home/SetTheme", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ theme: next })
+            }).catch(function () {});
         }
     });
 });

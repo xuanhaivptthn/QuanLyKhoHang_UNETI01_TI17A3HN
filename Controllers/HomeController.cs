@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -57,5 +58,44 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
+
+        [HttpPost]
+        [AllowAnonymous]
+        [IgnoreAntiforgeryToken]
+        public IActionResult SetTheme([FromBody] ThemeRequest? request)
+        {
+            var theme = string.Equals(request?.Theme, "dark", StringComparison.OrdinalIgnoreCase) ? "dark" : "light";
+            SetThemeCookie(theme);
+            return Ok(new { success = true, theme });
+        }
+
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult SetTheme(string theme, string? returnUrl = null)
+        {
+            var selected = string.Equals(theme, "dark", StringComparison.OrdinalIgnoreCase) ? "dark" : "light";
+            SetThemeCookie(selected);
+            if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+            {
+                return Redirect(returnUrl);
+            }
+            return Ok(new { success = true, theme = selected });
+        }
+
+        private void SetThemeCookie(string theme)
+        {
+            Response.Cookies.Append("theme", theme, new CookieOptions
+            {
+                Path = "/",
+                Expires = DateTimeOffset.UtcNow.AddYears(1),
+                SameSite = SameSiteMode.Lax,
+                IsEssential = true
+            });
+        }
+    }
+
+    public class ThemeRequest
+    {
+        public string? Theme { get; set; }
     }
 }

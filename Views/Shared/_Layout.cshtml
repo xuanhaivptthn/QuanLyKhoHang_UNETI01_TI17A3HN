@@ -27,18 +27,23 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - Quản Lý Kho Hàng UNETI</title>
-    @* Synchronous inline theme check before CSS/DOM to prevent any flash on navigation *@
+    @* Synchronous inline theme check before CSS/DOM to prevent any flash or reset on navigation *@
     <script>
         (function () {
             try {
                 var doc = document.documentElement;
                 var current = doc.getAttribute('data-theme');
                 if (!current) {
-                    var m = document.cookie.match(/(?:^|; )theme=([^;]*)/);
-                    var saved = m ? decodeURIComponent(m[1]) : localStorage.getItem('theme');
+                    var saved = localStorage.getItem('theme');
                     var theme = saved || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
                     doc.setAttribute('data-theme', theme);
-                    document.cookie = "theme=" + encodeURIComponent(theme) + ";path=/;max-age=31536000;SameSite=Lax";
+                    fetch('/Home/SetTheme', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ theme: theme })
+                    }).catch(function () {});
+                } else {
+                    localStorage.setItem('theme', current);
                 }
             } catch (e) {}
         })();
