@@ -47,9 +47,10 @@
                             <tr>
                                 <td class="ps-4 font-monospace text-muted">#@item.MaDonViTinh</td>
                                 <td>
-                                    <span class="badge bg-secondary-subtle text-dark border px-2 py-1 fs-6">
-                                        @item.TenDonViTinh
-                                    </span>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <i class="bi bi-rulers text-secondary fs-5"></i>
+                                        <strong class="text-dark">@item.TenDonViTinh</strong>
+                                    </div>
                                 </td>
                                 <td>
                                     <span class="text-muted small">@(string.IsNullOrEmpty(item.MoTa) ? "---" : item.MoTa)</span>

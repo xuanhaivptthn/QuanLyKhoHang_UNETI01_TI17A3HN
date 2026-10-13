@@ -69,9 +69,8 @@
 
                     <dt class="col-sm-5 text-muted">Mức tồn tối thiểu:</dt>
                     <dd class="col-sm-7">
-                        <span class="badge bg-warning-subtle text-dark border border-warning-subtle font-monospace">
-                            @Model?.MucTonToiThieu @Model?.DonViTinh?.TenDonViTinh
-                        </span>
+                        <span class="fw-semibold font-monospace text-dark">@Model?.MucTonToiThieu</span>
+                        <span class="text-muted">@(Model?.DonViTinh?.TenDonViTinh ?? "")</span>
                     </dd>
 
                     <dt class="col-sm-5 text-muted">Trạng thái:</dt>
@@ -106,8 +105,8 @@
                 <h5 class="card-title mb-0 fw-bold text-dark">
                     <i class="bi bi-building text-success me-2"></i> Phân Bổ Tồn Kho Tại Các Chi Nhánh
                 </h5>
-                <span class="badge @(tongTonHeThong <= (Model?.MucTonToiThieu ?? 0) ? "bg-warning text-dark" : "bg-success")">
-                    Tổng tồn: @tongTonHeThong @Model?.DonViTinh?.TenDonViTinh
+                <span class="fw-semibold @(tongTonHeThong <= (Model?.MucTonToiThieu ?? 0) ? "text-warning" : "text-success")">
+                    Tổng tồn: <span class="font-monospace fw-bold">@tongTonHeThong</span> @Model?.DonViTinh?.TenDonViTinh
                 </span>
             </div>
             <div class="card-body p-0">

@@ -105,7 +105,7 @@
                 <h5 class="card-title mb-0 fw-bold text-dark">
                     <i class="bi bi-boxes text-success me-2"></i> Danh Sách Hàng Hóa Tồn Tại Kho
                 </h5>
-                <span class="badge bg-primary">@tonKhos.Count mặt hàng</span>
+                <span class="text-muted small"><strong class="font-monospace text-dark">@tonKhos.Count</strong> mặt hàng</span>
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
@@ -146,7 +146,7 @@
                                             }
                                             else if (t.SoLuongTon <= mucToiThieu)
                                             {
-                                                <span class="badge bg-warning text-dark">Sắp hết (Định mức: @mucToiThieu)</span>
+                                                <span class="badge bg-warning text-dark">Sắp hết</span>
                                             }
                                             else
                                             {

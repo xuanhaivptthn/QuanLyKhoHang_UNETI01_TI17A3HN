@@ -70,8 +70,8 @@
                                     </div>
                                 </td>
                                 <td>
-                                    <span class="badge bg-light text-dark border">
-                                        <i class="bi bi-building me-1 text-info"></i>@(item.Kho?.TenKho ?? "---")
+                                    <span class="text-dark">
+                                        <i class="bi bi-building me-1 text-secondary small"></i>@(item.Kho?.TenKho ?? "---")
                                     </span>
                                 </td>
                                 <td class="text-muted small">
@@ -80,8 +80,8 @@
                                 <td>
                                     <span class="text-muted small"><i class="bi bi-person me-1"></i>@item.NguoiLap</span>
                                 </td>
-                                <td class="text-center font-monospace">
-                                    <span class="badge bg-secondary-subtle text-secondary">@soMon mặt hàng</span>
+                                <td class="text-center font-monospace text-muted">
+                                    @soMon mặt hàng
                                 </td>
                                 <td class="text-end fw-bold text-success">
                                     @tongTien.ToString("#,##0") VNĐ

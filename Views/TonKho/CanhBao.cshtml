@@ -81,7 +81,7 @@
                         foreach (var item in Model)
                         {
                             bool isHet = item.SoLuongTon == 0;
-                            <tr class="@(isHet ? "table-danger bg-opacity-25" : "table-warning bg-opacity-25")">
+                            <tr>
                                 <td class="ps-4">
                                     <div class="d-flex align-items-center gap-2">
                                         <i class="bi bi-building text-secondary"></i>
@@ -92,12 +92,10 @@
                                 <td>
                                     <span class="fw-bold text-dark d-block">@(item.HangHoa?.TenHang ?? "Mặt hàng #" + item.MaHang)</span>
                                 </td>
-                                <td class="text-center font-monospace">
-                                    <span class="badge bg-light text-dark border">
-                                        @item.HangHoa?.MucTonToiThieu
-                                    </span>
+                                <td class="text-center font-monospace text-muted">
+                                    @(item.HangHoa?.MucTonToiThieu ?? 0)
                                 </td>
-                                <td class="text-center font-monospace fw-bold fs-6 @(isHet ? "text-danger" : "text-warning text-dark")">
+                                <td class="text-center font-monospace fw-bold fs-6 @(isHet ? "text-danger" : "text-warning")">
                                     @item.SoLuongTon
                                 </td>
                                 <td class="text-center">

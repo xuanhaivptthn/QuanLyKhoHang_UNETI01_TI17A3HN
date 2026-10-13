@@ -1136,6 +1136,11 @@ h1, h2, h3, h4, h5, h6 {
   --bs-secondary-border-subtle:    var(--border-color);
   --bs-link-color:                 var(--brand-500);
   --bs-link-hover-color:           var(--brand-300);
+  --bs-success-text-emphasis:      #86d9b8;
+  --bs-danger-text-emphasis:       #f4a8b5;
+  --bs-warning-text-emphasis:      #f6d9a8;
+  --bs-info-text-emphasis:         #bfe9ec;
+  --bs-primary-text-emphasis:      #c0d7ff;
 }
 
 /* ── Component fixes that can't be handled by tokens alone ── */
@@ -1155,10 +1160,20 @@ h1, h2, h3, h4, h5, h6 {
 [data-theme="dark"] .card-header { background-color: var(--surface); border-bottom-color: var(--border-color); }
 [data-theme="dark"] .card-footer { background-color: rgba(255,255,255,0.03); border-top-color: var(--border-color); }
 
-[data-theme="dark"] .table { color: var(--ink-700); }
+[data-theme="dark"] .table { color: var(--ink-700); --bs-table-color: var(--ink-700); }
 [data-theme="dark"] .table thead th { background-color: var(--surface-muted); border-bottom-color: var(--border-color); }
 [data-theme="dark"] .table tbody td { border-bottom-color: rgba(255,255,255,0.05); }
 [data-theme="dark"] .table-hover tbody tr:hover { background-color: rgba(111,163,245,0.07); }
+[data-theme="dark"] .table-light,
+[data-theme="dark"] .table thead.table-light th,
+[data-theme="dark"] .table tfoot tr.table-light th,
+[data-theme="dark"] .table tfoot tr.table-light td {
+  --bs-table-bg: rgba(255, 255, 255, 0.04);
+  --bs-table-color: var(--ink-800);
+  background-color: rgba(255, 255, 255, 0.04) !important;
+  color: var(--ink-800) !important;
+  border-color: var(--border-color) !important;
+}
 
 [data-theme="dark"] .form-control,
 [data-theme="dark"] .form-select {
