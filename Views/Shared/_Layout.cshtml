@@ -30,6 +30,8 @@
     <link rel="stylesheet" href="~/lib/bootstrap-icons/font/bootstrap-icons.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/QuanLyKhoHang_UNETI01_TI17A3HN.styles.css" asp-append-version="true" />
+    @* Loaded early with defer so the theme IIFE sets data-theme before first paint *@
+    <script src="~/js/site.js" asp-append-version="true" defer></script>
 </head>
 <body class="app-shell">
     <div class="sidebar-backdrop no-print" id="sidebarBackdrop"></div>
@@ -200,9 +202,16 @@
             </button>
             <span class="topbar-title">@ViewData["Title"]</span>
 
+            @* Theme toggle — pushes to right edge, dropdown sits beside it *@
+            <button class="theme-toggle ms-auto" id="themeToggle" type="button"
+                    title="Chuyển chế độ sáng / tối" aria-label="Chuyển chế độ sáng / tối">
+                <i class="bi bi-moon-stars-fill icon-moon"></i>
+                <i class="bi bi-sun-fill icon-sun"></i>
+            </button>
+
             @if (isAuthenticated)
             {
-                <div class="ms-auto dropdown">
+                <div class="dropdown">
                     <button class="btn btn-sm btn-light border d-inline-flex align-items-center gap-2 dropdown-toggle shadow-none" type="button" id="topbarUserDropdown" data-bs-toggle="dropdown" aria-expanded="false" title="Menu tài khoản">
                         <i class="bi bi-person-circle text-primary fs-6"></i>
                         <span class="fw-semibold text-dark d-none d-sm-inline">@currentUserName</span>
@@ -237,13 +246,12 @@
             }
             else
             {
-                <div class="ms-auto">
-                    <a class="btn btn-sm btn-primary d-inline-flex align-items-center gap-1" asp-controller="TaiKhoans" asp-action="DangNhap">
-                        <i class="bi bi-box-arrow-in-right"></i> <span>Đăng nhập</span>
-                    </a>
-                </div>
+                <a class="btn btn-sm btn-primary d-inline-flex align-items-center gap-1" asp-controller="TaiKhoans" asp-action="DangNhap">
+                    <i class="bi bi-box-arrow-in-right"></i> <span>Đăng nhập</span>
+                </a>
             }
         </header>
+
 
         <div class="app-content">
             <main role="main">
@@ -270,7 +278,6 @@
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

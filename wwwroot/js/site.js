@@ -1,5 +1,13 @@
-// Sidebar toggle (off-canvas on small/medium screens)
+// ── Theme: apply before first paint to prevent flash ────────────────────────
+(function () {
+    var saved = localStorage.getItem('theme');
+    var theme = saved || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    document.documentElement.setAttribute('data-theme', theme);
+}());
+
+// ── Sidebar toggle + theme toggle ───────────────────────────────────────────
 document.addEventListener("DOMContentLoaded", function () {
+    // --- Sidebar (original logic unchanged) ---
     const sidebar = document.getElementById("appSidebar");
     const backdrop = document.getElementById("sidebarBackdrop");
     const openBtn = document.getElementById("sidebarToggle");
@@ -24,4 +32,21 @@ document.addEventListener("DOMContentLoaded", function () {
             link.addEventListener("click", closeSidebar);
         });
     }
+
+    // --- Theme toggle ---
+    const toggleBtn = document.getElementById("themeToggle");
+    if (toggleBtn) {
+        toggleBtn.addEventListener("click", function () {
+            const next = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
+            document.documentElement.setAttribute("data-theme", next);
+            localStorage.setItem("theme", next);
+        });
+    }
+
+    // Follow OS preference changes only if user hasn't manually set a theme
+    window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", function (e) {
+        if (!localStorage.getItem("theme")) {
+            document.documentElement.setAttribute("data-theme", e.matches ? "dark" : "light");
+        }
+    });
 });

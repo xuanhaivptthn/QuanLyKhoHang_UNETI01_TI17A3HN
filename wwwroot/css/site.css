@@ -1066,3 +1066,193 @@ h1, h2, h3, h4, h5, h6 {
   font-size: 0.83rem;
   color: var(--ink-500);
 }
+
+/* ==========================================================================
+   Dark mode  —  [data-theme="dark"] on <html>
+   All existing rules are untouched. This block only overrides tokens and
+   adds targeted fixes for Bootstrap utility classes.
+   ========================================================================== */
+
+[data-theme="dark"] {
+  /* ── Surfaces ── */
+  --surface:        #1e2130;
+  --surface-muted:  #151823;
+  --border-color:   #2e3348;
+
+  /* ── Ink scale: flip so light values become dark and vice-versa ── */
+  --ink-900: #edeaf8;
+  --ink-800: #d8d4ef;
+  --ink-700: #b8b3d8;
+  --ink-600: #9490b8;
+  --ink-500: #6f6b92;
+  --ink-400: #4e4a6a;
+  --ink-300: #35314f;
+  --ink-200: #252139;
+  --ink-100: #1c1930;
+  --ink-50:  #151823;
+
+  /* ── Brand tints — keep hue, darken the fill ── */
+  --brand-50:  rgba(111, 163, 245, 0.10);
+  --brand-100: rgba(111, 163, 245, 0.18);
+  --brand-200: rgba(111, 163, 245, 0.28);
+
+  /* ── Semantic tints ── */
+  --success-50:  rgba(76, 181, 132, 0.12);
+  --success-200: rgba(76, 181, 132, 0.28);
+  --warning-50:  rgba(227, 162, 74, 0.12);
+  --warning-200: rgba(227, 162, 74, 0.28);
+  --danger-50:   rgba(224, 108, 130, 0.12);
+  --danger-200:  rgba(224, 108, 130, 0.28);
+  --info-50:     rgba(75, 179, 189, 0.12);
+  --info-200:    rgba(75, 179, 189, 0.28);
+  --purple-50:   rgba(146, 114, 209, 0.12);
+
+  /* ── Sidebar — slightly deeper than surface ── */
+  --sidebar-bg:           #11131d;
+  --sidebar-border:       #252139;
+  --sidebar-text:         #9490b8;
+  --sidebar-text-muted:   #6f6b92;
+  --sidebar-hover-bg:     rgba(255,255,255,0.05);
+  --sidebar-active-bg:    rgba(111, 163, 245, 0.16);
+  --sidebar-active-text:  #9dc0fd;
+
+  /* ── Shadows — stronger on dark ── */
+  --shadow-xs: 0 1px 2px rgba(0,0,0,0.30);
+  --shadow-sm: 0 2px 8px rgba(0,0,0,0.35);
+  --shadow-md: 0 10px 24px -10px rgba(0,0,0,0.50);
+  --shadow-lg: 0 16px 36px -14px rgba(0,0,0,0.55);
+
+  /* ── Bootstrap tokens ── */
+  --bs-body-bg:                    var(--surface-muted);
+  --bs-body-color:                 var(--ink-700);
+  --bs-border-color:               var(--border-color);
+  --bs-border-color-translucent:   var(--border-color);
+  --bs-emphasis-color:             var(--ink-900);
+  --bs-secondary-bg-subtle:        rgba(255,255,255,0.05);
+  --bs-secondary-border-subtle:    var(--border-color);
+  --bs-link-color:                 var(--brand-500);
+  --bs-link-hover-color:           var(--brand-300);
+}
+
+/* ── Component fixes that can't be handled by tokens alone ── */
+
+[data-theme="dark"] .app-topbar {
+  background-color: rgba(30, 33, 48, 0.92);
+  border-bottom-color: var(--border-color);
+}
+
+[data-theme="dark"] .card,
+[data-theme="dark"] .filter-card,
+[data-theme="dark"] .auth-card,
+[data-theme="dark"] .invoice-container {
+  background-color: var(--surface);
+  border-color: var(--border-color);
+}
+[data-theme="dark"] .card-header { background-color: var(--surface); border-bottom-color: var(--border-color); }
+[data-theme="dark"] .card-footer { background-color: rgba(255,255,255,0.03); border-top-color: var(--border-color); }
+
+[data-theme="dark"] .table { color: var(--ink-700); }
+[data-theme="dark"] .table thead th { background-color: var(--surface-muted); border-bottom-color: var(--border-color); }
+[data-theme="dark"] .table tbody td { border-bottom-color: rgba(255,255,255,0.05); }
+[data-theme="dark"] .table-hover tbody tr:hover { background-color: rgba(111,163,245,0.07); }
+
+[data-theme="dark"] .form-control,
+[data-theme="dark"] .form-select {
+  background-color: #11131d;
+  color: var(--ink-800);
+  border-color: var(--border-color);
+}
+[data-theme="dark"] .form-control:focus,
+[data-theme="dark"] .form-select:focus { background-color: #11131d; color: var(--ink-900); }
+[data-theme="dark"] .input-group-text { background-color: #1a1c2b; border-color: var(--border-color); color: var(--ink-600); }
+
+[data-theme="dark"] .dropdown-menu {
+  background-color: var(--surface);
+  border-color: var(--border-color);
+}
+[data-theme="dark"] .dropdown-item { color: var(--ink-700); }
+[data-theme="dark"] .dropdown-item:hover { background-color: rgba(111,163,245,0.12); color: var(--ink-900); }
+[data-theme="dark"] .dropdown-divider { border-color: var(--border-color); }
+
+[data-theme="dark"] .alert-danger {
+  color: #f4a8b5;
+  background-color: rgba(224,108,130,0.14);
+  border-color: rgba(224,108,130,0.30);
+}
+[data-theme="dark"] .alert-success {
+  color: #86d9b8;
+  background-color: rgba(76,181,132,0.14);
+  border-color: rgba(76,181,132,0.30);
+}
+
+[data-theme="dark"] .pagination .page-link { background-color: var(--surface); border-color: var(--border-color); color: var(--ink-600); }
+[data-theme="dark"] .pagination .page-link:hover { background-color: rgba(111,163,245,0.14); color: var(--brand-300); }
+[data-theme="dark"] .pagination .page-item.disabled .page-link { background-color: transparent; color: var(--ink-400); }
+
+[data-theme="dark"] .accordion-button:not(.collapsed) { background-color: rgba(111,163,245,0.10); }
+[data-theme="dark"] .accordion-item { background-color: var(--surface); border-color: var(--border-color); }
+
+/* Bootstrap utility overrides */
+[data-theme="dark"] .bg-white  { background-color: var(--surface) !important; }
+[data-theme="dark"] .bg-light  { background-color: rgba(255,255,255,0.05) !important; }
+[data-theme="dark"] .text-dark { color: var(--ink-800) !important; }
+[data-theme="dark"] .text-muted { color: var(--ink-500) !important; }
+[data-theme="dark"] .border       { border-color: var(--border-color) !important; }
+[data-theme="dark"] .border-top   { border-top-color: var(--border-color) !important; }
+[data-theme="dark"] .border-bottom { border-bottom-color: var(--border-color) !important; }
+[data-theme="dark"] .bg-opacity-50 { --bs-bg-opacity: 0.08 !important; }
+
+[data-theme="dark"] .btn-light,
+[data-theme="dark"] .btn-outline-secondary {
+  background-color: rgba(255,255,255,0.07);
+  border-color: var(--border-color);
+  color: var(--ink-700);
+}
+[data-theme="dark"] .btn-light:hover,
+[data-theme="dark"] .btn-outline-secondary:hover {
+  background-color: rgba(111,163,245,0.15);
+  border-color: var(--brand-300);
+  color: var(--ink-900);
+}
+
+[data-theme="dark"] .footer { background-color: var(--surface); border-top-color: var(--border-color); }
+
+/* ==========================================================================
+   Theme toggle button
+   ========================================================================== */
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.1rem;
+  height: 2.1rem;
+  flex-shrink: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--ink-500);
+  cursor: pointer;
+  font-size: 0.95rem;
+  line-height: 1;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+.theme-toggle:hover {
+  background-color: var(--sidebar-hover-bg);
+  border-color: var(--brand-300);
+  color: var(--brand-600);
+}
+[data-theme="dark"] .theme-toggle {
+  border-color: var(--border-color);
+  color: var(--ink-600);
+}
+[data-theme="dark"] .theme-toggle:hover {
+  background-color: rgba(111,163,245,0.15);
+  border-color: var(--brand-300);
+  color: var(--brand-300);
+}
+
+/* Show moon in light mode, sun in dark mode */
+.theme-toggle .icon-moon { display: inline-block; }
+.theme-toggle .icon-sun  { display: none; }
+[data-theme="dark"] .theme-toggle .icon-moon { display: none; }
+[data-theme="dark"] .theme-toggle .icon-sun  { display: inline-block; }
