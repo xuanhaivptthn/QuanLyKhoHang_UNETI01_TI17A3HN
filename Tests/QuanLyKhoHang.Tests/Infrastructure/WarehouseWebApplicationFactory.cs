@@ -110,6 +110,27 @@ public sealed class WarehouseWebApplicationFactory : WebApplicationFactory<Progr
             MucTonToiThieu = 5,
             TrangThai = true
         });
+        db.HangHoa.AddRange(
+            new HangHoa
+            {
+                MaHang = 2,
+                TenHang = "Test item 2",
+                MaLoaiHang = 1,
+                MaDonViTinh = 1,
+                GiaNhapThamKhao = 100,
+                MucTonToiThieu = 5,
+                TrangThai = true
+            },
+            new HangHoa
+            {
+                MaHang = 3,
+                TenHang = "Test item 3",
+                MaLoaiHang = 1,
+                MaDonViTinh = 1,
+                GiaNhapThamKhao = 100,
+                MucTonToiThieu = 5,
+                TrangThai = true
+            });
         db.TonKhoes.Add(new TonKho
         {
             MaKho = 1,

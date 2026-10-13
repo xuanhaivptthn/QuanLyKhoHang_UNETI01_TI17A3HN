@@ -23,4 +23,10 @@
     <ProjectReference Include="..\..\QuanLyKhoHang_UNETI01_TI17A3HN.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="..\..\TestCase_QuanLyKhoHang_ASPNetCore10.xlsx"
+          Link="TestCase_QuanLyKhoHang_ASPNetCore10.xlsx"
+          CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
 </Project>

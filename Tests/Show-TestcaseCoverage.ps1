@@ -32,6 +32,13 @@ Get-ChildItem -LiteralPath $testSourcePath -Recurse -Filter *.cs |
             [void]$automatedCases.Add($match.Groups[1].Value)
         }
     }
+Select-String -LiteralPath (Join-Path $testSourcePath "ExcelTestCaseIntegrationTests.cs") `
+    -Pattern '^\s*"(TC_M\d+_\d+)"[,]?\s*$' -AllMatches |
+    ForEach-Object {
+        foreach ($match in $_.Matches) {
+            [void]$automatedCases.Add($match.Groups[1].Value)
+        }
+    }
 
 $summaryOnly = @($summaryCases | Where-Object { -not $dumpCases.Contains($_) } | Sort-Object)
 $dumpOnly = @($dumpCases | Where-Object { -not $summaryCases.Contains($_) } | Sort-Object)
