@@ -31,7 +31,7 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
             var danhSachCanhBao = await _context.TonKhoes
                 .Include(t => t.HangHoa)
                 .Include(t => t.Kho)
-                .Where(t => t.SoLuongTon <= t.HangHoa.MucTonToiThieu)
+                .Where(t => t.SoLuongTon <= t.HangHoa!.MucTonToiThieu)
                 .OrderByDescending(t => t.SoLuongTon)
                 .ToListAsync();
 
@@ -50,7 +50,7 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
 
             if (!string.IsNullOrEmpty(timKiem))
             {
-                query = query.Where(l => l.HangHoa.TenHang.Contains(timKiem) || l.Kho.TenKho.Contains(timKiem));
+                query = query.Where(l => (l.HangHoa != null && l.HangHoa.TenHang.Contains(timKiem)) || (l.Kho != null && l.Kho.TenKho.Contains(timKiem)));
                 ViewBag.TimKiem = timKiem;
             }
 

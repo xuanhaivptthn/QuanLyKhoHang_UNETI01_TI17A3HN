@@ -1,12 +1,15 @@
 # Automated test model
 
-The test cases in `testcase_summary.txt` (also represented in `testcase_dump.txt`)
-are the source of truth. Automated tests use xUnit traits named `TC`, with each
-trait value matching a testcase ID so the test runner can filter by spreadsheet
-ID, for example:
+`TestCase_QuanLyKhoHang_ASPNetCore10.xlsx`, worksheet `Testcase`, is the source
+of truth. `ExcelTestCaseLoader` loads testcase rows and the data-driven xUnit
+test dispatches rows with an implemented executor. The current automated set is
+an explicitly supported subset; every other workbook row is reported as not yet
+automated instead of being treated as passed.
+
+Run the dynamically supported testcases directly:
 
 ```powershell
-dotnet test .\QuanLyKhoHang_UNETI01_TI17A3HN.slnx --filter "TC=TC_M1_001"
+dotnet test .\Tests\QuanLyKhoHang.Tests\QuanLyKhoHang.Tests.csproj --filter "FullyQualifiedName~ExcelTestCaseIntegrationTests"
 ```
 
 Run the current automated suite from the repository root. The wrapper shows
@@ -17,16 +20,29 @@ for failures:
 .\tests\Run-Tests.ps1
 ```
 
-To run selected tests, pass a VSTest filter:
+The wrapper reads the workbook directly and discovers dynamically executable
+IDs from the test runner. Select by testcase ID, module, feature, test type,
+title, or test data with `-TestCase`. Matching is case-insensitive and allows
+partial text:
 
 ```powershell
-.\tests\Run-Tests.ps1 -TestFilter "TC=TC_M1_001"
+.\Tests\Run-Tests.ps1 -TestCase "TC_M1_001"
+.\Tests\Run-Tests.ps1 -TestCase "Đăng nhập"
 ```
 
-Compare the IDs in both input files and see which cases have an xUnit mapping:
+If matching workbook rows are not automated yet, the script reports those IDs
+and exits without running unrelated tests. With no arguments it reports total,
+automated, and not-yet-automated testcase counts, then runs the test suite.
+`-TestFilter` remains available for a raw VSTest filter:
 
 ```powershell
-.\tests\Show-TestcaseCoverage.ps1
+.\Tests\Run-Tests.ps1 -TestFilter "FullyQualifiedName~AuthenticationIntegrationTests"
+```
+
+Compare testcase IDs and see which cases have an xUnit mapping:
+
+```powershell
+.\Tests\Show-TestcaseCoverage.ps1
 ```
 
 ## Structure
@@ -37,7 +53,7 @@ Compare the IDs in both input files and see which cases have an xUnit mapping:
   call controller methods directly.
 - Test data is isolated per test and discarded with its database connection.
 
-## Initial testcase coverage
+## Current automated testcase coverage
 
 | Test file | Testcase IDs |
 |---|---|
@@ -45,9 +61,11 @@ Compare the IDs in both input files and see which cases have an xUnit mapping:
 | `InboundWorkflowIntegrationTests.cs` | TC_M3_008, TC_M3_012, TC_M3_018, TC_M3_019 |
 | `OutboundWorkflowIntegrationTests.cs` | TC_M4_006, TC_M4_019, TC_M4_020, TC_M5_016 |
 
-The catalog contains 204 cases, but this is the first runnable slice, not full
-automation of all 204. Add tests and testcase traits incrementally; do not mark
-an unmapped spreadsheet case as automated or passed.
+The workbook currently contains 204 cases. Only the IDs explicitly listed in
+`ExcelTestCaseIntegrationTests` have executable scenario handlers; the
+remaining rows are reported as not yet automated. Add handlers and assertions
+incrementally rather than interpreting arbitrary natural-language steps as
+executable commands.
 
 SQLite provides a fast, isolated relational test database without Docker or a
 SQL Server instance. It is not a substitute for SQL Server compatibility testing;

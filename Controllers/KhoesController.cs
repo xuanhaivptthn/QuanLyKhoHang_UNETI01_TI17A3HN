@@ -55,6 +55,12 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
                 return NotFound();
             }
 
+            ViewBag.DanhSachTonKho = await _context.TonKhoes
+                .Where(t => t.MaKho == id)
+                .Include(t => t.HangHoa)
+                .OrderBy(t => t.HangHoa!.TenHang)
+                .ToListAsync();
+
             return View(kho);
         }
 
