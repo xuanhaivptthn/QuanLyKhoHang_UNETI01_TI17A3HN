@@ -194,10 +194,10 @@ sequenceDiagram
 | `/TaiKhoans/Profile` | Cho phép | Cho phép | Cho phép | Chuyển hướng Login |
 | `/TaiKhoans/CapNhatProfile` | Cho phép | Cho phép | Cho phép | Chuyển hướng Login |
 | `/TaiKhoans/DoiMatKhau` | Cho phép | Cho phép | Cho phép | Chuyển hướng Login |
-| `/TaiKhoans/Index` | **Cho phép** | ⛔ 403 Forbidden | ⛔ 403 Forbidden | Chuyển hướng Login |
-| `/TaiKhoans/Create`, `Edit`, `Delete` | **Cho phép** | ⛔ 403 Forbidden | ⛔ 403 Forbidden | Chuyển hướng Login |
-| `/LoaiHangs/*` (CRUD) | **Cho phép** | **Cho phép** | ⛔ 403 Forbidden | Chuyển hướng Login |
-| `/DonViTinhs/*` (CRUD) | **Cho phép** | **Cho phép** | ⛔ 403 Forbidden | Chuyển hướng Login |
+| `/TaiKhoans/Index` | **Cho phép** | 403 Forbidden | 403 Forbidden | Chuyển hướng Login |
+| `/TaiKhoans/Create`, `Edit`, `Delete` | **Cho phép** | 403 Forbidden | 403 Forbidden | Chuyển hướng Login |
+| `/LoaiHangs/*` (CRUD) | **Cho phép** | **Cho phép** | 403 Forbidden | Chuyển hướng Login |
+| `/DonViTinhs/*` (CRUD) | **Cho phép** | **Cho phép** | 403 Forbidden | Chuyển hướng Login |
 | `/Home/AccessDenied` | Cho phép | Cho phép | Cho phép | Cho phép |
 
 ---

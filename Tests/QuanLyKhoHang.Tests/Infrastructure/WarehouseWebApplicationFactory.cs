@@ -48,6 +48,20 @@ public sealed class WarehouseWebApplicationFactory : WebApplicationFactory<Progr
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         await db.Database.EnsureCreatedAsync();
 
+        await db.ChiTietPhieuXuats.ExecuteDeleteAsync();
+        await db.PhieuXuats.ExecuteDeleteAsync();
+        await db.ChiTietPhieuNhaps.ExecuteDeleteAsync();
+        await db.PhieuNhap.ExecuteDeleteAsync();
+        await db.LichSuTonKhoes.ExecuteDeleteAsync();
+        await db.TonKhoes.ExecuteDeleteAsync();
+        await db.HangHoa.ExecuteDeleteAsync();
+        await db.BoPhanNhans.ExecuteDeleteAsync();
+        await db.NhaCungCap.ExecuteDeleteAsync();
+        await db.Kho.ExecuteDeleteAsync();
+        await db.DonViTinhs.ExecuteDeleteAsync();
+        await db.LoaiHangs.ExecuteDeleteAsync();
+        await db.TaiKhoans.ExecuteDeleteAsync();
+
         var passwordHasher = new Microsoft.AspNetCore.Identity.PasswordHasher<TaiKhoan>();
         var adminUser = new TaiKhoan
         {

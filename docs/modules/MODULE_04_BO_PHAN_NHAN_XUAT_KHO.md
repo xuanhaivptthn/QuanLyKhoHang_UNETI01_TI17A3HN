@@ -208,14 +208,14 @@ Dự án tích hợp bộ test tự động độc lập tại thư mục `Tests
 | Tuyến đường (Route) | Quyền Admin | Quyền NhanVienKho | Quyền BoPhanNhan | Chưa đăng nhập |
 | :--- | :---: | :---: | :---: | :---: |
 | `/BoPhanNhans/Index` | **Toàn quyền** | **Xem / Thêm / Sửa** | **Chỉ xem đơn vị mình** | Chuyển hướng Login |
-| `/BoPhanNhans/Delete/{id}` | **Được phép** | ⛔ 403 Forbidden | ⛔ 403 Forbidden | Chuyển hướng Login |
+| `/BoPhanNhans/Delete/{id}` | **Được phép** | 403 Forbidden | 403 Forbidden | Chuyển hướng Login |
 | `/PhieuXuats/Index` | **Xem toàn bộ** | **Xem toàn bộ** | **Xem phiếu của đơn vị** | Chuyển hướng Login |
 | `/PhieuXuats/Details/{id}` | **Xem biên bản** | **Xem biên bản** | **Xem biên bản** | Chuyển hướng Login |
-| `/PhieuXuats/Create` | **Lập phiếu** | **Lập phiếu** | ⛔ 403 Forbidden | Chuyển hướng Login |
-| `/PhieuXuats/Edit/{id}` | **Được phép** | **Được phép** | ⛔ 403 Forbidden | Chuyển hướng Login |
-| `/ChiTietPhieuXuats/*` | **Thêm/Sửa/Xóa** | **Thêm/Sửa/Xóa** | ⛔ 403 Forbidden | Chuyển hướng Login |
-| `/PhieuXuats/HoanTat/{id}` | **Duyệt hoàn tất** | **Duyệt hoàn tất** | ⛔ 403 Forbidden | Chuyển hướng Login |
-| `/PhieuXuats/HuyPhieu/{id}` | **Hủy phiếu** | **Hủy phiếu** | ⛔ 403 Forbidden | Chuyển hướng Login |
+| `/PhieuXuats/Create` | **Lập phiếu** | **Lập phiếu** | 403 Forbidden | Chuyển hướng Login |
+| `/PhieuXuats/Edit/{id}` | **Được phép** | **Được phép** | 403 Forbidden | Chuyển hướng Login |
+| `/ChiTietPhieuXuats/*` | **Thêm/Sửa/Xóa** | **Thêm/Sửa/Xóa** | 403 Forbidden | Chuyển hướng Login |
+| `/PhieuXuats/HoanTat/{id}` | **Duyệt hoàn tất** | **Duyệt hoàn tất** | 403 Forbidden | Chuyển hướng Login |
+| `/PhieuXuats/HuyPhieu/{id}` | **Hủy phiếu** | **Hủy phiếu** | 403 Forbidden | Chuyển hướng Login |
 
 ---
 

@@ -217,15 +217,15 @@ sequenceDiagram
 
 | Tuyến đường (Route) | Quyền Admin | Quyền NhanVienKho | Quyền BoPhanNhan | Chưa đăng nhập |
 | :--- | :---: | :---: | :---: | :---: |
-| `/NhaCungCaps/Index` | **Toàn quyền** | **Xem / Thêm / Sửa** | ⛔ 403 Forbidden | Chuyển hướng Login |
-| `/NhaCungCaps/Delete/{id}` | **Được phép** | ⛔ 403 Forbidden | ⛔ 403 Forbidden | Chuyển hướng Login |
-| `/PhieuNhaps/Index` | **Xem toàn bộ** | **Xem toàn bộ** | ⛔ 403 Forbidden | Chuyển hướng Login |
-| `/PhieuNhaps/Details/{id}` | **Xem hóa đơn** | **Xem hóa đơn** | ⛔ 403 Forbidden | Chuyển hướng Login |
-| `/PhieuNhaps/Create` | **Lập phiếu** | **Lập phiếu** | ⛔ 403 Forbidden | Chuyển hướng Login |
-| `/PhieuNhaps/Edit/{id}` | **Được phép** | **Được phép** | ⛔ 403 Forbidden | Chuyển hướng Login |
-| `/ChiTietPhieuNhaps/*` | **Thêm/Sửa/Xóa** | **Thêm/Sửa/Xóa** | ⛔ 403 Forbidden | Chuyển hướng Login |
-| `/PhieuNhaps/HoanTat/{id}` | **Duyệt hoàn tất** | **Duyệt hoàn tất** | ⛔ 403 Forbidden | Chuyển hướng Login |
-| `/PhieuNhaps/HuyPhieu/{id}` | **Hủy phiếu** | **Hủy phiếu** | ⛔ 403 Forbidden | Chuyển hướng Login |
+| `/NhaCungCaps/Index` | **Toàn quyền** | **Xem / Thêm / Sửa** | 403 Forbidden | Chuyển hướng Login |
+| `/NhaCungCaps/Delete/{id}` | **Được phép** | 403 Forbidden | 403 Forbidden | Chuyển hướng Login |
+| `/PhieuNhaps/Index` | **Xem toàn bộ** | **Xem toàn bộ** | 403 Forbidden | Chuyển hướng Login |
+| `/PhieuNhaps/Details/{id}` | **Xem hóa đơn** | **Xem hóa đơn** | 403 Forbidden | Chuyển hướng Login |
+| `/PhieuNhaps/Create` | **Lập phiếu** | **Lập phiếu** | 403 Forbidden | Chuyển hướng Login |
+| `/PhieuNhaps/Edit/{id}` | **Được phép** | **Được phép** | 403 Forbidden | Chuyển hướng Login |
+| `/ChiTietPhieuNhaps/*` | **Thêm/Sửa/Xóa** | **Thêm/Sửa/Xóa** | 403 Forbidden | Chuyển hướng Login |
+| `/PhieuNhaps/HoanTat/{id}` | **Duyệt hoàn tất** | **Duyệt hoàn tất** | 403 Forbidden | Chuyển hướng Login |
+| `/PhieuNhaps/HuyPhieu/{id}` | **Hủy phiếu** | **Hủy phiếu** | 403 Forbidden | Chuyển hướng Login |
 
 ---
 

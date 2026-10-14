@@ -97,13 +97,13 @@ if (args.Contains("--seed"))
     try
     {
         var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-        DbInitializer.Initialize(context);
-        Console.WriteLine("[DbInitializer] Nạp dữ liệu mẫu hoàn tất thành công!");
+        context.ReseedData();
+        Console.WriteLine("[AppDbContext] Xóa toàn bộ dữ liệu cũ và nạp lại dữ liệu mẫu thành công!");
     }
     catch (Exception ex)
     {
         var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "Lỗi trong quá trình khởi tạo dữ liệu mẫu (DbInitializer).");
+        logger.LogError(ex, "Lỗi trong quá trình khởi tạo dữ liệu mẫu (AppDbContext.ReseedData).");
     }
     return;
 }

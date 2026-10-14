@@ -169,15 +169,15 @@ flowchart TD
 
 | Tuyến đường (Route) | Quyền Admin | Quyền NhanVienKho | Quyền BoPhanNhan | Chưa đăng nhập |
 | :--- | :---: | :---: | :---: | :---: |
-| `/Khoes/Index` | **Xem toàn bộ** | **Xem toàn bộ** | ⛔ 403 Forbidden | Chuyển hướng Login |
-| `/Khoes/Create` | **Tạo mới** | ⛔ 403 Forbidden | ⛔ 403 Forbidden | Chuyển hướng Login |
-| `/Khoes/Edit/{id}` | **Chỉnh sửa** | ⛔ 403 Forbidden | ⛔ 403 Forbidden | Chuyển hướng Login |
-| `/Khoes/Delete/{id}` | **Xóa kho** | ⛔ 403 Forbidden | ⛔ 403 Forbidden | Chuyển hướng Login |
+| `/Khoes/Index` | **Xem toàn bộ** | **Xem toàn bộ** | 403 Forbidden | Chuyển hướng Login |
+| `/Khoes/Create` | **Tạo mới** | 403 Forbidden | 403 Forbidden | Chuyển hướng Login |
+| `/Khoes/Edit/{id}` | **Chỉnh sửa** | 403 Forbidden | 403 Forbidden | Chuyển hướng Login |
+| `/Khoes/Delete/{id}` | **Xóa kho** | 403 Forbidden | 403 Forbidden | Chuyển hướng Login |
 | `/HangHoas/Index` | **Xem & Lọc** | **Xem & Lọc** | **Xem & Lọc** | Chuyển hướng Login |
 | `/HangHoas/Details/{id}` | **Xem chi tiết** | **Xem chi tiết** | **Xem chi tiết** | Chuyển hướng Login |
-| `/HangHoas/Create` | **Tạo mới** | **Tạo mới** | ⛔ 403 Forbidden | Chuyển hướng Login |
-| `/HangHoas/Edit/{id}` | **Chỉnh sửa** | **Chỉnh sửa** | ⛔ 403 Forbidden | Chuyển hướng Login |
-| `/HangHoas/Delete/{id}` | **Xóa hàng** | **Xóa hàng** | ⛔ 403 Forbidden | Chuyển hướng Login |
+| `/HangHoas/Create` | **Tạo mới** | **Tạo mới** | 403 Forbidden | Chuyển hướng Login |
+| `/HangHoas/Edit/{id}` | **Chỉnh sửa** | **Chỉnh sửa** | 403 Forbidden | Chuyển hướng Login |
+| `/HangHoas/Delete/{id}` | **Xóa hàng** | **Xóa hàng** | 403 Forbidden | Chuyển hướng Login |
 
 ---
 

@@ -53,7 +53,7 @@ Sau khi màn hình hiển thị log khởi động, mở trình duyệt truy c�
 
 ## 4. BẢNG TÀI KHOẢN ĐĂNG NHẬP MẪU SẴN CÓ (SEED DATA)
 
-Dữ liệu ban đầu được nạp tự động qua [`DbInitializer.cs`](../Data/DbInitializer.cs). Tất cả mật khẩu đã được băm an toàn bằng `PasswordHasher<TaiKhoan>`:
+Dữ liệu ban đầu được cấu hình qua Fluent API `OnModelCreating` trong [`AppDbContext.cs`](../Data/AppDbContext.cs). Tất cả mật khẩu đã được băm an toàn bằng `PasswordHasher<TaiKhoan>`:
 
 | STT | Tên đăng nhập | Mật khẩu mặc định | Vai trò (Role) | Họ và tên sinh viên | Ghi chú quyền hạn |
 | :---: | :--- | :--- | :---: | :--- | :--- |

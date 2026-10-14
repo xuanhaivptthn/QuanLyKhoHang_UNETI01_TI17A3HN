@@ -171,10 +171,10 @@ flowchart LR
 
 | Tuyến đường (Route) | Quyền Admin | Quyền NhanVienKho | Quyền BoPhanNhan | Chưa đăng nhập |
 | :--- | :---: | :---: | :---: | :---: |
-| `/TonKho/CanhBao` | **Xem toàn bộ** | **Xem toàn bộ** | ⛔ 403 Forbidden | Chuyển hướng Login |
-| `/TonKho/LichSu` | **Xem sổ cái** | **Xem sổ cái** | ⛔ 403 Forbidden | Chuyển hướng Login |
-| `/ThongKe/Dashboard` | **Xem Dashboard** | **Xem Dashboard** | ⛔ 403 Forbidden | Chuyển hướng Login |
-| `/ThongKe/BaoCaoNhapXuat` | **Xuất báo cáo** | **Xuất báo cáo** | ⛔ 403 Forbidden | Chuyển hướng Login |
+| `/TonKho/CanhBao` | **Xem toàn bộ** | **Xem toàn bộ** | 403 Forbidden | Chuyển hướng Login |
+| `/TonKho/LichSu` | **Xem sổ cái** | **Xem sổ cái** | 403 Forbidden | Chuyển hướng Login |
+| `/ThongKe/Dashboard` | **Xem Dashboard** | **Xem Dashboard** | 403 Forbidden | Chuyển hướng Login |
+| `/ThongKe/BaoCaoNhapXuat` | **Xuất báo cáo** | **Xuất báo cáo** | 403 Forbidden | Chuyển hướng Login |
 
 ---
 

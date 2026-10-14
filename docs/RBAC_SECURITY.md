@@ -39,17 +39,17 @@ Mọi tuyến đường (Route) trong hệ thống đều được bảo vệ ng
 | 1 | **Đăng nhập hệ thống** | `/login` hoặc `/TaiKhoans/DangNhap` | `GET`, `POST` | Cho phép | Cho phép | Cho phép | Cho phép (Public) |
 | 2 | **Đăng xuất an toàn** | `/logout` hoặc `/TaiKhoans/DangXuat` | `GET`, `POST` | Cho phép | Cho phép | Cho phép | Chuyển hướng Login |
 | 3 | **Hồ sơ cá nhân & Đổi mật khẩu** | `/TaiKhoans/Profile`, `DoiMatKhau` | `GET`, `POST` | Cho phép | Cho phép | Cho phép | Chuyển hướng Login |
-| 4 | **Quản lý Tài khoản người dùng** | `/TaiKhoans/*` (Index, Create, Edit, Delete) | `GET`, `POST` | **Toàn quyền** | ⛔ 403 Forbidden | ⛔ 403 Forbidden | Chuyển hướng Login |
-| 5 | **Quản lý Danh mục Loại hàng** | `/LoaiHangs/*` (Index, Create, Edit, Delete) | `GET`, `POST` | **Toàn quyền** | Xem / Thêm / Sửa | ⛔ 403 Forbidden | Chuyển hướng Login |
-| 6 | **Quản lý Danh mục Đơn vị tính** | `/DonViTinhs/*` (Index, Create, Edit, Delete) | `GET`, `POST` | **Toàn quyền** | Xem / Thêm / Sửa | ⛔ 403 Forbidden | Chuyển hướng Login |
-| 7 | **Quản lý Kho bãi vật lý** | `/Khoes/*` (Index, Create, Edit, Delete) | `GET`, `POST` | **Toàn quyền** | Chỉ xem (Index) | ⛔ 403 Forbidden | Chuyển hướng Login |
+| 4 | **Quản lý Tài khoản người dùng** | `/TaiKhoans/*` (Index, Create, Edit, Delete) | `GET`, `POST` | **Toàn quyền** | 403 Forbidden | 403 Forbidden | Chuyển hướng Login |
+| 5 | **Quản lý Danh mục Loại hàng** | `/LoaiHangs/*` (Index, Create, Edit, Delete) | `GET`, `POST` | **Toàn quyền** | Xem / Thêm / Sửa | 403 Forbidden | Chuyển hướng Login |
+| 6 | **Quản lý Danh mục Đơn vị tính** | `/DonViTinhs/*` (Index, Create, Edit, Delete) | `GET`, `POST` | **Toàn quyền** | Xem / Thêm / Sửa | 403 Forbidden | Chuyển hướng Login |
+| 7 | **Quản lý Kho bãi vật lý** | `/Khoes/*` (Index, Create, Edit, Delete) | `GET`, `POST` | **Toàn quyền** | Chỉ xem (Index) | 403 Forbidden | Chuyển hướng Login |
 | 8 | **Quản lý Danh mục Hàng hóa** | `/HangHoas/*` (Index, Details, CRUD) | `GET`, `POST` | **Toàn quyền** | **Toàn quyền** | Chỉ xem & tra cứu | Chuyển hướng Login |
-| 9 | **Quản lý Đối tác Nhà cung cấp** | `/NhaCungCaps/*` (Index, CRUD) | `GET`, `POST` | **Toàn quyền** | Xem / Thêm / Sửa | ⛔ 403 Forbidden | Chuyển hướng Login |
+| 9 | **Quản lý Đối tác Nhà cung cấp** | `/NhaCungCaps/*` (Index, CRUD) | `GET`, `POST` | **Toàn quyền** | Xem / Thêm / Sửa | 403 Forbidden | Chuyển hướng Login |
 | 10 | **Quản lý Bộ phận nhận hàng** | `/BoPhanNhans/*` (Index, CRUD) | `GET`, `POST` | **Toàn quyền** | Xem / Thêm / Sửa | Xem đơn vị mình | Chuyển hướng Login |
-| 11 | **Lập & Hoàn tất Phiếu nhập kho** | `/PhieuNhaps/*`, `/ChiTietPhieuNhaps/*` | `GET`, `POST` | Duyệt & Hoàn tất | Lập & Hoàn tất | ⛔ 403 Forbidden | Chuyển hướng Login |
+| 11 | **Lập & Hoàn tất Phiếu nhập kho** | `/PhieuNhaps/*`, `/ChiTietPhieuNhaps/*` | `GET`, `POST` | Duyệt & Hoàn tất | Lập & Hoàn tất | 403 Forbidden | Chuyển hướng Login |
 | 12 | **Lập & Hoàn tất Phiếu xuất kho** | `/PhieuXuats/*`, `/ChiTietPhieuXuats/*` | `GET`, `POST` | Duyệt & Hoàn tất | Lập & Hoàn tất | Xem phiếu liên quan | Chuyển hướng Login |
-| 13 | **Cảnh báo tồn kho & Sổ cái Audit Trail** | `/TonKho/CanhBao`, `/TonKho/LichSu` | `GET` | **Toàn quyền** | **Toàn quyền** | ⛔ 403 Forbidden | Chuyển hướng Login |
-| 14 | **Dashboard KPIs & Báo cáo thống kê** | `/ThongKe/Dashboard`, `BaoCaoNhapXuat` | `GET` | **Toàn quyền** | Xem báo cáo | ⛔ 403 Forbidden | Chuyển hướng Login |
+| 13 | **Cảnh báo tồn kho & Sổ cái Audit Trail** | `/TonKho/CanhBao`, `/TonKho/LichSu` | `GET` | **Toàn quyền** | **Toàn quyền** | 403 Forbidden | Chuyển hướng Login |
+| 14 | **Dashboard KPIs & Báo cáo thống kê** | `/ThongKe/Dashboard`, `BaoCaoNhapXuat` | `GET` | **Toàn quyền** | Xem báo cáo | 403 Forbidden | Chuyển hướng Login |
 | 15 | **Trang từ chối quyền truy cập** | `/Home/AccessDenied` | `GET` | Cho phép | Cho phép | Cho phép | Cho phép |
 
 ---
