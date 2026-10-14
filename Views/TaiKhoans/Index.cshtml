@@ -45,7 +45,14 @@
                 @Html.DisplayFor(modelItem => item.TenDangNhap)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.MatKhau)
+                @if (!string.IsNullOrEmpty(item.MatKhau) && item.MatKhau.Length > 20)
+                {
+                    <span class="badge bg-light text-secondary border font-monospace" title="@item.MatKhau">@(item.MatKhau.Substring(0, 5))... (Đã mã hóa Identity)</span>
+                }
+                else
+                {
+                    @Html.DisplayFor(modelItem => item.MatKhau)
+                }
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.HoTen)

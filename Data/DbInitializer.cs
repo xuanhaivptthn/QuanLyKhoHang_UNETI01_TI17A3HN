@@ -109,6 +109,14 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Data
                     TrangThai = false // Kiểm thử quy tắc: tài khoản bị khóa không được đăng nhập
                 }
             };
+
+            // Mã hóa mật khẩu lưu trữ chuẩn ASP.NET Core Identity (PasswordHasher)
+            var passwordHasher = new Microsoft.AspNetCore.Identity.PasswordHasher<TaiKhoan>();
+            foreach (var tk in taiKhoans)
+            {
+                tk.MatKhau = passwordHasher.HashPassword(tk, tk.MatKhau);
+            }
+
             context.TaiKhoans.AddRange(taiKhoans);
             context.SaveChanges();
 

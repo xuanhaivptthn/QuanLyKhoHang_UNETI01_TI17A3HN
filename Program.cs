@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using QuanLyKhoHang_UNETI01_TI17A3HN.Data;
 using QuanLyKhoHang_UNETI01_TI17A3HN.Models;
@@ -48,6 +49,9 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;             // Đảm bảo hoạt động theo chính sách Cookie GDPR
     options.Cookie.SameSite = SameSiteMode.Lax;    // Bảo mật chống tấn công CSRF
 });
+
+// CẤU HÌNH DỊCH VỤ MÃ HÓA MẬT KHẨU (ASP.NET CORE IDENTITY)
+builder.Services.AddScoped<IPasswordHasher<TaiKhoan>, PasswordHasher<TaiKhoan>>();
 
 // CẤU HÌNH XÁC THỰC BẰNG COOKIE (COOKIE AUTHENTICATION)
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)

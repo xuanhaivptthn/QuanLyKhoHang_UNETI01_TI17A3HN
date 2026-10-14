@@ -1,9 +1,25 @@
 @inject QuanLyKhoHang_UNETI01_TI17A3HN.Models.DatabaseInfo DbInfo
 @{
     var isAuthenticated = (User.Identity?.IsAuthenticated == true) || (Context.Session.GetInt32("MaTaiKhoan") != null);
-    var currentUserRole = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value ?? Context.Session.GetString("VaiTro");
-    var currentUserName = User.FindFirst("HoTen")?.Value ?? Context.Session.GetString("HoTen") ?? User.Identity?.Name;
+    var currentUserRole = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value ?? Context.Session.GetString("VaiTro") ?? string.Empty;
+    var currentUserName = User.FindFirst("HoTen")?.Value ?? Context.Session.GetString("HoTen") ?? User.Identity?.Name ?? string.Empty;
     var isAdmin = User.IsInRole("Admin") || string.Equals(currentUserRole, "Admin", StringComparison.OrdinalIgnoreCase);
+    var isNhanVienKho = User.IsInRole("NhanVienKho") || string.Equals(currentUserRole, "NhanVienKho", StringComparison.OrdinalIgnoreCase);
+    var isBoPhanNhan = User.IsInRole("BoPhanNhan") || string.Equals(currentUserRole, "BoPhanNhan", StringComparison.OrdinalIgnoreCase);
+
+    var roleBadgeClass = "bg-secondary text-white";
+    if (isAdmin)
+    {
+        roleBadgeClass = "bg-danger text-white";
+    }
+    else if (isNhanVienKho)
+    {
+        roleBadgeClass = "bg-primary text-white";
+    }
+    else if (isBoPhanNhan)
+    {
+        roleBadgeClass = "bg-success text-white";
+    }
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -44,46 +60,79 @@
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="ThongKe" asp-action="Dashboard">Dashboard</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Khoes" asp-action="Index">Kho</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="HangHoas" asp-action="Index">Hàng hóa</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="BoPhanNhans" asp-action="Index">Bộ phận nhận</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="NhaCungCaps" asp-action="Index">Nhà cung cấp</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="PhieuNhaps" asp-action="Index">Phiếu nhập</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="PhieuXuats" asp-action="Index">Phiếu xuất</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="LoaiHangs" asp-action="Index">Loại hàng</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="DonViTinhs" asp-action="Index">Đơn vị tính</a>
-                        </li>
-                        @if (isAdmin)
+                        @if (isAuthenticated)
                         {
-                            <li class="nav-item">
-                                <a class="nav-link text-dark fw-semibold" asp-area="" asp-controller="TaiKhoans" asp-action="Index">Tài khoản</a>
-                            </li>
+                            @* 1. Dashboard, Kho, Hàng hóa: Dành cho Admin và Nhân viên kho *@
+                            @if (isAdmin || isNhanVienKho)
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="ThongKe" asp-action="Dashboard">Dashboard</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Khoes" asp-action="Index">Kho</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="HangHoas" asp-action="Index">Hàng hóa</a>
+                                </li>
+                            }
+
+                            @* 2. Bộ phận nhận: Chỉ dành cho Admin (Controller có [AuthorizeRole("Admin")]) *@
+                            @if (User.IsInRole("Admin") || isAdmin)
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="BoPhanNhans" asp-action="Index">Bộ phận nhận</a>
+                                </li>
+                            }
+
+                            @* 3. Nhà cung cấp, Phiếu nhập: Dành cho Admin và Nhân viên kho *@
+                            @if (isAdmin || isNhanVienKho)
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="NhaCungCaps" asp-action="Index">Nhà cung cấp</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="PhieuNhaps" asp-action="Index">Phiếu nhập</a>
+                                </li>
+                            }
+
+                            @* 4. Phiếu xuất: Dành cho Admin, Nhân viên kho và Bộ phận nhận (theo dõi giao nhận hàng) *@
+                            @if (isAdmin || isNhanVienKho || isBoPhanNhan)
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="PhieuXuats" asp-action="Index">Phiếu xuất</a>
+                                </li>
+                            }
+
+                            @* 5. Loại hàng & Đơn vị tính: Dành cho Admin và Nhân viên kho *@
+                            @if (isAdmin || isNhanVienKho)
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="LoaiHangs" asp-action="Index">Loại hàng</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="DonViTinhs" asp-action="Index">Đơn vị tính</a>
+                                </li>
+                            }
+
+                            @* 6. Quản lý tài khoản: CHỈ hiển thị khi User.IsInRole("Admin") *@
+                            @if (User.IsInRole("Admin") || isAdmin)
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark fw-semibold" asp-area="" asp-controller="TaiKhoans" asp-action="Index">Tài khoản</a>
+                                </li>
+                            }
+
+                            @* 7. Cảnh báo tồn & Lịch sử tồn kho: Dành cho Admin và Nhân viên kho *@
+                            @if (isAdmin || isNhanVienKho)
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="TonKho" asp-action="CanhBao">Cảnh Báo Tồn</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="TonKho" asp-action="LichSu">Lịch Sử Nhập Xuất</a>
+                                </li>
+                            }
                         }
-                        
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="TonKho" asp-action="CanhBao">Cảnh Báo Tồn</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="TonKho" asp-action="LichSu">Lịch Sử Nhập Xuất</a>
-                        </li>
                     </ul>
                     <ul class="navbar-nav align-items-center">
                         @if (isAuthenticated)
@@ -91,7 +140,7 @@
                             <li class="nav-item me-2">
                                 <a class="nav-link text-dark p-0 me-2" asp-area="" asp-controller="TaiKhoans" asp-action="Profile" title="Xem hồ sơ cá nhân">
                                     Xin chào: <strong>@currentUserName</strong>
-                                    <span class="badge bg-info text-dark ms-1">@currentUserRole</span>
+                                    <span class="badge @roleBadgeClass ms-1">@currentUserRole</span>
                                 </a>
                             </li>
                             <li class="nav-item">

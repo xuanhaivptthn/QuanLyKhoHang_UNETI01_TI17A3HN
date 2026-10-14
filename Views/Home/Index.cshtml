@@ -20,57 +20,73 @@
     }
 }
 
-<table class="table table-hover table-striped mb-0 align-middle">
-    <thead class="">
-        <tr class="table-dark">
-            <th scope="col">Tên đăng nhập</th>
-            <th scope="col">Mật khẩu</th>
-            <th scope="col">Họ tên</th>
-            <th scope="col">Vai trò</th>
-            <th scope="col">Trạng thái</th>
-        </tr>
-    </thead>
-    <tbody>
-        @if (Model != null && Model.Any())
-        {
-            foreach (var item in Model)
-            {
+<div class="card shadow-sm mb-4">
+    <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center py-2">
+        <h5 class="mb-0 fs-6 fw-bold">📋 Danh sách tài khoản mẫu phục vụ kiểm thử đăng nhập</h5>
+        <a asp-controller="TaiKhoans" asp-action="DangNhap" class="btn btn-primary btn-sm">Đăng nhập ngay</a>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover table-striped mb-0 align-middle">
+            <thead class="table-secondary">
                 <tr>
-                    <td><strong>@item.TenDangNhap</strong></td>
-                    <td><code>@item.MatKhau</code></td>
-                    <td>@item.HoTen</td>
-                    <td>
-                        @if (item.VaiTro == "Admin")
-                        {
-                            <span class="badge bg-danger">Admin</span>
-                        }
-                        else if (item.VaiTro == "NhanVienKho")
-                        {
-                            <span class="badge bg-primary">Nhân viên kho</span>
-                        }
-                        else
-                        {
-                            <span class="badge bg-secondary">@item.VaiTro</span>
-                        }
-                    </td>
-                    <td>
-                        @if (item.TrangThai)
-                        {
-                            <span class="badge bg-success">Hoạt động</span>
-                        }
-                        else
-                        {
-                            <span class="badge bg-danger">Bị khóa</span>
-                        }
-                    </td>
+                    <th scope="col">Tên đăng nhập</th>
+                    <th scope="col">Mật khẩu</th>
+                    <th scope="col">Họ tên</th>
+                    <th scope="col">Vai trò</th>
+                    <th scope="col">Trạng thái</th>
                 </tr>
-            }
-        }
-        else
-        {
-            <tr>
-                <td colspan="5" class="text-center text-muted py-3">Không có tài khoản nào trong CSDL.</td>
-            </tr>
-        }
-    </tbody>
-</table>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>admin</strong></td>
+                    <td><code>Admin@123</code></td>
+                    <td>Trần Xuân Hải (Admin Quản trị)</td>
+                    <td><span class="badge bg-danger">Admin</span></td>
+                    <td><span class="badge bg-success">Hoạt động</span></td>
+                </tr>
+                <tr>
+                    <td><strong>nvkho_hung</strong></td>
+                    <td><code>123456</code></td>
+                    <td>Lê Văn Hùng (Thủ kho 1)</td>
+                    <td><span class="badge bg-primary">Nhân viên kho</span></td>
+                    <td><span class="badge bg-success">Hoạt động</span></td>
+                </tr>
+                <tr>
+                    <td><strong>nvkho_cuc</strong></td>
+                    <td><code>123456</code></td>
+                    <td>Nguyễn Thị Cúc (Thủ kho 2)</td>
+                    <td><span class="badge bg-primary">Nhân viên kho</span></td>
+                    <td><span class="badge bg-success">Hoạt động</span></td>
+                </tr>
+                <tr>
+                    <td><strong>nvkho_cuong</strong></td>
+                    <td><code>123456</code></td>
+                    <td>Nguyễn Văn Cường (Thủ kho 3)</td>
+                    <td><span class="badge bg-primary">Nhân viên kho</span></td>
+                    <td><span class="badge bg-success">Hoạt động</span></td>
+                </tr>
+                <tr>
+                    <td><strong>bophan_dung</strong></td>
+                    <td><code>123456</code></td>
+                    <td>Nguyễn Việt Dũng (Đại diện Phòng CNTT)</td>
+                    <td><span class="badge bg-success">Bộ phận nhận</span></td>
+                    <td><span class="badge bg-success">Hoạt động</span></td>
+                </tr>
+                <tr>
+                    <td><strong>bophan_lan</strong></td>
+                    <td><code>123456</code></td>
+                    <td>Phạm Thị Lan (Đại diện Phòng Kế toán)</td>
+                    <td><span class="badge bg-success">Bộ phận nhận</span></td>
+                    <td><span class="badge bg-success">Hoạt động</span></td>
+                </tr>
+                <tr>
+                    <td><strong>user_khoa</strong></td>
+                    <td><code>123456</code></td>
+                    <td>Đỗ Minh Tuấn (Tài khoản bị khóa)</td>
+                    <td><span class="badge bg-secondary">Nhân viên kho</span></td>
+                    <td><span class="badge bg-danger">Bị khóa (Thử nghiệm)</span></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
