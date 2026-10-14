@@ -19,32 +19,20 @@
     bool groupNhapKho = IsController("PhieuNhaps", "NhaCungCaps");
     bool groupXuatKho = IsController("PhieuXuats", "BoPhanNhans");
     bool groupTonKho = IsController("TonKho") || IsAction("ThongKe", "BaoCaoNhapXuat");
-    var currentTheme = Context.Request.Cookies["theme"];
 }
 <!DOCTYPE html>
-<html lang="vi"@(string.IsNullOrEmpty(currentTheme) ? "" : $" data-theme=\"{currentTheme}\"")>
+<html lang="vi">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - Quản Lý Kho Hàng UNETI</title>
-    @* Synchronous inline theme check before CSS/DOM to prevent any flash or reset on navigation *@
+    @* Synchronous inline theme check before CSS/DOM to prevent flash of unstyled content on navigation *@
     <script>
         (function () {
             try {
-                var doc = document.documentElement;
-                var current = doc.getAttribute('data-theme');
-                if (!current) {
-                    var saved = localStorage.getItem('theme');
-                    var theme = saved || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-                    doc.setAttribute('data-theme', theme);
-                    fetch('/Home/SetTheme', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ theme: theme })
-                    }).catch(function () {});
-                } else {
-                    localStorage.setItem('theme', current);
-                }
+                var saved = localStorage.getItem('theme');
+                var theme = saved || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+                document.documentElement.setAttribute('data-theme', theme);
             } catch (e) {}
         })();
     </script>
