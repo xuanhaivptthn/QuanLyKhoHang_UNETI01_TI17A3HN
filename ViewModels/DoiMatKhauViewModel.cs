@@ -1,10 +1,11 @@
+// Họ và tên: Trần Xuân Hải // MSSV: 23103100135
+// Mã sinh viên: 23103100135
+// Phụ trách Module 1: ViewModel đổi mật khẩu tài khoản
+
 using System.ComponentModel.DataAnnotations;
 
 namespace QuanLyKhoHang_UNETI01_TI17A3HN.ViewModels
 {
-    // Họ và tên: Trần Xuân Hải
-    // Mã sinh viên: 23103100135
-    // Phụ trách Module 1: Tài khoản, Đăng nhập, Phân quyền & Quản lý hồ sơ
     public class DoiMatKhauViewModel
     {
         [Required(ErrorMessage = "Vui lòng nhập mật khẩu hiện tại.")]

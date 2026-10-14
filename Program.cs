@@ -1,13 +1,13 @@
+// Họ và tên: Trần Xuân Hải // MSSV: 23103100135
+// Mã sinh viên: 23103100135
+// Phụ trách Module 1: Cấu hình hệ thống, Cookie Authentication, Session, Failover CSDL và DI
+
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using QuanLyKhoHang_UNETI01_TI17A3HN.Data;
 using QuanLyKhoHang_UNETI01_TI17A3HN.Models;
 using QuanLyKhoHang_UNETI01_TI17A3HN.Services;
-
-// Họ và tên: Trần Xuân Hải
-// Mã sinh viên: 23103100135
-// Phụ trách Module 1: Tài khoản, Đăng nhập, Phân quyền, Loại hàng & Đơn vị tính
 
 var builder = WebApplication.CreateBuilder(args);
 

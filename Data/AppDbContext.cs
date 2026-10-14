@@ -16,6 +16,7 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Data
         }
 
         // Module 1: Tài khoản, Đăng nhập, Phân quyền, Loại hàng, Đơn vị tính
+        // Họ và tên: Trần Xuân Hải // MSSV: 23103100135
         public DbSet<TaiKhoan> TaiKhoans { get; set; } = default!;
         public DbSet<LoaiHang> LoaiHangs { get; set; } = default!;
         public DbSet<DonViTinh> DonViTinhs { get; set; } = default!;

@@ -1,3 +1,7 @@
+// Họ và tên: Trần Xuân Hải // MSSV: 23103100135
+// Mã sinh viên: 23103100135
+// Phụ trách Module 1: Quản lý danh mục Đơn vị tính (CRUD, chống trùng lặp, bảo toàn dữ liệu)
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,10 +11,6 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using QuanLyKhoHang_UNETI01_TI17A3HN.Data;
 using QuanLyKhoHang_UNETI01_TI17A3HN.Models;
-
-// Họ và tên: Trần Xuân Hải
-// Mã sinh viên: 23103100135
-// Phụ trách Module 1: Tài khoản, Đăng nhập, Phân quyền, Loại hàng & Đơn vị tính
 
 namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
 {

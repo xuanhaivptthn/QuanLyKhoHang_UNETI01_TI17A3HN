@@ -1,3 +1,7 @@
+// Họ và tên: Trần Xuân Hải // MSSV: 23103100135
+// Mã sinh viên: 23103100135
+// Phụ trách Module 1: Bộ kiểm thử tích hợp xác thực Cookie, Lockout và phân quyền RBAC
+
 using System.Net;
 using QuanLyKhoHang.Tests.Infrastructure;
 using Xunit;

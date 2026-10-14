@@ -1,3 +1,7 @@
+// Họ và tên: Trần Xuân Hải // MSSV: 23103100135
+// Mã sinh viên: 23103100135
+// Phụ trách Module 1: Tài khoản, Đăng nhập, Đăng xuất, Lockout, Profile, Đổi mật khẩu, CRUD User
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,10 +21,6 @@ using QuanLyKhoHang_UNETI01_TI17A3HN.Filters;
 using QuanLyKhoHang_UNETI01_TI17A3HN.Models;
 using QuanLyKhoHang_UNETI01_TI17A3HN.ViewModels;
 using System.Security.Cryptography;
-
-// Họ và tên: Trần Xuân Hải
-// Mã sinh viên: 23103100135
-// Phụ trách Module 1: Tài khoản, Đăng nhập, Phân quyền, Cookie & Session
 
 namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
 {

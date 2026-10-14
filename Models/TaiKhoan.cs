@@ -1,12 +1,12 @@
+// Họ và tên: Trần Xuân Hải // MSSV: 23103100135
+// Mã sinh viên: 23103100135
+// Phụ trách Module 1: Entity TaiKhoan lưu trữ người dùng, mật khẩu hash, vai trò, lockout
+
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace QuanLyKhoHang_UNETI01_TI17A3HN.Models
 {
-    // Họ và tên: Trần Xuân Hải
-    // Mã sinh viên: 23103100135
-    // Phụ trách Module 1: Tài khoản, Đăng nhập, Phân quyền, Loại hàng & Đơn vị tính
-    // Tạo model TaiKhoan
     [Table("TaiKhoan")]
     public class TaiKhoan
     {
