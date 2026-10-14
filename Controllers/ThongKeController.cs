@@ -1,3 +1,7 @@
+// Họ và tên: Nguyễn Văn Cường
+// Mã sinh viên: 23103100132
+// Phụ trách Module 5: Dashboard KPI & Báo cáo thống kê LINQ theo kỳ
+
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using QuanLyKhoHang_UNETI01_TI17A3HN.Data;
@@ -9,9 +13,6 @@ using System.Threading.Tasks;
 
 namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
 {
-    // Họ và tên: Nguyễn Văn Cường
-    // Mã sinh viên: 23103100132
-    // Nội dung thực hiện: Tồn kho, cảnh báo tồn, lịch sử nhập xuất, Dashboard và thống kê LINQ.
     public class ThongKeController : Controller
     {
         private readonly AppDbContext _context;

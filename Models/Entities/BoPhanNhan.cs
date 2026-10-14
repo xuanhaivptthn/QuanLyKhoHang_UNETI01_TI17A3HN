@@ -1,11 +1,12 @@
+// Họ và tên: Nguyễn Việt Dũng
+// Mã sinh viên: 23103100127
+// Phụ trách Module 4: Bộ phận nhận, Phiếu xuất, Chi tiết phiếu xuất
+
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace QuanLyKhoHang_UNETI01_TI17A3HN.Models
 {
-    // Họ và tên: Nguyễn Việt Dũng
-    // Mã sinh viên: 23103100127
-    // Phụ trách Module 4: Bộ phận nhận, Phiếu xuất, Chi tiết phiếu xuất
     [Table("BoPhanNhan")]
     public class BoPhanNhan
     {
@@ -19,9 +20,10 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Models
         [Display(Name = "Tên bộ phận")]
         public string TenBoPhan { get; set; } = string.Empty;
 
+        [Required(ErrorMessage = "Người đại diện không được để trống.")]
         [StringLength(100, ErrorMessage = "Người đại diện không vượt quá 100 ký tự.")]
         [Display(Name = "Người đại diện")]
-        public string? NguoiDaiDien { get; set; }
+        public string NguoiDaiDien { get; set; } = string.Empty;
 
         [StringLength(20, ErrorMessage = "Số điện thoại không vượt quá 20 ký tự.")]
         [Display(Name = "Số điện thoại")]

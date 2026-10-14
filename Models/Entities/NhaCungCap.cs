@@ -1,13 +1,14 @@
-﻿using System.ComponentModel.DataAnnotations;
+// Họ và tên: Lê Văn Hùng
+// Mã sinh viên: 23103100177
+// Phụ trách Module 3: Quản lý Nhà cung cấp và Nguồn cung hàng hóa
+
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace QuanLyKhoHang_UNETI01_TI17A3HN.Models
 {
     public class NhaCungCap
     {
-        // Họ và tên: Lê Văn Hùng
-        // Mã sinh viên: 23103100177
-        // Phần này để quản lý nguồn cung hàng hóa. 
         [Key]
         public int MaNhaCungCap { get; set; }
 
@@ -16,10 +17,11 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Models
         [Display(Name = "Tên nhà cung cấp")]
         public string TenNhaCungCap { get; set; } = string.Empty;
 
+        [Required(ErrorMessage = "Số điện thoại không được để trống.")]
         [Phone(ErrorMessage = "Số điện thoại không hợp lệ.")]
         [StringLength(15)]
         [Display(Name = "Số điện thoại")]
-        public string? SoDienThoai { get; set; }
+        public string SoDienThoai { get; set; } = string.Empty;
 
         [EmailAddress(ErrorMessage = "Email không đúng định dạng.")]
         [StringLength(100)]

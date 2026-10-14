@@ -1,3 +1,7 @@
+// Họ và tên: Nguyễn Việt Dũng
+// Mã sinh viên: 23103100127
+// Phụ trách Module 4: Bộ phận nhận, Phiếu xuất, Chi tiết phiếu xuất
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,10 +12,6 @@ using Microsoft.EntityFrameworkCore;
 using QuanLyKhoHang_UNETI01_TI17A3HN.Data;
 using QuanLyKhoHang_UNETI01_TI17A3HN.Filters;
 using QuanLyKhoHang_UNETI01_TI17A3HN.Models;
-
-// Họ và tên: Nguyễn Việt Dũng
-// Mã sinh viên: 23103100127
-// Phụ trách Module 4: Bộ phận nhận, Phiếu xuất, Chi tiết phiếu xuất
 
 namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
 {

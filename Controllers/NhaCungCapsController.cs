@@ -1,3 +1,7 @@
+// Họ và tên: Lê Văn Hùng
+// Mã sinh viên: 23103100177
+// Phụ trách Module 3: Quản lý Nhà cung cấp (CRUD, kiểm tra SĐT/Email, bảo toàn dữ liệu)
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,9 +11,6 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using QuanLyKhoHang_UNETI01_TI17A3HN.Data;
 using QuanLyKhoHang_UNETI01_TI17A3HN.Models;
-
-// Họ và tên: Lê Văn Hùng
-// Mã sinh viên: 23103100177
 
 namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
 {

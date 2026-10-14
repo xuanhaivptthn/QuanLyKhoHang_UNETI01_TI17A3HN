@@ -1,3 +1,7 @@
+// Họ và tên: Lê Văn Hùng
+// Mã sinh viên: 23103100177
+// Phụ trách Module 3: Lập phiếu nhập, tính tiền tự động và Hoàn tất nhập kho Transaction
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,10 +11,6 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using QuanLyKhoHang_UNETI01_TI17A3HN.Data;
 using QuanLyKhoHang_UNETI01_TI17A3HN.Models;
-
-// Họ và tên: Lê Văn Hùng
-// Mã sinh viên: 23103100177
-// Phụ trách Module 3: Nhà cung cấp, Phiếu nhập, Chi tiết phiếu nhập
 
 namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
 {

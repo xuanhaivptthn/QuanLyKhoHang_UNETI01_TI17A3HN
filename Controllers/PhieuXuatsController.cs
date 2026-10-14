@@ -1,3 +1,7 @@
+// Họ và tên: Nguyễn Việt Dũng
+// Mã sinh viên: 23103100127
+// Phụ trách Module 4: Lập phiếu xuất, kiểm tra tồn kho và Hoàn tất xuất kho Transaction
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,10 +13,6 @@ using QuanLyKhoHang_UNETI01_TI17A3HN.Data;
 using QuanLyKhoHang_UNETI01_TI17A3HN.Filters;
 using QuanLyKhoHang_UNETI01_TI17A3HN.Models;
 using System.Data;
-
-// Họ và tên: Nguyễn Việt Dũng
-// Mã sinh viên: 23103100127
-// Phụ trách Module 4: Bộ phận nhận, Phiếu xuất, Chi tiết phiếu xuất
 
 namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
 {

@@ -1,3 +1,7 @@
+// Họ và tên: Nguyễn Thị Cúc
+// Mã sinh viên: 23103100178
+// Phụ trách Module 2: Quản lý Kho, Hàng hóa & Tìm kiếm, Lọc, Sắp xếp, Phân trang
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,10 +11,6 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using QuanLyKhoHang_UNETI01_TI17A3HN.Data;
 using QuanLyKhoHang_UNETI01_TI17A3HN.Models;
-
-// Họ và tên: Nguyễn Thị Cúc
-// Mã sinh viên: 23103100178
-// Nội dung: Danh sách + Tìm kiếm + Lọc + CRUD Hàng hóa
 
 namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
 {

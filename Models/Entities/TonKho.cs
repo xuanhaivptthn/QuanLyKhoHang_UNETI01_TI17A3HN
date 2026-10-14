@@ -1,12 +1,13 @@
+// Họ và tên: Nguyễn Văn Cường
+// Mã sinh viên: 23103100132
+// Phụ trách Module 5: Tồn kho, cảnh báo tồn, lịch sử nhập xuất, Dashboard và thống kê LINQ
+
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace QuanLyKhoHang_UNETI01_TI17A3HN.Models 
 {
-    // Họ và tên: Nguyễn Văn Cường
-    // Mã sinh viên: 23103100132
-    // Nội dung thực hiện: Tồn kho, cảnh báo tồn, lịch sử nhập xuất, Dashboard và thống kê LINQ.
     public class TonKho
     {
         [Required(ErrorMessage = "Vui lòng chọn kho")]

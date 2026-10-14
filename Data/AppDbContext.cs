@@ -1,3 +1,13 @@
+// ====================================================================================
+// ĐỀ TÀI: HỆ THỐNG QUẢN LÝ KHO HÀNG VÀ NHẬP – XUẤT – TỒN (ASP.NET CORE 10 MVC)
+// DANH SÁCH THÀNH VIÊN ĐÓNG GÓP VÀ PHÂN CÔNG TRÁCH NHIỆM:
+// - SV1: Trần Xuân Hải   (MSSV: 23103100135) - Module 1: Tài khoản, Đăng nhập, Phân quyền, Loại hàng, Đơn vị tính
+// - SV2: Nguyễn Thị Cúc  (MSSV: 23103100178) - Module 2: Quản lý Kho, Hàng hóa & Tra cứu dữ liệu
+// - SV3: Lê Văn Hùng    (MSSV: 23103100177) - Module 3: Nhà cung cấp, Phiếu nhập kho (Inbound Logistics)
+// - SV4: Nguyễn Việt Dũng(MSSV: 23103100127) - Module 4: Bộ phận nhận, Phiếu xuất kho (Outbound Logistics)
+// - SV5: Nguyễn Văn Cường(MSSV: 23103100132) - Module 5: Tồn kho, Cảnh báo, Lịch sử & Dashboard Thống kê
+// ====================================================================================
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -155,6 +165,19 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Data
                 .WithMany(h => h.LichSuTonKhoes)
                 .HasForeignKey(l => l.MaHang)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            // Cấu hình kiểu dữ liệu tiền tệ decimal(18,2) cho EF Core 10
+            modelBuilder.Entity<HangHoa>()
+                .Property(h => h.GiaNhapThamKhao)
+                .HasColumnType("decimal(18,2)");
+
+            modelBuilder.Entity<ChiTietPhieuNhap>()
+                .Property(c => c.DonGiaNhap)
+                .HasColumnType("decimal(18,2)");
+
+            modelBuilder.Entity<ChiTietPhieuXuat>()
+                .Property(c => c.DonGiaXuatThamChieu)
+                .HasColumnType("decimal(18,2)");
 
             // Nạp dữ liệu mẫu ban đầu qua Fluent API OnModelCreating
             SeedData(modelBuilder);

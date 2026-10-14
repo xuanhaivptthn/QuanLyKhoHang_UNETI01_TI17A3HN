@@ -1,3 +1,7 @@
+// Họ và tên: Lê Văn Hùng
+// Mã sinh viên: 23103100177
+// Phụ trách Module 3: Nhà cung cấp, Phiếu nhập, Chi tiết phiếu nhập
+
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -20,9 +24,6 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Models
 
     public class PhieuNhap
     {
-        // Họ và tên: Lê Văn Hùng
-        // Mã sinh viên: 23103100177
-        // Phụ trách Module 3: Nhà cung cấp, Phiếu nhập, Chi tiết phiếu nhập
         [Key]
         public int MaPhieuNhap { get; set; }
 

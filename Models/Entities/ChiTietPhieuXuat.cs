@@ -1,11 +1,12 @@
+// Họ và tên: Nguyễn Việt Dũng
+// Mã sinh viên: 23103100127
+// Phụ trách Module 4: Bộ phận nhận, Phiếu xuất, Chi tiết phiếu xuất
+
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace QuanLyKhoHang_UNETI01_TI17A3HN.Models
 {
-    // Họ và tên: Nguyễn Việt Dũng
-    // Mã sinh viên: 23103100127
-    // Phụ trách Module 4: Bộ phận nhận, Phiếu xuất, Chi tiết phiếu xuất
     [Table("ChiTietPhieuXuat")]
     public class ChiTietPhieuXuat
     {

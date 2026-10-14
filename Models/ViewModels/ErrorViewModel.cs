@@ -1,3 +1,6 @@
+// Họ và tên: Cả nhóm
+// Phụ trách chung: ViewModel hiển thị lỗi hệ thống và RequestId
+
 namespace QuanLyKhoHang_UNETI01_TI17A3HN.Models
 {
     public class ErrorViewModel

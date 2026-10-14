@@ -1,13 +1,13 @@
+// Họ và tên: Nguyễn Văn Cường
+// Mã sinh viên: 23103100132
+// Phụ trách Module 5: Tồn kho, cảnh báo tồn, lịch sử nhập xuất, Dashboard và thống kê LINQ
+
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace QuanLyKhoHang_UNETI01_TI17A3HN.Models
 {
-    // Họ và tên: Nguyễn Văn Cường
-    // Mã sinh viên: 23103100132
-    // Phần này để lưu lịch sử nhập xuất kho. 
-    // Nội dung thực hiện: Tồn kho, cảnh báo tồn, lịch sử nhập xuất, Dashboard và thống kê LINQ.
     public class LichSuTonKho
     {
         [Key]
@@ -25,15 +25,29 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Models
         [Required]
         [StringLength(50)]
         [Display(Name = "Loại giao dịch")]
-        public string LoaiGiaoDich { get; set; } = string.Empty; // sẽ lưu giá trị nhập hoặc xuất
+        public string LoaiGiaoDich { get; set; } = string.Empty; // Lưu giá trị "Xuất kho" / "Nhập kho" hoặc "XUAT" / "NHAP"
 
         [StringLength(50)]
         [Display(Name = "Mã Phiếu")]
         public string? MaPhieu { get; set; } 
 
+        [NotMapped]
+        public string? MaPhieuThamChieu 
+        { 
+            get => MaPhieu; 
+            set => MaPhieu = value; 
+        }
+
         [Required]
         [Display(Name = "Số lượng")]
         public int SoLuong { get; set; }
+
+        [NotMapped]
+        public int SoLuongThayDoi
+        {
+            get => (LoaiGiaoDich.Contains("Xuất", StringComparison.OrdinalIgnoreCase) || LoaiGiaoDich.Equals("XUAT", StringComparison.OrdinalIgnoreCase)) ? -SoLuong : SoLuong;
+            set => SoLuong = Math.Abs(value);
+        }
 
         [Display(Name = "Tồn sau giao dịch")]
         public int TonSauGiaoDich { get; set; } 

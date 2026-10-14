@@ -1,6 +1,12 @@
-// Họ và tên: Trần Xuân Hải // MSSV: 23103100135
-// Mã sinh viên: 23103100135
-// Phụ trách Module 1: Cấu hình hệ thống, Cookie Authentication, Session, Failover CSDL và DI
+// ====================================================================================
+// ĐỀ TÀI: HỆ THỐNG QUẢN LÝ KHO HÀNG VÀ NHẬP – XUẤT – TỒN (ASP.NET CORE 10 MVC)
+// DANH SÁCH THÀNH VIÊN ĐÓNG GÓP VÀ PHÂN CÔNG TRÁCH NHIỆM:
+// - SV1: Trần Xuân Hải   (MSSV: 23103100135) - Module 1: Cấu hình hệ thống, Cookie Authentication, Session, Failover CSDL và DI
+// - SV2: Nguyễn Thị Cúc  (MSSV: 23103100178) - Module 2: Quản lý Kho, Hàng hóa & Cấu hình Routing
+// - SV3: Lê Văn Hùng    (MSSV: 23103100177) - Module 3: Nhà cung cấp, Phiếu nhập kho (Inbound Logistics)
+// - SV4: Nguyễn Việt Dũng(MSSV: 23103100127) - Module 4: Bộ phận nhận, Phiếu xuất kho (Outbound Logistics)
+// - SV5: Nguyễn Văn Cường(MSSV: 23103100132) - Module 5: Tồn kho, Cảnh báo, Lịch sử & Dashboard Thống kê
+// ====================================================================================
 
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
@@ -106,6 +112,21 @@ if (args.Contains("--seed"))
         logger.LogError(ex, "Lỗi trong quá trình khởi tạo dữ liệu mẫu (AppDbContext.ReseedData).");
     }
     return;
+}
+
+// TỰ ĐỘNG KIỂM TRA VÀ NẠP DỮ LIỆU MẪU BAN ĐẦU KHI DATABASE TRỐNG (MỤC 16)
+using (var initScope = app.Services.CreateScope())
+{
+    try
+    {
+        var context = initScope.ServiceProvider.GetRequiredService<AppDbContext>();
+        DbInitializer.Initialize(context);
+    }
+    catch (Exception ex)
+    {
+        var logger = initScope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+        logger.LogWarning(ex, "Không thể tự động nạp dữ liệu mẫu ban đầu qua DbInitializer.");
+    }
 }
 
 // CẤU HÌNH HTTP REQUEST PIPELINE & MIDDLEWARE

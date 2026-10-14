@@ -56,8 +56,9 @@ CodeCoverage/
 TestResult.xml
 nunit-*.xml
 
-.vs
-.vscode
+.vs/
+.idea/
+.vscode/
 
 # User-specific developer files
 *.user
