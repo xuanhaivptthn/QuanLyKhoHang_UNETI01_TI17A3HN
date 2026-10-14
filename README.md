@@ -1,49 +1,41 @@
 # HỆ THỐNG QUẢN LÝ KHO HÀNG NHẬP - XUẤT - TỒN (ĐỀ TÀI 21)
 
-> **Trường Đại học Kinh tế - Kỹ thuật Công nghiệp (UNETI)**  
-> **Khoa Công nghệ Thông tin — Lớp: ĐHTI17A3HN — Nhóm 1**  
-> **Nền tảng công nghệ:** ASP.NET Core 10.0 MVC (.NET 10 LTS) | C# 14 | EF Core 10 | Microsoft SQL Server & Azure SQL | xUnit Automation Test
-
-[![Build & Test](https://img.shields.io/badge/.NET%2010.0-Pass%20(26%2F26%20Tests)-brightgreen.svg)](docs/INSTALLATION_AND_TESTING.md)
-[![Database](https://img.shields.io/badge/Database-Azure%20SQL%20%7C%20LocalDB%20HA-blue.svg)](docs/DATABASE_SETUP.md)
-[![Architecture](https://img.shields.io/badge/Architecture-5--Tier%20MVC-orange.svg)](docs/ARCHITECTURE_AND_STRUCTURE.md)
-[![Security](https://img.shields.io/badge/Security-Cookie%20%2B%20Identity%20PBKDF2-red.svg)](docs/RBAC_SECURITY.md)
+[Build & Test](docs/INSTALLATION_AND_TESTING.md)
+[Database](docs/DATABASE_SETUP.md)
+[Architecture](docs/ARCHITECTURE_AND_STRUCTURE.md)
+[Security](docs/RBAC_SECURITY.md)
 
 ---
 
-## 📚 CỔNG ĐIỀU HƯỚNG TÀI LIỆU DỰ ÁN (DOCUMENTATION HUB)
-
-Toàn bộ tài liệu chi tiết của dự án đã được bóc tách và chuẩn hóa thành các chuyên đề chuyên sâu trong thư mục [`docs/`](docs/):
-
-| 📖 Chuyên mục tài liệu | Tệp tài liệu chi tiết | Nội dung chính |
+| Chuyên mục tài liệu | Tệp tài liệu chi tiết | Nội dung chính |
 | :--- | :---: | :--- |
-| **📑 Bóc tách chi tiết từng Module** | [**`docs/modules/README.md`**](docs/modules/README.md) | Mục lục tổng quan và tài liệu độc lập cho cả 5 Module nghiệp vụ (Sinh viên 1 - 5). |
+| **Chi tiết từng Module** | [**`docs/modules/README.md`**](docs/modules/README.md) | Mục lục tổng quan và tài liệu độc lập cho cả 5 Module nghiệp vụ. |
 | **Module 1 (Trần Xuân Hải)** | [**`MODULE_01_TAI_KHOAN_XAC_THUC.md`**](docs/modules/MODULE_01_TAI_KHOAN_XAC_THUC.md) | Tài khoản, Cookie Auth & Session, Chống Brute-force Lockout, Phân quyền, Danh mục cơ sở. |
 | **Module 2 (Nguyễn Thị Cúc)** | [**`MODULE_02_KHO_HANG_HOA.md`**](docs/modules/MODULE_02_KHO_HANG_HOA.md) | Kho bãi, Hàng hóa, Tra cứu LINQ đa tiêu chí, Phân trang Server-side, Tồn theo từng kho. |
 | **Module 3 (Lê Văn Hùng)** | [**`MODULE_03_NHA_CUNG_CAP_NHAP_KHO.md`**](docs/modules/MODULE_03_NHA_CUNG_CAP_NHAP_KHO.md) | Nhà cung cấp, Quy trình Nhập kho Inbound, Transaction cộng tồn kho, Chống cộng trùng lặp. |
 | **Module 4 (Nguyễn Việt Dũng)** | [**`MODULE_04_BO_PHAN_NHAN_XUAT_KHO.md`**](docs/modules/MODULE_04_BO_PHAN_NHAN_XUAT_KHO.md) | Bộ phận nhận, Xuất kho Outbound, Kiểm tra tồn khả dụng, Transaction trừ tồn, xUnit Test Suite. |
 | **Module 5 (Nguyễn Văn Cường)** | [**`MODULE_05_TON_KHO_DASHBOARD.md`**](docs/modules/MODULE_05_TON_KHO_DASHBOARD.md) | Tồn kho tức thời, Cảnh báo hạn mức (Hết / Sắp hết), Sổ cái Audit Trail, Dashboard Chart.js. |
-| **🗄️ Cấu hình Cơ sở dữ liệu** | [**`docs/DATABASE_SETUP.md`**](docs/DATABASE_SETUP.md) | Hướng dẫn kết nối Azure SQL Remote, SQL Server LocalDB, cơ chế Auto-Failover & Auto-Recovery. |
-| **🏛️ Kiến trúc & Thư mục** | [**`docs/ARCHITECTURE_AND_STRUCTURE.md`**](docs/ARCHITECTURE_AND_STRUCTURE.md) | Sơ đồ kiến trúc 5 tầng, chi tiết vai trò từng thư mục và cây mã nguồn toàn diện. |
-| **🔒 Phân quyền & Bảo mật** | [**`docs/RBAC_SECURITY.md`**](docs/RBAC_SECURITY.md) | Ma trận phân quyền 3 vai trò (Admin, NhanVienKho, BoPhanNhan), Identity PBKDF2 Hashing. |
-| **🧪 Cài đặt & Kiểm thử** | [**`docs/INSTALLATION_AND_TESTING.md`**](docs/INSTALLATION_AND_TESTING.md) | Hướng dẫn khôi phục, biên dịch, chạy ứng dụng web và 26 kịch bản kiểm thử tự động xUnit. |
-| **🌿 Quy trình làm việc Git** | [**`docs/GIT_WORKFLOW.md`**](docs/GIT_WORKFLOW.md) | Quy chuẩn nhánh làm việc và quy ước đặt tên commit: `[MSSV-Họ tên][Module] Nội dung`. |
+| **Cấu hình Cơ sở dữ liệu** | [**`docs/DATABASE_SETUP.md`**](docs/DATABASE_SETUP.md) | Hướng dẫn kết nối Azure SQL Remote, SQL Server LocalDB, cơ chế Auto-Failover & Auto-Recovery. |
+| **Kiến trúc & Thư mục** | [**`docs/ARCHITECTURE_AND_STRUCTURE.md`**](docs/ARCHITECTURE_AND_STRUCTURE.md) | Sơ đồ kiến trúc 5 tầng, chi tiết vai trò từng thư mục và cây mã nguồn toàn diện. |
+| **Phân quyền & Bảo mật** | [**`docs/RBAC_SECURITY.md`**](docs/RBAC_SECURITY.md) | Ma trận phân quyền 3 vai trò (Admin, NhanVienKho, BoPhanNhan), Identity PBKDF2 Hashing. |
+| **Cài đặt & Kiểm thử** | [**`docs/INSTALLATION_AND_TESTING.md`**](docs/INSTALLATION_AND_TESTING.md) | Hướng dẫn khôi phục, biên dịch, chạy ứng dụng web và 26 kịch bản kiểm thử tự động xUnit. |
+| **Quy trình làm việc Git** | [**`docs/GIT_WORKFLOW.md`**](docs/GIT_WORKFLOW.md) | Quy chuẩn nhánh làm việc và quy ước đặt tên commit: `[MSSV-Họ tên][Module] Nội dung`. |
 
 ---
 
-## 👥 DANH SÁCH THÀNH VIÊN & PHÂN CÔNG MODULE
+## DANH SÁCH THÀNH VIÊN & PHÂN CÔNG MODULE
 
-| STT | Họ và tên sinh viên | Mã sinh viên | Module phụ trách | Phạm vi trách nhiệm chính | Tài liệu riêng |
-| :---: | :--- | :---: | :--- | :--- | :---: |
-| **1** | **Trần Xuân Hải** | `23103100135` | **Module 1** & Kiến trúc nền tảng | Tài khoản, Đăng nhập Cookie/Session, Lockout 5 lần, Phân quyền RBAC, Profile & Đổi mật khẩu, Loại hàng, Đơn vị tính, CSDL Failover HA. | [👉 Xem M1](docs/modules/MODULE_01_TAI_KHOAN_XAC_THUC.md) |
-| **2** | **Nguyễn Thị Cúc** | `23103100178` | **Module 2** | Quản lý Kho hàng, Hàng hóa, Bộ tra cứu đa tiêu chí LINQ, Lọc khoảng giá/kho/loại, Phân trang Server-side, Tồn theo từng kho. | [👉 Xem M2](docs/modules/MODULE_02_KHO_HANG_HOA.md) |
-| **3** | **Lê Văn Hùng** | `23103100177` | **Module 3** | Quản lý Nhà cung cấp, Quy trình Lập & Duyệt Phiếu nhập kho (Inbound Logistics), Chi tiết phiếu, Transaction cộng dồn tồn kho, Chống cộng lặp. | [👉 Xem M3](docs/modules/MODULE_03_NHA_CUNG_CAP_NHAP_KHO.md) |
-| **4** | **Nguyễn Việt Dũng** | `23103100127` | **Module 4** & Bộ kiểm thử | Quản lý Khách hàng / Bộ phận nhận, Quy trình Lập & Duyệt Phiếu xuất kho (Outbound Logistics), Chi tiết phiếu, Kiểm tra khả dụng tồn, Trừ tồn kho, xUnit Suite. | [👉 Xem M4](docs/modules/MODULE_04_BO_PHAN_NHAN_XUAT_KHO.md) |
-| **5** | **Nguyễn Văn Cường** | `23103100132` | **Module 5** | Quản lý Tồn kho tức thời, Cảnh báo hạn mức (Hết hàng: Ton=0, Sắp hết: Ton<=Min), Nhật ký biến động (Audit Trail), Dashboard KPIs & Biểu đồ Chart.js. | [👉 Xem M5](docs/modules/MODULE_05_TON_KHO_DASHBOARD.md) |
+| STT | Họ và tên sinh viên | Module phụ trách | Phạm vi trách nhiệm chính | Tài liệu riêng |
+| :---: | :--- | :--- | :--- | :---: |
+| **1** | **Trần Xuân Hải** | **Module 1** & Kiến trúc nền tảng | Tài khoản, Đăng nhập Cookie/Session, Lockout 5 lần, Phân quyền RBAC, Profile & Đổi mật khẩu, Loại hàng, Đơn vị tính, CSDL Failover HA. | [M1](docs/modules/MODULE_01_TAI_KHOAN_XAC_THUC.md) |
+| **2** | **Nguyễn Thị Cúc** | **Module 2** | Quản lý Kho hàng, Hàng hóa, Bộ tra cứu đa tiêu chí LINQ, Lọc khoảng giá/kho/loại, Phân trang Server-side, Tồn theo từng kho. | [M2](docs/modules/MODULE_02_KHO_HANG_HOA.md) |
+| **3** | **Lê Văn Hùng** | **Module 3** | Quản lý Nhà cung cấp, Quy trình Lập & Duyệt Phiếu nhập kho (Inbound Logistics), Chi tiết phiếu, Transaction cộng dồn tồn kho, Chống cộng lặp. | [M3](docs/modules/MODULE_03_NHA_CUNG_CAP_NHAP_KHO.md) |
+| **4** | **Nguyễn Việt Dũng** | **Module 4** & Bộ kiểm thử | Quản lý Khách hàng / Bộ phận nhận, Quy trình Lập & Duyệt Phiếu xuất kho (Outbound Logistics), Chi tiết phiếu, Kiểm tra khả dụng tồn, Trừ tồn kho, xUnit Suite. | [M4](docs/modules/MODULE_04_BO_PHAN_NHAN_XUAT_KHO.md) |
+| **5** | **Nguyễn Văn Cường** | **Module 5** | Quản lý Tồn kho tức thời, Cảnh báo hạn mức (Hết hàng: Ton=0, Sắp hết: Ton<=Min), Nhật ký biến động (Audit Trail), Dashboard KPIs & Biểu đồ Chart.js. | [M5](docs/modules/MODULE_05_TON_KHO_DASHBOARD.md) |
 
 ---
 
-## 🏗️ SƠ ĐỒ LIÊN KẾT GIỮA CÁC MODULE
+## SƠ ĐỒ LIÊN KẾT GIỮA CÁC MODULE
 
 ```mermaid
 graph TD
@@ -100,7 +92,7 @@ graph TD
 
 ---
 
-## 🗃️ SƠ ĐỒ QUAN HỆ THỰC THỂ CSDL (ERD TỔNG THỂ)
+## SƠ ĐỒ QUAN HỆ THỰC THỂ CSDL (ERD TỔNG THỂ)
 
 ```mermaid
 erDiagram
@@ -133,21 +125,9 @@ erDiagram
 
 ---
 
-## 🚀 KHỞI CHẠY ỨNG DỤNG NHANH (QUICK START)
+## CHẠY ỨNG DỤNG
 
-### 1. Khởi chạy Web Application
-```bash
-# Khôi phục packages và build
-dotnet restore
-dotnet build
-
-# Khởi chạy ứng dụng
-dotnet run
-```
-Truy cập trình duyệt: **`http://localhost:5000`**
-
-### 2. Tài khoản đăng nhập mẫu sẵn có (Seed Data)
-Tất cả tài khoản mẫu đã được cấu hình mật khẩu băm Identity `PasswordHasher<TaiKhoan>`:
+### Tài khoản đăng nhập mẫu sẵn có (Seed Data)
 
 | Tên đăng nhập | Mật khẩu mẫu | Vai trò (Role) | Chủ tài khoản | Ghi chú quyền hạn |
 | :--- | :--- | :---: | :--- | :--- |
@@ -159,7 +139,7 @@ Tất cả tài khoản mẫu đã được cấu hình mật khẩu băm Identi
 
 ---
 
-## 🧪 BỘ KIỂM THỬ TỰ ĐỘNG (xUnit AUTOMATION TESTS)
+## BỘ KIỂM THỬ TỰ ĐỘNG (xUnit AUTOMATION TESTS)
 
 Hệ thống tích hợp bộ kiểm thử tích hợp (Integration Tests) với **26 kịch bản kiểm thử tự động**, kiểm tra tính toàn vẹn từ Xác thực, Phân quyền đến chu trình Nhập - Xuất - Tồn:
 
