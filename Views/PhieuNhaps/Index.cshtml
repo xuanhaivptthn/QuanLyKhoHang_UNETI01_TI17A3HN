@@ -64,10 +64,10 @@
                     )
                 </td>
                 <td class="align-middle">
-                    @Html.DisplayFor(modelItem => item.NhaCungCap.TenNhaCungCap)
+                    @(item.NhaCungCap?.TenNhaCungCap)
                 </td>
                 <td class="align-middle">
-                    @Html.DisplayFor(modelItem => item.Kho.TenKho)
+                    @(item.Kho?.TenKho)
                 </td>
                 <td class="align-middle text-nowrap">
                     <a asp-action="Edit" asp-route-id="@item.MaPhieuNhap">Edit</a> |

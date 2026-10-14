@@ -104,10 +104,10 @@
                 @Html.DisplayFor(modelItem => item.TenHang)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.LoaiHang.TenLoaiHang)
+                @(item.LoaiHang?.TenLoaiHang)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.DonViTinh.TenDonViTinh)
+                @(item.DonViTinh?.TenDonViTinh)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.GiaNhapThamKhao)

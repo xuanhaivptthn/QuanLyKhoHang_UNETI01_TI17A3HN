@@ -48,10 +48,10 @@
                 @Html.DisplayFor(modelItem => item.GhiChu)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.PhieuXuat.NguoiLap)
+                @(item.PhieuXuat?.NguoiLap)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.HangHoa.TenHang)
+                @(item.HangHoa?.TenHang)
             </td>
             <td>
                 <a asp-action="Details" asp-route-id="@item.MaChiTietXuat">Details</a> |

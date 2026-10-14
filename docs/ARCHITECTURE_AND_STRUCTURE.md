@@ -69,7 +69,7 @@ flowchart TD
 | **`Models/`** | Chứa 15 lớp ánh xạ CSDL với Data Annotations (`[Key]`, `[Required]`, `[Range]`, `[StringLength]`). Bảng `TonKho` sử dụng khóa chính phức hợp `(MaKho, MaHang)`. Các entity được thiết kế ràng buộc quan hệ 1-N chặt chẽ. |
 | **`ViewModels/`** | Đóng gói dữ liệu hiển thị đặc thù (`LoginViewModel`, `DashboardViewModel`, `CapNhatProfileViewModel`, `DoiMatKhauViewModel`), tách biệt hoàn toàn giữa dữ liệu Entity CSDL và dữ liệu giao diện. |
 | **`Views/`** | Hơn 65 giao diện Razor (.cshtml) chuẩn Bootstrap 5 responsive, layout dùng chung [`_Layout.cshtml`](../Views/Shared/_Layout.cshtml), hiển thị badge máy chủ DB và menu động theo vai trò. |
-| **`Data/`** | Chứa [`AppDbContext.cs`](../Data/AppDbContext.cs) (Fluent API, cấu hình OnModelCreating SeedData và phương thức ReseedData xóa sạch/tái nạp). |
+| **`Data/`** | Chứa [`AppDbContext.cs`](../Data/AppDbContext.cs) (Fluent API, ánh xạ quan hệ Entity Framework) và [`AppDbContext.Seed.cs`](../Data/AppDbContext.Seed.cs) (khai báo dữ liệu mẫu SeedData qua Fluent API OnModelCreating & phương thức ReseedData xóa sạch/tái nạp). |
 | **`Filters/`** | Chứa [`AuthorizeRoleAttribute.cs`](../Filters/AuthorizeRoleAttribute.cs) chặn truy cập trái phép ở cấp độ Controller và điều hướng tới `/Home/AccessDenied`. |
 | **`Services/`** | Hệ thống High-Availability Failover gồm [`DatabaseConnectionManager.cs`](../Services/DatabaseConnectionManager.cs), [`DatabaseFailoverInterceptor.cs`](../Services/DatabaseFailoverInterceptor.cs) và [`DatabaseHealthCheckService.cs`](../Services/DatabaseHealthCheckService.cs). |
 | **`Tests/`** | Bộ kiểm thử tự động xUnit sử dụng `WebApplicationFactory` và SQLite In-Memory, đối soát theo file Excel [`TestCase_QuanLyKhoHang_ASPNetCore10.xlsx`](../TestCase_QuanLyKhoHang_ASPNetCore10.xlsx). |
@@ -100,7 +100,8 @@ flowchart TD
 │   ├── ThongKeController.cs                       # Thống kê báo cáo Nhập-Xuất-Tồn theo kỳ, KPIs & biểu đồ Chart.js
 │   └── TonKhoController.cs                        # Theo dõi tồn kho tức thời, cảnh báo hết/sắp hết & lịch sử biến động
 ├── Data                                           # Tầng truy cập dữ liệu và cấu hình Entity Framework Core
-│   └── AppDbContext.cs                            # DbContext chính, cấu hình Fluent API, OnModelCreating SeedData & ReseedData
+│   ├── AppDbContext.cs                            # DbContext chính, cấu hình DbSets & Fluent API OnModelCreating
+│   └── AppDbContext.Seed.cs                       # Partial class: Khai báo dữ liệu mẫu (SeedData) & phương thức ReseedData
 ├── docs                                           # Tài liệu hướng dẫn và hình ảnh chụp minh chứng đồ án
 │   ├── modules                                    # Tài liệu chi tiết bóc tách cho từng Module 1 - 5
 │   │   ├── MODULE_01_TAI_KHOAN_XAC_THUC.md        # Tài liệu Module 1 (Trần Xuân Hải)

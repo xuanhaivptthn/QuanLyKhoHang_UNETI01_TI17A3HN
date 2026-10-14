@@ -20,13 +20,13 @@
             @Html.DisplayNameFor(model => model.LoaiHang)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.LoaiHang.TenLoaiHang)
+            @(Model.LoaiHang?.TenLoaiHang)
         </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.DonViTinh)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.DonViTinh.TenDonViTinh)
+            @(Model.DonViTinh?.TenDonViTinh)
         </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.GiaNhapThamKhao)

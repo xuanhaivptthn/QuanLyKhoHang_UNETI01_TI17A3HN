@@ -1,4 +1,4 @@
-﻿@model IEnumerable<QuanLyKhoHang_UNETI01_TI17A3HN.Models.TonKho>
+@model IEnumerable<QuanLyKhoHang_UNETI01_TI17A3HN.Models.TonKho>
 
 @{
     ViewData["Title"] = "Danh Sách Cảnh Báo Tồn Kho";
@@ -22,10 +22,10 @@
         @foreach (var item in Model)
         {
             <tr>
-                <td>@item.Kho.TenKho</td>
+                <td>@(item.Kho?.TenKho)</td>
                 <td>@item.MaHang</td>
-                <td>@item.HangHoa.TenHang</td>
-                <td>@item.HangHoa.MucTonToiThieu</td>
+                <td>@(item.HangHoa?.TenHang)</td>
+                <td>@(item.HangHoa?.MucTonToiThieu)</td>
                 <td class="text-danger font-weight-bold">@item.SoLuongTon</td>
                 <td>
                     @if (item.SoLuongTon == 0)

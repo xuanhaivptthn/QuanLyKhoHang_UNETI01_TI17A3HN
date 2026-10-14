@@ -1,4 +1,4 @@
-﻿@model IEnumerable<QuanLyKhoHang_UNETI01_TI17A3HN.Models.LichSuTonKho>
+@model IEnumerable<QuanLyKhoHang_UNETI01_TI17A3HN.Models.LichSuTonKho>
 
 @{
     ViewData["Title"] = "Lịch Sử Nhập Xuất";
@@ -53,8 +53,8 @@
                         }
                     </td>
                     <td>@item.MaPhieu</td>
-                    <td>@item.Kho.TenKho</td>
-                    <td>@item.HangHoa.TenHang</td>
+                    <td>@(item.Kho?.TenKho)</td>
+                    <td>@(item.HangHoa?.TenHang)</td>
                     <td class="font-weight-bold @(isInbound || isReturn ? "text-success" : "text-danger")">
                         @(isInbound || isReturn ? "+" : "-")@item.SoLuong
                     </td>

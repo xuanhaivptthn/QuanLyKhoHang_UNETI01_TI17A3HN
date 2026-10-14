@@ -40,10 +40,10 @@
                 @Html.DisplayFor(modelItem => item.DonGiaNhap)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.PhieuNhap.MaPhieuNhap)
+                @(item.PhieuNhap?.MaPhieuNhap)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.HangHoa.TenHang)
+                @(item.HangHoa?.TenHang)
             </td>
             <td>
                 @(

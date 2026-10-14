@@ -39,13 +39,13 @@
             @Html.DisplayNameFor(model => model.BoPhanNhan)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.BoPhanNhan.TenBoPhan)
+            @(Model.BoPhanNhan?.TenBoPhan)
         </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.Kho)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Kho.TenKho)
+            @(Model.Kho?.TenKho)
         </dd>
     </dl>
     

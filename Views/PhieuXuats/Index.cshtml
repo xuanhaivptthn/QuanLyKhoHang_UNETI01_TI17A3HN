@@ -67,10 +67,10 @@
                 @Html.DisplayFor(modelItem => item.GhiChu)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.BoPhanNhan.TenBoPhan)
+                @(item.BoPhanNhan?.TenBoPhan)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Kho.TenKho)
+                @(item.Kho?.TenKho)
             </td>
             <td>
                 <a asp-controller="ChiTietPhieuXuats" asp-action="Index" asp-route-maPhieuXuat="@item.MaPhieuXuat">Chi tiết hàng</a> |
