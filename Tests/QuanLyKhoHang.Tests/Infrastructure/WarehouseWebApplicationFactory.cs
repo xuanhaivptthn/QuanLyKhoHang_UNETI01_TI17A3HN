@@ -48,27 +48,58 @@ public sealed class WarehouseWebApplicationFactory : WebApplicationFactory<Progr
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         await db.Database.EnsureCreatedAsync();
 
-        db.TaiKhoans.AddRange(
-            new TaiKhoan
-            {
-                MaTaiKhoan = 1,
-                TenDangNhap = "admin",
-                MatKhau = "Admin@123",
-                HoTen = "Administrator",
-                Email = "admin@example.test",
-                VaiTro = "Admin",
-                TrangThai = true
-            },
-            new TaiKhoan
-            {
-                MaTaiKhoan = 2,
-                TenDangNhap = "nvkho",
-                MatKhau = "Kho@123",
-                HoTen = "Nhan vien kho",
-                Email = "warehouse@example.test",
-                VaiTro = "NhanVienKho",
-                TrangThai = true
-            });
+        await db.ChiTietPhieuXuats.ExecuteDeleteAsync();
+        await db.PhieuXuats.ExecuteDeleteAsync();
+        await db.ChiTietPhieuNhaps.ExecuteDeleteAsync();
+        await db.PhieuNhap.ExecuteDeleteAsync();
+        await db.LichSuTonKhoes.ExecuteDeleteAsync();
+        await db.TonKhoes.ExecuteDeleteAsync();
+        await db.HangHoa.ExecuteDeleteAsync();
+        await db.BoPhanNhans.ExecuteDeleteAsync();
+        await db.NhaCungCap.ExecuteDeleteAsync();
+        await db.Kho.ExecuteDeleteAsync();
+        await db.DonViTinhs.ExecuteDeleteAsync();
+        await db.LoaiHangs.ExecuteDeleteAsync();
+        await db.TaiKhoans.ExecuteDeleteAsync();
+
+        var passwordHasher = new Microsoft.AspNetCore.Identity.PasswordHasher<TaiKhoan>();
+        var adminUser = new TaiKhoan
+        {
+            MaTaiKhoan = 1,
+            TenDangNhap = "admin",
+            MatKhau = "Admin@123",
+            HoTen = "Administrator",
+            Email = "admin@example.test",
+            VaiTro = "Admin",
+            TrangThai = true
+        };
+        adminUser.MatKhau = passwordHasher.HashPassword(adminUser, adminUser.MatKhau);
+
+        var nvkhoUser = new TaiKhoan
+        {
+            MaTaiKhoan = 2,
+            TenDangNhap = "nvkho",
+            MatKhau = "Kho@123",
+            HoTen = "Nhan vien kho",
+            Email = "warehouse@example.test",
+            VaiTro = "NhanVienKho",
+            TrangThai = true
+        };
+        nvkhoUser.MatKhau = passwordHasher.HashPassword(nvkhoUser, nvkhoUser.MatKhau);
+
+        var boPhanUser = new TaiKhoan
+        {
+            MaTaiKhoan = 3,
+            TenDangNhap = "bophan",
+            MatKhau = "BoPhan@123",
+            HoTen = "Dai dien Bo phan nhan",
+            Email = "bophan@example.test",
+            VaiTro = "BoPhanNhan",
+            TrangThai = true
+        };
+        boPhanUser.MatKhau = passwordHasher.HashPassword(boPhanUser, boPhanUser.MatKhau);
+
+        db.TaiKhoans.AddRange(adminUser, nvkhoUser, boPhanUser);
 
         db.Kho.Add(new Kho
         {

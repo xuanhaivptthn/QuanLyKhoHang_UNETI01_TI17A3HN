@@ -1,3 +1,7 @@
+// Họ và tên: Trần Xuân Hải // MSSV: 23103100135
+// Mã sinh viên: 23103100135
+// Phụ trách Module 1: Tài khoản, Đăng nhập, Đăng xuất, Lockout, Profile, Đổi mật khẩu, CRUD User
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,6 +11,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -15,10 +20,7 @@ using QuanLyKhoHang_UNETI01_TI17A3HN.Data;
 using QuanLyKhoHang_UNETI01_TI17A3HN.Filters;
 using QuanLyKhoHang_UNETI01_TI17A3HN.Models;
 using QuanLyKhoHang_UNETI01_TI17A3HN.ViewModels;
-
-// Họ và tên: Trần Xuân Hải
-// Mã sinh viên: 23103100135
-// Phụ trách Module 1: Tài khoản, Đăng nhập, Phân quyền, Cookie & Session
+using System.Security.Cryptography;
 
 namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
 {
@@ -27,12 +29,85 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
     {
         private readonly AppDbContext _context;
         private readonly IMemoryCache _cache;
+        private readonly IPasswordHasher<TaiKhoan> _passwordHasher;
 
-        public TaiKhoansController(AppDbContext context, IMemoryCache cache)
+        public TaiKhoansController(AppDbContext context, IMemoryCache cache, IPasswordHasher<TaiKhoan>? passwordHasher = null)
         {
             _context = context;
             _cache = cache;
+            _passwordHasher = passwordHasher ?? new PasswordHasher<TaiKhoan>();
         }
+
+        #region Helper: Mã hóa & Xác thực Mật khẩu (ASP.NET Core Identity & SHA-256)
+
+        /// <summary>
+        /// Xác thực mật khẩu cung cấp với mật khẩu lưu trữ trong CSDL.
+        /// Hỗ trợ chuẩn ASP.NET Core Identity (PasswordHasher), kèm fallback SHA-256 và text rõ (cho dữ liệu cũ).
+        /// </summary>
+        private bool VerifyPassword(TaiKhoan user, string hashedPassword, string providedPassword, out bool rehashNeeded)
+        {
+            rehashNeeded = false;
+            if (string.IsNullOrEmpty(hashedPassword) || string.IsNullOrEmpty(providedPassword))
+            {
+                return false;
+            }
+
+            // 1. Kiểm tra bằng PasswordHasher chuẩn ASP.NET Core Identity
+            try
+            {
+                var result = _passwordHasher.VerifyHashedPassword(user, hashedPassword, providedPassword);
+                if (result == PasswordVerificationResult.Success)
+                {
+                    return true;
+                }
+                if (result == PasswordVerificationResult.SuccessRehashNeeded)
+                {
+                    rehashNeeded = true;
+                    return true;
+                }
+            }
+            catch
+            {
+                // Chuỗi mật khẩu không phải định dạng Base64 của Identity (text rõ hoặc SHA-256)
+            }
+
+            // 2. Fallback text rõ (cho dữ liệu seed cũ hoặc chưa băm) -> đánh dấu cần băm lại
+            if (string.Equals(hashedPassword, providedPassword, StringComparison.Ordinal))
+            {
+                rehashNeeded = true;
+                return true;
+            }
+
+            // 3. Fallback SHA-256 (nếu tài khoản từng được băm theo chuẩn SHA-256) -> đánh dấu cần băm lại
+            if (VerifySha256(hashedPassword, providedPassword))
+            {
+                rehashNeeded = true;
+                return true;
+            }
+
+            return false;
+        }
+
+        private static bool VerifySha256(string hashedPassword, string providedPassword)
+        {
+            try
+            {
+                using var sha256 = SHA256.Create();
+                var bytes = System.Text.Encoding.UTF8.GetBytes(providedPassword);
+                var hashBytes = sha256.ComputeHash(bytes);
+                var hashHex = Convert.ToHexString(hashBytes);
+                var hashBase64 = Convert.ToBase64String(hashBytes);
+
+                return string.Equals(hashedPassword, hashHex, StringComparison.OrdinalIgnoreCase)
+                    || string.Equals(hashedPassword, hashBase64, StringComparison.Ordinal);
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        #endregion
 
         #region Xác thực & Quản lý Cookie / Session (Authentication & State Management)
 
@@ -115,8 +190,9 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
                 }
             }
 
-            // 3. Kiểm tra mật khẩu
-            if (taiKhoan.MatKhau != model.MatKhau)
+            // 3. Kiểm tra mật khẩu bằng PasswordHasher<TaiKhoan> (ASP.NET Core Identity)
+            bool isPasswordValid = VerifyPassword(taiKhoan, taiKhoan.MatKhau, model.MatKhau, out bool rehashNeeded);
+            if (!isPasswordValid)
             {
                 taiKhoan.SoLanDangNhapSai++;
                 if (taiKhoan.SoLanDangNhapSai >= 5)
@@ -134,6 +210,12 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
 
                 ViewBag.ReturnUrl = returnUrl;
                 return View(model);
+            }
+
+            // Nếu mật khẩu cũ ở dạng text rõ/SHA256, tự động nâng cấp sang mã hóa Identity
+            if (rehashNeeded)
+            {
+                taiKhoan.MatKhau = _passwordHasher.HashPassword(taiKhoan, model.MatKhau.Trim());
             }
 
             // 4. Đăng nhập thành công -> Reset bộ đếm số lần sai và trạng thái khóa trong CSDL
@@ -346,8 +428,8 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
                 return View(model);
             }
 
-            // Kiểm tra mật khẩu hiện tại
-            if (taiKhoan.MatKhau != model.MatKhauHienTai)
+            // Kiểm tra mật khẩu hiện tại bằng PasswordHasher (kèm fallback)
+            if (!VerifyPassword(taiKhoan, taiKhoan.MatKhau, model.MatKhauHienTai, out _))
             {
                 ModelState.AddModelError(nameof(model.MatKhauHienTai), "Mật khẩu hiện tại không chính xác.");
                 return View(model);
@@ -360,8 +442,8 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
                 return View(model);
             }
 
-            // Cập nhật mật khẩu mới và reset lockout
-            taiKhoan.MatKhau = model.MatKhauMoi.Trim();
+            // Cập nhật mật khẩu mới (Mã hóa qua PasswordHasher<TaiKhoan>) và reset lockout
+            taiKhoan.MatKhau = _passwordHasher.HashPassword(taiKhoan, model.MatKhauMoi.Trim());
             taiKhoan.SoLanDangNhapSai = 0;
             taiKhoan.KhoaDenUtc = null;
 
@@ -420,6 +502,8 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
 
             if (ModelState.IsValid)
             {
+                // Băm mật khẩu bằng PasswordHasher<TaiKhoan> (ASP.NET Core Identity) trước khi lưu
+                taiKhoan.MatKhau = _passwordHasher.HashPassword(taiKhoan, taiKhoan.MatKhau.Trim());
                 _context.Add(taiKhoan);
                 await _context.SaveChangesAsync();
                 TempData["Success"] = $"Đã tạo mới tài khoản '{taiKhoan.TenDangNhap}' thành công!";
@@ -467,6 +551,11 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
             {
                 taiKhoan.MatKhau = existing.MatKhau;
                 ModelState.Remove(nameof(taiKhoan.MatKhau));
+            }
+            else
+            {
+                // Nếu người dùng nhập mật khẩu mới -> Băm mật khẩu mới bằng PasswordHasher
+                taiKhoan.MatKhau = _passwordHasher.HashPassword(taiKhoan, taiKhoan.MatKhau.Trim());
             }
 
             taiKhoan.SoLanDangNhapSai = existing.SoLanDangNhapSai;

@@ -1,15 +1,22 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using QuanLyKhoHang_UNETI01_TI17A3HN.Models;
 
 namespace QuanLyKhoHang_UNETI01_TI17A3HN.Data
 {
-    public class AppDbContext : DbContext
+    public partial class AppDbContext : DbContext
     {
         public AppDbContext(DbContextOptions<AppDbContext> options)
             : base(options)
         {
         }
+
         // Module 1: Tài khoản, Đăng nhập, Phân quyền, Loại hàng, Đơn vị tính
+        // Họ và tên: Trần Xuân Hải // MSSV: 23103100135
         public DbSet<TaiKhoan> TaiKhoans { get; set; } = default!;
         public DbSet<LoaiHang> LoaiHangs { get; set; } = default!;
         public DbSet<DonViTinh> DonViTinhs { get; set; } = default!;
@@ -21,17 +28,17 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Data
         public DbSet<Kho> Khoes => Kho;
 
         // Module 3: Nhà cung cấp, Phiếu nhập, Chi tiết phiếu nhập
-        public DbSet<QuanLyKhoHang_UNETI01_TI17A3HN.Models.PhieuNhap> PhieuNhap { get; set; } = default!;
-        public DbSet<QuanLyKhoHang_UNETI01_TI17A3HN.Models.PhieuNhap> PhieuNhaps => PhieuNhap;
-        public DbSet<QuanLyKhoHang_UNETI01_TI17A3HN.Models.ChiTietPhieuNhap> ChiTietPhieuNhap { get; set; } = default!;
-        public DbSet<QuanLyKhoHang_UNETI01_TI17A3HN.Models.ChiTietPhieuNhap> ChiTietPhieuNhaps => ChiTietPhieuNhap;
-        public DbSet<QuanLyKhoHang_UNETI01_TI17A3HN.Models.NhaCungCap> NhaCungCap { get; set; } = default!;
-        public DbSet<QuanLyKhoHang_UNETI01_TI17A3HN.Models.NhaCungCap> NhaCungCaps => NhaCungCap;
+        public DbSet<PhieuNhap> PhieuNhap { get; set; } = default!;
+        public DbSet<PhieuNhap> PhieuNhaps => PhieuNhap;
+        public DbSet<ChiTietPhieuNhap> ChiTietPhieuNhap { get; set; } = default!;
+        public DbSet<ChiTietPhieuNhap> ChiTietPhieuNhaps => ChiTietPhieuNhap;
+        public DbSet<NhaCungCap> NhaCungCap { get; set; } = default!;
+        public DbSet<NhaCungCap> NhaCungCaps => NhaCungCap;
+
         // Module 4: Bộ phận nhận, Phiếu xuất, Chi tiết phiếu xuất
         public DbSet<BoPhanNhan> BoPhanNhans { get; set; } = default!;
         public DbSet<PhieuXuat> PhieuXuats { get; set; } = default!;
         public DbSet<ChiTietPhieuXuat> ChiTietPhieuXuats { get; set; } = default!;
-
 
         // Module 5: Tồn kho, Lịch sử tồn kho
         public DbSet<TonKho> TonKhoes { get; set; } = default!;
@@ -40,7 +47,7 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Data
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             base.OnConfiguring(optionsBuilder);
-            optionsBuilder.ConfigureWarnings(w => w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning));
+            optionsBuilder.ConfigureWarnings(w => w.Ignore(RelationalEventId.PendingModelChangesWarning));
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -48,38 +55,18 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Data
             base.OnModelCreating(modelBuilder);
 
             // Unique indexes Module 1
-            modelBuilder.Entity<TaiKhoan>()
-                .HasIndex(t => t.TenDangNhap)
-                .IsUnique();
-
-            modelBuilder.Entity<LoaiHang>()
-                .HasIndex(l => l.TenLoaiHang)
-                .IsUnique();
-
-            modelBuilder.Entity<DonViTinh>()
-                .HasIndex(d => d.TenDonViTinh)
-                .IsUnique();
+            modelBuilder.Entity<TaiKhoan>().HasIndex(t => t.TenDangNhap).IsUnique();
+            modelBuilder.Entity<LoaiHang>().HasIndex(l => l.TenLoaiHang).IsUnique();
+            modelBuilder.Entity<DonViTinh>().HasIndex(d => d.TenDonViTinh).IsUnique();
 
             // Unique indexes Module 2, 3, 4
-            modelBuilder.Entity<Kho>()
-                .HasIndex(k => k.TenKho)
-                .IsUnique();
-
-            modelBuilder.Entity<HangHoa>()
-                .HasIndex(h => h.TenHang)
-                .IsUnique();
-
-            modelBuilder.Entity<NhaCungCap>()
-                .HasIndex(n => n.TenNhaCungCap)
-                .IsUnique();
-
-            modelBuilder.Entity<BoPhanNhan>()
-                .HasIndex(b => b.TenBoPhan)
-                .IsUnique();
+            modelBuilder.Entity<Kho>().HasIndex(k => k.TenKho).IsUnique();
+            modelBuilder.Entity<HangHoa>().HasIndex(h => h.TenHang).IsUnique();
+            modelBuilder.Entity<NhaCungCap>().HasIndex(n => n.TenNhaCungCap).IsUnique();
+            modelBuilder.Entity<BoPhanNhan>().HasIndex(b => b.TenBoPhan).IsUnique();
 
             // Khóa chính hỗn hợp bảng Tồn kho (MaKho, MaHang)
-            modelBuilder.Entity<TonKho>()
-                .HasKey(t => new { t.MaKho, t.MaHang });
+            modelBuilder.Entity<TonKho>().HasKey(t => new { t.MaKho, t.MaHang });
 
             // Quan hệ Module 2: Hàng hóa - Loại hàng - Đơn vị tính, Kho - Phiếu nhập
             modelBuilder.Entity<HangHoa>()
@@ -168,6 +155,9 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Data
                 .WithMany(h => h.LichSuTonKhoes)
                 .HasForeignKey(l => l.MaHang)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            // Nạp dữ liệu mẫu ban đầu qua Fluent API OnModelCreating
+            SeedData(modelBuilder);
         }
     }
 }

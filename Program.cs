@@ -1,12 +1,13 @@
+// Họ và tên: Trần Xuân Hải // MSSV: 23103100135
+// Mã sinh viên: 23103100135
+// Phụ trách Module 1: Cấu hình hệ thống, Cookie Authentication, Session, Failover CSDL và DI
+
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using QuanLyKhoHang_UNETI01_TI17A3HN.Data;
 using QuanLyKhoHang_UNETI01_TI17A3HN.Models;
 using QuanLyKhoHang_UNETI01_TI17A3HN.Services;
-
-// Họ và tên: Trần Xuân Hải
-// Mã sinh viên: 23103100135
-// Phụ trách Module 1: Tài khoản, Đăng nhập, Phân quyền, Loại hàng & Đơn vị tính
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -48,6 +49,9 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;             // Đảm bảo hoạt động theo chính sách Cookie GDPR
     options.Cookie.SameSite = SameSiteMode.Lax;    // Bảo mật chống tấn công CSRF
 });
+
+// CẤU HÌNH DỊCH VỤ MÃ HÓA MẬT KHẨU (ASP.NET CORE IDENTITY)
+builder.Services.AddScoped<IPasswordHasher<TaiKhoan>, PasswordHasher<TaiKhoan>>();
 
 // CẤU HÌNH XÁC THỰC BẰNG COOKIE (COOKIE AUTHENTICATION)
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
@@ -93,13 +97,13 @@ if (args.Contains("--seed"))
     try
     {
         var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-        DbInitializer.Initialize(context);
-        Console.WriteLine("[DbInitializer] Nạp dữ liệu mẫu hoàn tất thành công!");
+        context.ReseedData();
+        Console.WriteLine("[AppDbContext] Xóa toàn bộ dữ liệu cũ và nạp lại dữ liệu mẫu thành công!");
     }
     catch (Exception ex)
     {
         var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "Lỗi trong quá trình khởi tạo dữ liệu mẫu (DbInitializer).");
+        logger.LogError(ex, "Lỗi trong quá trình khởi tạo dữ liệu mẫu (AppDbContext.ReseedData).");
     }
     return;
 }

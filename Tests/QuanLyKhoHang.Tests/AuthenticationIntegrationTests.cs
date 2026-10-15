@@ -1,3 +1,7 @@
+// Họ và tên: Trần Xuân Hải // MSSV: 23103100135
+// Mã sinh viên: 23103100135
+// Phụ trách Module 1: Bộ kiểm thử tích hợp xác thực Cookie, Lockout và phân quyền RBAC
+
 using System.Net;
 using QuanLyKhoHang.Tests.Infrastructure;
 using Xunit;
@@ -209,5 +213,153 @@ public sealed class AuthenticationIntegrationTests : WarehouseIntegrationTest
         var decodedHtml = WebUtility.HtmlDecode(html);
         Assert.Contains("Mật khẩu hiện tại không chính xác.", decodedHtml);
     }
+
+    [Fact]
+    [Trait("CV", "CV1.1")]
+    public async Task Role_based_menu_and_header_badge_are_synchronized_correctly()
+    {
+        // 1. Kiểm tra với tài khoản Admin
+        await LoginAsAdminAsync();
+        using var adminResp = await Client.GetAsync("/TaiKhoan/Index");
+        Assert.Equal(HttpStatusCode.OK, adminResp.StatusCode);
+        var adminHtml = await adminResp.Content.ReadAsStringAsync();
+
+        // Admin: Header hiển thị họ tên và badge Admin màu đỏ
+        Assert.Contains("Administrator", adminHtml);
+        Assert.Contains("bg-danger", adminHtml);
+        Assert.Contains("Admin", adminHtml);
+
+        // Admin: Menu hiển thị đầy đủ Quản trị tài khoản và các phân hệ
+        Assert.Contains("Quản trị Tài khoản", adminHtml);
+        Assert.Contains("Bộ phận nhận", adminHtml);
+        Assert.Contains("Phiếu xuất", adminHtml);
+        Assert.Contains("Phiếu nhập", adminHtml);
+
+        // 2. Kiểm tra với tài khoản NhanVienKho
+        using var logout1 = await Client.GetAsync("/TaiKhoan/DangXuat");
+        Assert.Equal(HttpStatusCode.Redirect, logout1.StatusCode);
+
+        var tokenNvkho = await GetAntiForgeryTokenAsync("/TaiKhoan/DangNhap");
+        using var loginNvkho = await PostFormAsync(
+            "/TaiKhoan/DangNhap",
+            tokenNvkho,
+            new Dictionary<string, string>
+            {
+                ["TenDangNhap"] = "nvkho",
+                ["MatKhau"] = "Kho@123"
+            });
+        Assert.Equal(HttpStatusCode.Redirect, loginNvkho.StatusCode);
+
+        using var nvkhoResp = await Client.GetAsync("/PhieuNhap");
+        Assert.Equal(HttpStatusCode.OK, nvkhoResp.StatusCode);
+        var nvkhoHtml = await nvkhoResp.Content.ReadAsStringAsync();
+
+        // NhanVienKho: Header hiển thị họ tên và badge NhanVienKho
+        Assert.Contains("Nhan vien kho", nvkhoHtml);
+        Assert.Contains("bg-primary", nvkhoHtml);
+        Assert.Contains("NhanVienKho", nvkhoHtml);
+
+        // NhanVienKho: Ẩn menu Quản trị Tài khoản (chỉ dành cho Admin)
+        Assert.DoesNotContain("Quản trị Tài khoản", nvkhoHtml);
+
+        // NhanVienKho: Hiển thị các chức năng kho
+        Assert.Contains("Phiếu nhập", nvkhoHtml);
+        Assert.Contains("Phiếu xuất", nvkhoHtml);
+        Assert.Contains("Hàng hóa", nvkhoHtml);
+        Assert.Contains("Kho", nvkhoHtml);
+
+        // 3. Kiểm tra với tài khoản BoPhanNhan
+        using var logout2 = await Client.GetAsync("/TaiKhoan/DangXuat");
+        Assert.Equal(HttpStatusCode.Redirect, logout2.StatusCode);
+
+        var tokenBoPhan = await GetAntiForgeryTokenAsync("/TaiKhoan/DangNhap");
+        using var loginBoPhan = await PostFormAsync(
+            "/TaiKhoan/DangNhap",
+            tokenBoPhan,
+            new Dictionary<string, string>
+            {
+                ["TenDangNhap"] = "bophan",
+                ["MatKhau"] = "BoPhan@123"
+            });
+        Assert.Equal(HttpStatusCode.Redirect, loginBoPhan.StatusCode);
+
+        using var boPhanResp = await Client.GetAsync("/PhieuXuat");
+        Assert.Equal(HttpStatusCode.OK, boPhanResp.StatusCode);
+        var boPhanHtml = await boPhanResp.Content.ReadAsStringAsync();
+
+        // BoPhanNhan: Header hiển thị họ tên và badge BoPhanNhan
+        Assert.Contains("Dai dien Bo phan nhan", boPhanHtml);
+        Assert.Contains("BoPhanNhan", boPhanHtml);
+
+        // BoPhanNhan: Ẩn menu Quản trị Tài khoản
+        Assert.DoesNotContain("Quản trị Tài khoản", boPhanHtml);
+        Assert.Contains("Phiếu xuất", boPhanHtml);
+    }
+
+    [Fact]
+    [Trait("CV", "CV1.2")]
+    public async Task Password_is_hashed_with_identity_password_hasher_on_create_and_verifies_login()
+    {
+        await LoginAsAdminAsync();
+
+        // 1. Tạo mới tài khoản qua giao diện Admin
+        var token = await GetAntiForgeryTokenAsync("/TaiKhoan/Create");
+        using var createResp = await PostFormAsync(
+            "/TaiKhoan/Create",
+            token,
+            new Dictionary<string, string>
+            {
+                ["TenDangNhap"] = "test_hasher",
+                ["MatKhau"] = "SecretPass@123",
+                ["HoTen"] = "Nguoi Dung Hash",
+                ["Email"] = "hasher@example.test",
+                ["VaiTro"] = "NhanVienKho",
+                ["TrangThai"] = "true"
+            });
+        Assert.Equal(HttpStatusCode.Redirect, createResp.StatusCode);
+
+        // 2. Kiểm tra trong CSDL: Mật khẩu KHÔNG được lưu dạng text rõ mà phải là mã băm Identity
+        var createdUser = await WithDbAsync(async db =>
+            await Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.FirstOrDefaultAsync(
+                db.TaiKhoans, u => u.TenDangNhap == "test_hasher"));
+
+        Assert.NotNull(createdUser);
+        Assert.NotEqual("SecretPass@123", createdUser.MatKhau);
+        Assert.True(createdUser.MatKhau.Length >= 50, "Mật khẩu băm Identity phải có độ dài lớn hơn 50 ký tự.");
+
+        // Xác thực băm chuẩn ASP.NET Core Identity PasswordHasher
+        var hasher = new Microsoft.AspNetCore.Identity.PasswordHasher<QuanLyKhoHang_UNETI01_TI17A3HN.Models.TaiKhoan>();
+        var verifyResult = hasher.VerifyHashedPassword(createdUser, createdUser.MatKhau, "SecretPass@123");
+        Assert.Equal(Microsoft.AspNetCore.Identity.PasswordVerificationResult.Success, verifyResult);
+
+        // 3. Đăng xuất Admin và thử đăng nhập bằng tài khoản vừa tạo
+        using var logoutResp = await Client.GetAsync("/TaiKhoan/DangXuat");
+        Assert.Equal(HttpStatusCode.Redirect, logoutResp.StatusCode);
+
+        // Đăng nhập sai mật khẩu -> thất bại
+        var loginToken1 = await GetAntiForgeryTokenAsync("/TaiKhoan/DangNhap");
+        using var failLogin = await PostFormAsync(
+            "/TaiKhoan/DangNhap",
+            loginToken1,
+            new Dictionary<string, string>
+            {
+                ["TenDangNhap"] = "test_hasher",
+                ["MatKhau"] = "WrongPass@123"
+            });
+        Assert.Equal(HttpStatusCode.OK, failLogin.StatusCode);
+
+        // Đăng nhập đúng mật khẩu -> thành công chuyển hướng
+        var loginToken2 = await GetAntiForgeryTokenAsync("/TaiKhoan/DangNhap");
+        using var successLogin = await PostFormAsync(
+            "/TaiKhoan/DangNhap",
+            loginToken2,
+            new Dictionary<string, string>
+            {
+                ["TenDangNhap"] = "test_hasher",
+                ["MatKhau"] = "SecretPass@123"
+            });
+        Assert.Equal(HttpStatusCode.Redirect, successLogin.StatusCode);
+    }
 }
+
 
