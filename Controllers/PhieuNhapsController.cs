@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using QuanLyKhoHang_UNETI01_TI17A3HN.Data;
+using QuanLyKhoHang_UNETI01_TI17A3HN.Filters;
 using QuanLyKhoHang_UNETI01_TI17A3HN.Models;
 
 // Họ và tên: Lê Văn Hùng
@@ -14,6 +15,7 @@ using QuanLyKhoHang_UNETI01_TI17A3HN.Models;
 
 namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
 {
+    [AuthorizeRole("Admin", "NhanVienKho")]
     public class PhieuNhapsController : Controller
     {
         private readonly AppDbContext _context;

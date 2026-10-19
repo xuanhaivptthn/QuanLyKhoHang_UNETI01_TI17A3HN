@@ -15,6 +15,7 @@ using QuanLyKhoHang_UNETI01_TI17A3HN.Models;
 
 namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
 {
+    [AuthorizeRole("Admin", "NhanVienKho", "BoPhanNhan")]
     public class ChiTietPhieuXuatsController : Controller
     {
         private readonly AppDbContext _context;

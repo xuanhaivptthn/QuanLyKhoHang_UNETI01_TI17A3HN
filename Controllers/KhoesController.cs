@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using QuanLyKhoHang_UNETI01_TI17A3HN.Data;
+using QuanLyKhoHang_UNETI01_TI17A3HN.Filters;
 using QuanLyKhoHang_UNETI01_TI17A3HN.Models;
 
 // Họ và tên: Nguyễn Thị Cúc
@@ -14,6 +15,7 @@ using QuanLyKhoHang_UNETI01_TI17A3HN.Models;
 
 namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
 {
+    [AuthorizeRole("Admin", "NhanVienKho")]
     public class KhoesController : Controller
     {
         private readonly AppDbContext _context;
@@ -65,12 +67,14 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
         }
 
         // GET: Khoes/Create
+        [AuthorizeRole("Admin")]
         public IActionResult Create()
         {
             return View();
         }
 
         // POST: Khoes/Create
+        [AuthorizeRole("Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("MaKho,TenKho,DiaDiem,MoTa,TrangThai")] Kho kho)
@@ -94,6 +98,7 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
         }
 
         // GET: Khoes/Edit/5
+        [AuthorizeRole("Admin")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -110,6 +115,7 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
         }
 
         // POST: Khoes/Edit/5
+        [AuthorizeRole("Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("MaKho,TenKho,DiaDiem,MoTa,TrangThai")] Kho kho)
@@ -162,6 +168,7 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
         }
 
         // POST: Khoes/DoiTrangThai/5
+        [AuthorizeRole("Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DoiTrangThai(int id)
@@ -189,6 +196,7 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
         }
 
         // GET: Khoes/Delete/5
+        [AuthorizeRole("Admin")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -207,6 +215,7 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
         }
 
         // POST: Khoes/Delete/5
+        [AuthorizeRole("Admin")]
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)

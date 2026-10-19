@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using QuanLyKhoHang_UNETI01_TI17A3HN.Data;
+using QuanLyKhoHang_UNETI01_TI17A3HN.Filters;
 using QuanLyKhoHang_UNETI01_TI17A3HN.Models;
 using QuanLyKhoHang_UNETI01_TI17A3HN.ViewModels;
 using System;
@@ -12,6 +13,7 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
     // Họ và tên: Nguyễn Văn Cường
     // Mã sinh viên: 23103100132
     // Nội dung thực hiện: Tồn kho, cảnh báo tồn, lịch sử nhập xuất, Dashboard và thống kê LINQ.
+    [AuthorizeRole("Admin", "NhanVienKho")]
     public class ThongKeController : Controller
     {
         private readonly AppDbContext _context;

@@ -37,15 +37,23 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Filters
 
             // Nếu Action có định nghĩa AuthorizeRoleAttribute riêng có cấu hình vai trò,
             // cho phép Action-level attribute nắm quyền kiểm tra (thay thế Class-level)
-            var actionSpecificRoles = context.ActionDescriptor.EndpointMetadata
-                .OfType<AuthorizeRoleAttribute>()
-                .Where(f => f._roles.Length > 0)
-                .ToList();
-
-            if (actionSpecificRoles.Count > 0 && this._roles.Length > 0 && !actionSpecificRoles.Contains(this))
+            if (context.ActionDescriptor is Microsoft.AspNetCore.Mvc.Controllers.ControllerActionDescriptor cad)
             {
-                base.OnActionExecuting(context);
-                return;
+                var methodRoleAttrs = cad.MethodInfo
+                    .GetCustomAttributes(typeof(AuthorizeRoleAttribute), true)
+                    .OfType<AuthorizeRoleAttribute>()
+                    .Where(f => f._roles.Length > 0)
+                    .ToList();
+
+                if (methodRoleAttrs.Count > 0 && this._roles.Length > 0)
+                {
+                    bool isThisMethodLevel = methodRoleAttrs.Any(m => ReferenceEquals(m, this) || m._roles.SequenceEqual(this._roles));
+                    if (!isThisMethodLevel)
+                    {
+                        base.OnActionExecuting(context);
+                        return;
+                    }
+                }
             }
 
             var httpContext = context.HttpContext;
