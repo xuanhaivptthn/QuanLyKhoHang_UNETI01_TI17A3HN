@@ -55,6 +55,45 @@
                 </td>
             </tr>
         }
+        @if (!Model.Any())
+        {
+            <tr>
+                <td colspan="6" class="text-center text-muted">Chưa có nhà cung cấp nào.</td>
+            </tr>
+        }
         </tbody>
     </table>
 </div>
+
+@{
+    int currentPage = ViewBag.CurrentPage ?? 1;
+    int totalPages = ViewBag.TotalPages ?? 0;
+
+    Func<int, Dictionary<string, string?>> routeFor = page => new Dictionary<string, string?>
+    {
+        ["searchString"] = ViewBag.SearchString,
+        ["trangThai"] = ViewBag.TrangThai?.ToString().ToLower(),
+        ["page"] = page.ToString()
+    };
+}
+
+@if (totalPages > 1)
+{
+    <nav aria-label="Phân trang nhà cung cấp">
+        <ul class="pagination">
+            <li class="page-item @(currentPage <= 1 ? "disabled" : "")">
+                <a class="page-link" asp-action="Index" asp-all-route-data="routeFor(currentPage - 1)" aria-label="Trang trước">Trước</a>
+            </li>
+            @for (int i = 1; i <= totalPages; i++)
+            {
+                <li class="page-item @(i == currentPage ? "active" : "")">
+                    <a class="page-link" asp-action="Index" asp-all-route-data="routeFor(i)" aria-current="@(i == currentPage ? "page" : null)">@i</a>
+                </li>
+            }
+            <li class="page-item @(currentPage >= totalPages ? "disabled" : "")">
+                <a class="page-link" asp-action="Index" asp-all-route-data="routeFor(currentPage + 1)" aria-label="Trang sau">Sau</a>
+            </li>
+        </ul>
+    </nav>
+    <p class="text-muted">Trang @currentPage / @totalPages (tổng @ViewBag.TotalItems nhà cung cấp)</p>
+}
