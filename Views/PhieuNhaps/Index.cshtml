@@ -9,28 +9,37 @@
 <p>
     <a asp-action="Create">Create New</a>
 </p>
-<form asp-action="Index" method="get" class="mb-3 position-relative" id="phieuNhapSearchForm">
-    <div class="input-group">
-        <input type="search" name="searchString" value="@ViewBag.SearchString" class="form-control" placeholder="Nhập mã phiếu hoặc tên nhà cung cấp..." aria-label="Tìm phiếu nhập theo mã phiếu hoặc nhà cung cấp" aria-autocomplete="list" aria-controls="phieuNhapSuggestions" aria-expanded="false" autocomplete="off" id="phieuNhapSearchInput" />
-        <button type="submit" class="btn btn-primary">Tìm kiếm</button>
-        <a asp-action="Index" class="btn btn-outline-secondary">Tất cả</a>
-    </div>
-    <div class="row g-2 mt-1">
-        <div class="col-md-3">
-            <select name="maKho" class="form-select" asp-items="ViewBag.Khos">
+<form asp-action="Index" method="get" class="card card-body bg-light mb-3" id="phieuNhapSearchForm">
+    <div class="row g-3 align-items-end">
+        <div class="col-12 col-lg-8 position-relative">
+            <label for="phieuNhapSearchInput" class="form-label">Tìm phiếu nhập</label>
+            <input type="search" name="searchString" value="@ViewBag.SearchString" class="form-control" placeholder="Nhập mã phiếu hoặc tên nhà cung cấp..." aria-label="Tìm phiếu nhập theo mã phiếu hoặc nhà cung cấp" aria-autocomplete="list" aria-controls="phieuNhapSuggestions" aria-expanded="false" autocomplete="off" id="phieuNhapSearchInput" />
+            <div class="dropdown-menu w-100" id="phieuNhapSuggestions" role="listbox"></div>
+            <div class="visually-hidden" id="phieuNhapSuggestionsStatus" role="status" aria-live="polite"></div>
+        </div>
+        <div class="col-12 col-lg-4">
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary flex-grow-1">Tìm kiếm / Lọc</button>
+                <a asp-action="Index" class="btn btn-outline-secondary">Tất cả</a>
+            </div>
+        </div>
+        <div class="col-12 col-sm-6 col-lg-3">
+            <label for="maKho" class="form-label">Kho</label>
+            <select id="maKho" name="maKho" class="form-select" asp-items="ViewBag.Khos">
                 <option value="">-- Tất cả kho --</option>
             </select>
         </div>
-        <div class="col-md-3">
+        <div class="col-12 col-sm-6 col-lg-3">
             <label for="tuNgay" class="form-label">Từ ngày</label>
             <input id="tuNgay" type="date" name="tuNgay" value="@ViewBag.TuNgay" class="form-control" aria-label="Ngày nhập từ" />
         </div>
-        <div class="col-md-3">
+        <div class="col-12 col-sm-6 col-lg-3">
             <label for="denNgay" class="form-label">Đến ngày</label>
             <input id="denNgay" type="date" name="denNgay" value="@ViewBag.DenNgay" class="form-control" aria-label="Ngày nhập đến" />
         </div>
-        <div class="col-md-3">
-            <select name="trangThai" class="form-select" aria-label="Lọc theo trạng thái">
+        <div class="col-12 col-sm-6 col-lg-3">
+            <label for="trangThai" class="form-label">Trạng thái</label>
+            <select id="trangThai" name="trangThai" class="form-select" aria-label="Lọc theo trạng thái">
                 <option value="">-- Tất cả trạng thái --</option>
                 <option value="@((int)TrangThaiPhieuNhap.Nhap)" selected="@((int?)ViewBag.TrangThai == (int)TrangThaiPhieuNhap.Nhap)">Nháp</option>
                 <option value="@((int)TrangThaiPhieuNhap.ChoXacNhan)" selected="@((int?)ViewBag.TrangThai == (int)TrangThaiPhieuNhap.ChoXacNhan)">Chờ xác nhận</option>
@@ -39,8 +48,6 @@
             </select>
         </div>
     </div>
-    <div class="dropdown-menu w-100" id="phieuNhapSuggestions" role="listbox"></div>
-    <div class="visually-hidden" id="phieuNhapSuggestionsStatus" role="status" aria-live="polite"></div>
 </form>
 <div class="table-responsive">
     <table class="table table-hover">
