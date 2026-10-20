@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -29,13 +30,23 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
         public async Task<IActionResult> Index(
             string? searchString,
             int? maKho,
-            DateTime? tuNgay,
-            DateTime? denNgay,
+            string? tuNgay,
+            string? denNgay,
             TrangThaiPhieuNhap? trangThai,
             int page = 1)
         {
             const int pageSize = 10;
             page = Math.Max(page, 1);
+
+            var tuNgayText = tuNgay?.Trim();
+            var denNgayText = denNgay?.Trim();
+            DateTime? ngayBatDau = ParseFilterDate(tuNgayText, "tuNgay");
+            DateTime? ngayKetThuc = ParseFilterDate(denNgayText, "denNgay");
+
+            if (ngayBatDau.HasValue && ngayKetThuc.HasValue && ngayBatDau.Value.Date > ngayKetThuc.Value.Date)
+            {
+                ModelState.AddModelError("denNgay", "Đến ngày phải bằng hoặc sau từ ngày.");
+            }
 
             IQueryable<PhieuNhap> query = _context.PhieuNhap
                 .Include(p => p.Kho)
@@ -56,14 +67,14 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
                 query = query.Where(p => p.MaKho == maKho.Value);
             }
 
-            if (tuNgay.HasValue)
+            if (ngayBatDau.HasValue)
             {
-                query = query.Where(p => p.NgayNhap >= tuNgay.Value.Date);
+                query = query.Where(p => p.NgayNhap >= ngayBatDau.Value.Date);
             }
 
-            if (denNgay.HasValue)
+            if (ngayKetThuc.HasValue)
             {
-                var ngaySauDen = denNgay.Value.Date.AddDays(1);
+                var ngaySauDen = ngayKetThuc.Value.Date.AddDays(1);
                 query = query.Where(p => p.NgayNhap < ngaySauDen);
             }
 
@@ -88,8 +99,8 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
             ViewBag.TotalItems = totalItems;
             ViewBag.SearchString = searchString;
             ViewBag.MaKho = maKho;
-            ViewBag.TuNgay = tuNgay?.ToString("yyyy-MM-dd");
-            ViewBag.DenNgay = denNgay?.ToString("yyyy-MM-dd");
+            ViewBag.TuNgay = tuNgayText;
+            ViewBag.DenNgay = denNgayText;
             ViewBag.TrangThai = trangThai.HasValue ? (int?)trangThai.Value : null;
             ViewBag.Khos = new SelectList(
                 await _context.Kho.OrderBy(k => k.TenKho).ToListAsync(),
@@ -98,6 +109,22 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
                 maKho);
 
             return View(phieuNhaps);
+        }
+
+        private DateTime? ParseFilterDate(string? value, string fieldName)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return null;
+            }
+
+            if (DateTime.TryParseExact(value, "dd/MM/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out var date))
+            {
+                return date;
+            }
+
+            ModelState.AddModelError(fieldName, "Ngày phải đúng định dạng dd/MM/yyyy.");
+            return null;
         }
 
         // GET: PhieuNhaps/Suggestions

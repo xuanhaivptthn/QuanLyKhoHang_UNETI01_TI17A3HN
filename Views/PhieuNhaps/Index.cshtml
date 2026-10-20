@@ -10,6 +10,7 @@
     <a asp-action="Create">Create New</a>
 </p>
 <form asp-action="Index" method="get" class="card card-body bg-light mb-3" id="phieuNhapSearchForm">
+    <div asp-validation-summary="All" class="text-danger mb-2"></div>
     <div class="row g-3 align-items-end">
         <div class="col-12 col-lg-8 position-relative">
             <label for="phieuNhapSearchInput" class="form-label">Tìm phiếu nhập</label>
@@ -31,11 +32,27 @@
         </div>
         <div class="col-12 col-sm-6 col-lg-3">
             <label for="tuNgay" class="form-label">Từ ngày</label>
-            <input id="tuNgay" type="date" name="tuNgay" value="@ViewBag.TuNgay" class="form-control" aria-label="Ngày nhập từ" />
+            <div class="input-group">
+                <input id="tuNgay" type="text" name="tuNgay" value="@ViewBag.TuNgay" class="form-control" placeholder="dd/MM/yyyy" inputmode="numeric" autocomplete="off" aria-label="Ngày nhập từ, định dạng ngày/tháng/năm" />
+                <button type="button" class="btn btn-outline-secondary" tabindex="-1" aria-hidden="true">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5M1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4z" />
+                    </svg>
+                </button>
+                <input id="tuNgayPicker" type="date" class="position-absolute top-0 end-0 h-100 opacity-0" style="width: 3rem; cursor: pointer; z-index: 2;" aria-label="Chọn ngày nhập từ trên lịch" />
+            </div>
         </div>
         <div class="col-12 col-sm-6 col-lg-3">
             <label for="denNgay" class="form-label">Đến ngày</label>
-            <input id="denNgay" type="date" name="denNgay" value="@ViewBag.DenNgay" class="form-control" aria-label="Ngày nhập đến" />
+            <div class="input-group">
+                <input id="denNgay" type="text" name="denNgay" value="@ViewBag.DenNgay" class="form-control" placeholder="dd/MM/yyyy" inputmode="numeric" autocomplete="off" aria-label="Ngày nhập đến, định dạng ngày/tháng/năm" />
+                <button type="button" class="btn btn-outline-secondary" tabindex="-1" aria-hidden="true">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5M1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4z" />
+                    </svg>
+                </button>
+                <input id="denNgayPicker" type="date" class="position-absolute top-0 end-0 h-100 opacity-0" style="width: 3rem; cursor: pointer; z-index: 2;" aria-label="Chọn ngày nhập đến trên lịch" />
+            </div>
         </div>
         <div class="col-12 col-sm-6 col-lg-3">
             <label for="trangThai" class="form-label">Trạng thái</label>
@@ -173,6 +190,42 @@
             const suggestionsUrl = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Url.Action("Suggestions", "PhieuNhaps")));
             let debounceTimer;
             let activeRequest;
+
+            const connectDatePicker = (textInputId, datePickerId) => {
+                const textInput = document.getElementById(textInputId);
+                const datePicker = document.getElementById(datePickerId);
+                const toDatePickerValue = value => {
+                    const match = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(value);
+                    if (!match) {
+                        return "";
+                    }
+
+                    const [, day, month, year] = match;
+                    const date = new Date(Date.UTC(Number(year), Number(month) - 1, Number(day)));
+                    if (date.getUTCFullYear() !== Number(year) ||
+                        date.getUTCMonth() !== Number(month) - 1 ||
+                        date.getUTCDate() !== Number(day)) {
+                        return "";
+                    }
+
+                    return `${year}-${month}-${day}`;
+                };
+
+                textInput.addEventListener("input", () => {
+                    datePicker.value = toDatePickerValue(textInput.value.trim());
+                });
+                datePicker.addEventListener("change", () => {
+                    if (datePicker.value) {
+                        const [year, month, day] = datePicker.value.split("-");
+                        textInput.value = `${day}/${month}/${year}`;
+                    }
+                });
+
+                datePicker.value = toDatePickerValue(textInput.value.trim());
+            };
+
+            connectDatePicker("tuNgay", "tuNgayPicker");
+            connectDatePicker("denNgay", "denNgayPicker");
 
             const closeSuggestions = () => {
                 menu.classList.remove("show");
