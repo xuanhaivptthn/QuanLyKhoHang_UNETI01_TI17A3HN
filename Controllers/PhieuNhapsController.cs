@@ -26,22 +26,32 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
         }
 
         // GET: PhieuNhaps
-        public async Task<IActionResult> Index(int page = 1)
+        public async Task<IActionResult> Index(string? searchString, int page = 1)
         {
             const int pageSize = 10;
             page = Math.Max(page, 1);
 
-            var query = _context.PhieuNhap
+            IQueryable<PhieuNhap> query = _context.PhieuNhap
                 .Include(p => p.Kho)
                 .Include(p => p.NhaCungCap)
-                .Include(p => p.ChiTietPhieuNhaps)
-                .OrderBy(p => p.MaPhieuNhap);
+                .Include(p => p.ChiTietPhieuNhaps);
 
-            var totalItems = await query.CountAsync();
+            searchString = searchString?.Trim();
+            if (!string.IsNullOrWhiteSpace(searchString))
+            {
+                var hasMaPhieuNhap = int.TryParse(searchString, out var maPhieuNhap);
+                query = query.Where(p =>
+                    (hasMaPhieuNhap && p.MaPhieuNhap == maPhieuNhap) ||
+                    (p.NhaCungCap != null && p.NhaCungCap.TenNhaCungCap.Contains(searchString)));
+            }
+
+            var orderedQuery = query.OrderBy(p => p.MaPhieuNhap);
+
+            var totalItems = await orderedQuery.CountAsync();
             var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
             page = totalPages == 0 ? 1 : Math.Min(page, totalPages);
 
-            var phieuNhaps = await query
+            var phieuNhaps = await orderedQuery
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
@@ -49,8 +59,56 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
             ViewBag.CurrentPage = page;
             ViewBag.TotalPages = totalPages;
             ViewBag.TotalItems = totalItems;
+            ViewBag.SearchString = searchString;
 
             return View(phieuNhaps);
+        }
+
+        // GET: PhieuNhaps/Suggestions
+        [HttpGet]
+        public async Task<IActionResult> Suggestions(string? searchString)
+        {
+            searchString = searchString?.Trim();
+            if (string.IsNullOrWhiteSpace(searchString) || searchString.Length < 2)
+            {
+                return Json(Array.Empty<object>());
+            }
+
+            var suggestions = new List<object>();
+            var maPhieuNhaps = await _context.PhieuNhap
+                .AsNoTracking()
+                .Where(p => p.MaPhieuNhap.ToString().Contains(searchString))
+                .OrderBy(p => p.MaPhieuNhap)
+                .Select(p => p.MaPhieuNhap)
+                .Take(8)
+                .ToListAsync();
+
+            suggestions.AddRange(maPhieuNhaps.Select(id => (object)new
+            {
+                value = id.ToString(),
+                label = $"Mã phiếu: #{id}"
+            }));
+
+            var remainingCount = 8 - suggestions.Count;
+            if (remainingCount > 0)
+            {
+                var nhaCungCaps = await _context.NhaCungCap
+                    .AsNoTracking()
+                    .Where(n => n.TenNhaCungCap.Contains(searchString))
+                    .OrderBy(n => n.TenNhaCungCap)
+                    .Select(n => n.TenNhaCungCap)
+                    .Distinct()
+                    .Take(remainingCount)
+                    .ToListAsync();
+
+                suggestions.AddRange(nhaCungCaps.Select(name => (object)new
+                {
+                    value = name,
+                    label = $"Nhà cung cấp: {name}"
+                }));
+            }
+
+            return Json(suggestions);
         }
 
         // GET: PhieuNhaps/Details/5

@@ -9,6 +9,15 @@
 <p>
     <a asp-action="Create">Create New</a>
 </p>
+<form asp-action="Index" method="get" class="mb-3 position-relative" id="phieuNhapSearchForm">
+    <div class="input-group">
+        <input type="search" name="searchString" value="@ViewBag.SearchString" class="form-control" placeholder="Nhập mã phiếu hoặc tên nhà cung cấp..." aria-label="Tìm phiếu nhập theo mã phiếu hoặc nhà cung cấp" aria-autocomplete="list" aria-controls="phieuNhapSuggestions" aria-expanded="false" autocomplete="off" id="phieuNhapSearchInput" />
+        <button type="submit" class="btn btn-primary">Tìm kiếm</button>
+        <a asp-action="Index" class="btn btn-outline-secondary">Tất cả</a>
+    </div>
+    <div class="dropdown-menu w-100" id="phieuNhapSuggestions" role="listbox"></div>
+    <div class="visually-hidden" id="phieuNhapSuggestionsStatus" role="status" aria-live="polite"></div>
+</form>
 <div class="table-responsive">
     <table class="table table-hover">
         <thead>
@@ -79,7 +88,9 @@
             @if (!Model.Any())
             {
                 <tr>
-                    <td colspan="8" class="text-center text-muted">Chưa có phiếu nhập nào.</td>
+                    <td colspan="8" class="text-center text-muted">
+                        @(string.IsNullOrWhiteSpace(ViewBag.SearchString) ? "Chưa có phiếu nhập nào." : "Không tìm thấy phiếu nhập phù hợp.")
+                    </td>
                 </tr>
             }
         </tbody>
@@ -89,6 +100,11 @@
 @{
     int currentPage = ViewBag.CurrentPage ?? 1;
     int totalPages = ViewBag.TotalPages ?? 0;
+    var routeFor = new Func<int, Dictionary<string, string?>>(page => new Dictionary<string, string?>
+    {
+        ["searchString"] = ViewBag.SearchString,
+        ["page"] = page.ToString()
+    });
 }
 
 @if (totalPages > 1)
@@ -96,18 +112,105 @@
     <nav aria-label="Phân trang phiếu nhập">
         <ul class="pagination">
             <li class="page-item @(currentPage <= 1 ? "disabled" : "")">
-                <a class="page-link" asp-action="Index" asp-route-page="@(currentPage - 1)" aria-label="Trang trước">Trước</a>
+                <a class="page-link" asp-action="Index" asp-all-route-data="routeFor(currentPage - 1)" aria-label="Trang trước">Trước</a>
             </li>
             @for (int i = 1; i <= totalPages; i++)
             {
                 <li class="page-item @(i == currentPage ? "active" : "")">
-                    <a class="page-link" asp-action="Index" asp-route-page="@i" aria-current="@(i == currentPage ? "page" : null)">@i</a>
+                    <a class="page-link" asp-action="Index" asp-all-route-data="routeFor(i)" aria-current="@(i == currentPage ? "page" : null)">@i</a>
                 </li>
             }
             <li class="page-item @(currentPage >= totalPages ? "disabled" : "")">
-                <a class="page-link" asp-action="Index" asp-route-page="@(currentPage + 1)" aria-label="Trang sau">Sau</a>
+                <a class="page-link" asp-action="Index" asp-all-route-data="routeFor(currentPage + 1)" aria-label="Trang sau">Sau</a>
             </li>
         </ul>
     </nav>
     <p class="text-muted">Trang @currentPage / @totalPages (tổng @ViewBag.TotalItems phiếu nhập)</p>
+}
+
+@section Scripts {
+    <script>
+        (() => {
+            const form = document.getElementById("phieuNhapSearchForm");
+            const input = document.getElementById("phieuNhapSearchInput");
+            const menu = document.getElementById("phieuNhapSuggestions");
+            const status = document.getElementById("phieuNhapSuggestionsStatus");
+            const suggestionsUrl = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Url.Action("Suggestions", "PhieuNhaps")));
+            let debounceTimer;
+            let activeRequest;
+
+            const closeSuggestions = () => {
+                menu.classList.remove("show");
+                menu.replaceChildren();
+                input.setAttribute("aria-expanded", "false");
+            };
+
+            input.addEventListener("input", () => {
+                window.clearTimeout(debounceTimer);
+                if (activeRequest) {
+                    activeRequest.abort();
+                }
+
+                const term = input.value.trim();
+                status.textContent = "";
+                if (term.length < 2) {
+                    closeSuggestions();
+                    return;
+                }
+
+                debounceTimer = window.setTimeout(async () => {
+                    activeRequest = new AbortController();
+                    try {
+                        const url = new URL(suggestionsUrl, window.location.origin);
+                        url.searchParams.set("searchString", term);
+                        const response = await fetch(url, { signal: activeRequest.signal });
+                        if (!response.ok) {
+                            throw new Error(`Không thể tải gợi ý (HTTP ${response.status}).`);
+                        }
+
+                        const suggestions = await response.json();
+                        menu.replaceChildren();
+                        for (const suggestion of suggestions) {
+                            const option = document.createElement("button");
+                            option.type = "button";
+                            option.className = "dropdown-item";
+                            option.setAttribute("role", "option");
+                            option.textContent = suggestion.label;
+                            option.addEventListener("click", () => {
+                                input.value = suggestion.value;
+                                closeSuggestions();
+                                form.requestSubmit();
+                            });
+                            menu.appendChild(option);
+                        }
+
+                        menu.classList.toggle("show", suggestions.length > 0);
+                        input.setAttribute("aria-expanded", suggestions.length > 0 ? "true" : "false");
+                        status.textContent = suggestions.length > 0 ? `Có ${suggestions.length} gợi ý.` : "Không có gợi ý phù hợp.";
+                    } catch (error) {
+                        if (error.name !== "AbortError") {
+                            closeSuggestions();
+                            status.textContent = "Không thể tải gợi ý. Vui lòng thử lại.";
+                            console.error(error);
+                        }
+                    }
+                }, 200);
+            });
+
+            input.addEventListener("keydown", event => {
+                if (event.key === "Escape") {
+                    closeSuggestions();
+                } else if (event.key === "ArrowDown") {
+                    menu.querySelector("button")?.focus();
+                }
+            });
+
+            form.addEventListener("submit", closeSuggestions);
+            document.addEventListener("click", event => {
+                if (!form.contains(event.target)) {
+                    closeSuggestions();
+                }
+            });
+        })();
+    </script>
 }
