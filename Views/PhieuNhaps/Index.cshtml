@@ -76,6 +76,38 @@
                 </td>
             </tr>
 }
+            @if (!Model.Any())
+            {
+                <tr>
+                    <td colspan="8" class="text-center text-muted">Chưa có phiếu nhập nào.</td>
+                </tr>
+            }
         </tbody>
     </table>
 </div>
+
+@{
+    int currentPage = ViewBag.CurrentPage ?? 1;
+    int totalPages = ViewBag.TotalPages ?? 0;
+}
+
+@if (totalPages > 1)
+{
+    <nav aria-label="Phân trang phiếu nhập">
+        <ul class="pagination">
+            <li class="page-item @(currentPage <= 1 ? "disabled" : "")">
+                <a class="page-link" asp-action="Index" asp-route-page="@(currentPage - 1)" aria-label="Trang trước">Trước</a>
+            </li>
+            @for (int i = 1; i <= totalPages; i++)
+            {
+                <li class="page-item @(i == currentPage ? "active" : "")">
+                    <a class="page-link" asp-action="Index" asp-route-page="@i" aria-current="@(i == currentPage ? "page" : null)">@i</a>
+                </li>
+            }
+            <li class="page-item @(currentPage >= totalPages ? "disabled" : "")">
+                <a class="page-link" asp-action="Index" asp-route-page="@(currentPage + 1)" aria-label="Trang sau">Sau</a>
+            </li>
+        </ul>
+    </nav>
+    <p class="text-muted">Trang @currentPage / @totalPages (tổng @ViewBag.TotalItems phiếu nhập)</p>
+}

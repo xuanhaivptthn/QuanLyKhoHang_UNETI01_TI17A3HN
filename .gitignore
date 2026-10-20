@@ -68,3 +68,4 @@ nunit-*.xml
 Markdown/
 
 .claude
+Migrations/

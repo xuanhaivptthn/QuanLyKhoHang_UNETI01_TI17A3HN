@@ -26,13 +26,31 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
         }
 
         // GET: PhieuNhaps
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int page = 1)
         {
-            var appDbContext = _context.PhieuNhap
+            const int pageSize = 10;
+            page = Math.Max(page, 1);
+
+            var query = _context.PhieuNhap
                 .Include(p => p.Kho)
                 .Include(p => p.NhaCungCap)
-                .Include(p => p.ChiTietPhieuNhaps);
-            return View(await appDbContext.ToListAsync());
+                .Include(p => p.ChiTietPhieuNhaps)
+                .OrderBy(p => p.MaPhieuNhap);
+
+            var totalItems = await query.CountAsync();
+            var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
+            page = totalPages == 0 ? 1 : Math.Min(page, totalPages);
+
+            var phieuNhaps = await query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            ViewBag.CurrentPage = page;
+            ViewBag.TotalPages = totalPages;
+            ViewBag.TotalItems = totalItems;
+
+            return View(phieuNhaps);
         }
 
         // GET: PhieuNhaps/Details/5
