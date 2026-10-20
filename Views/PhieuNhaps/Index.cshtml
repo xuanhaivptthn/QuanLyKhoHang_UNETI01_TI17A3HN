@@ -15,6 +15,30 @@
         <button type="submit" class="btn btn-primary">Tìm kiếm</button>
         <a asp-action="Index" class="btn btn-outline-secondary">Tất cả</a>
     </div>
+    <div class="row g-2 mt-1">
+        <div class="col-md-3">
+            <select name="maKho" class="form-select" asp-items="ViewBag.Khos">
+                <option value="">-- Tất cả kho --</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label for="tuNgay" class="form-label">Từ ngày</label>
+            <input id="tuNgay" type="date" name="tuNgay" value="@ViewBag.TuNgay" class="form-control" aria-label="Ngày nhập từ" />
+        </div>
+        <div class="col-md-3">
+            <label for="denNgay" class="form-label">Đến ngày</label>
+            <input id="denNgay" type="date" name="denNgay" value="@ViewBag.DenNgay" class="form-control" aria-label="Ngày nhập đến" />
+        </div>
+        <div class="col-md-3">
+            <select name="trangThai" class="form-select" aria-label="Lọc theo trạng thái">
+                <option value="">-- Tất cả trạng thái --</option>
+                <option value="@((int)TrangThaiPhieuNhap.Nhap)" selected="@((int?)ViewBag.TrangThai == (int)TrangThaiPhieuNhap.Nhap)">Nháp</option>
+                <option value="@((int)TrangThaiPhieuNhap.ChoXacNhan)" selected="@((int?)ViewBag.TrangThai == (int)TrangThaiPhieuNhap.ChoXacNhan)">Chờ xác nhận</option>
+                <option value="@((int)TrangThaiPhieuNhap.DaHoanTat)" selected="@((int?)ViewBag.TrangThai == (int)TrangThaiPhieuNhap.DaHoanTat)">Đã hoàn tất</option>
+                <option value="@((int)TrangThaiPhieuNhap.DaHuy)" selected="@((int?)ViewBag.TrangThai == (int)TrangThaiPhieuNhap.DaHuy)">Đã hủy</option>
+            </select>
+        </div>
+    </div>
     <div class="dropdown-menu w-100" id="phieuNhapSuggestions" role="listbox"></div>
     <div class="visually-hidden" id="phieuNhapSuggestionsStatus" role="status" aria-live="polite"></div>
 </form>
@@ -103,6 +127,10 @@
     var routeFor = new Func<int, Dictionary<string, string?>>(page => new Dictionary<string, string?>
     {
         ["searchString"] = ViewBag.SearchString,
+        ["maKho"] = ViewBag.MaKho?.ToString(),
+        ["tuNgay"] = ViewBag.TuNgay,
+        ["denNgay"] = ViewBag.DenNgay,
+        ["trangThai"] = ViewBag.TrangThai?.ToString(),
         ["page"] = page.ToString()
     });
 }

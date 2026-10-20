@@ -26,7 +26,13 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
         }
 
         // GET: PhieuNhaps
-        public async Task<IActionResult> Index(string? searchString, int page = 1)
+        public async Task<IActionResult> Index(
+            string? searchString,
+            int? maKho,
+            DateTime? tuNgay,
+            DateTime? denNgay,
+            TrangThaiPhieuNhap? trangThai,
+            int page = 1)
         {
             const int pageSize = 10;
             page = Math.Max(page, 1);
@@ -45,6 +51,27 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
                     (p.NhaCungCap != null && p.NhaCungCap.TenNhaCungCap.Contains(searchString)));
             }
 
+            if (maKho.HasValue)
+            {
+                query = query.Where(p => p.MaKho == maKho.Value);
+            }
+
+            if (tuNgay.HasValue)
+            {
+                query = query.Where(p => p.NgayNhap >= tuNgay.Value.Date);
+            }
+
+            if (denNgay.HasValue)
+            {
+                var ngaySauDen = denNgay.Value.Date.AddDays(1);
+                query = query.Where(p => p.NgayNhap < ngaySauDen);
+            }
+
+            if (trangThai.HasValue)
+            {
+                query = query.Where(p => p.TrangThai == trangThai.Value);
+            }
+
             var orderedQuery = query.OrderBy(p => p.MaPhieuNhap);
 
             var totalItems = await orderedQuery.CountAsync();
@@ -60,6 +87,15 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
             ViewBag.TotalPages = totalPages;
             ViewBag.TotalItems = totalItems;
             ViewBag.SearchString = searchString;
+            ViewBag.MaKho = maKho;
+            ViewBag.TuNgay = tuNgay?.ToString("yyyy-MM-dd");
+            ViewBag.DenNgay = denNgay?.ToString("yyyy-MM-dd");
+            ViewBag.TrangThai = trangThai.HasValue ? (int?)trangThai.Value : null;
+            ViewBag.Khos = new SelectList(
+                await _context.Kho.OrderBy(k => k.TenKho).ToListAsync(),
+                "MaKho",
+                "TenKho",
+                maKho);
 
             return View(phieuNhaps);
         }
