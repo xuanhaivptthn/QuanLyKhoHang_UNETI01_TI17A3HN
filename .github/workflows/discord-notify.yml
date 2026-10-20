@@ -27,7 +27,7 @@ jobs:
         run: node .github/workflows/discord-notify.js
 
   build:
-    name: Test Build Status
+    name: Build and Test
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -53,11 +53,15 @@ jobs:
         id: build_step
         run: dotnet build --no-restore --configuration Release
 
+      - name: Run xUnit integration tests
+        id: test_step
+        run: dotnet test Tests/QuanLyKhoHang.Tests/QuanLyKhoHang.Tests.csproj --no-build --no-restore --configuration Release --logger "trx;LogFileName=test-results.trx"
+
       - name: Report Build Status to Discord
         if: always()
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
-          BUILD_STATUS: ${{ steps.build_step.outcome }}
+          BUILD_STATUS: ${{ steps.test_step.outcome }}
           AUTHOR: ${{ github.actor }}
           BRANCH: ${{ github.ref_name }}
           REPO: ${{ github.repository }}
@@ -68,6 +72,6 @@ jobs:
           SERVER_URL: ${{ github.server_url }}
         run: node .github/workflows/discord-build-notify.js
 
-      - name: Fail workflow if build failed
-        if: steps.build_step.outcome != 'success'
+      - name: Fail workflow if build or tests failed
+        if: steps.build_step.outcome != 'success' || steps.test_step.outcome != 'success'
         run: exit 1

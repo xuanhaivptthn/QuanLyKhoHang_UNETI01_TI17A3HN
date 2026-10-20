@@ -3,7 +3,7 @@ $ErrorActionPreference = "Stop"
 $root = Split-Path -Parent $PSScriptRoot
 $summaryPath = Join-Path $root "testcase_summary.txt"
 $dumpPath = Join-Path $root "testcase_dump.txt"
-$testSourcePath = Join-Path $PSScriptRoot "QuanLyKhoHang.Tests"
+$testProjectPath = Join-Path $PSScriptRoot "QuanLyKhoHang.Tests\QuanLyKhoHang.Tests.csproj"
 
 foreach ($path in @($summaryPath, $dumpPath)) {
     if (-not (Test-Path -LiteralPath $path)) {
@@ -24,21 +24,15 @@ $dumpText = Get-Content -LiteralPath $dumpPath -Raw -Encoding UTF8
     [void]$dumpCases.Add($_.Value)
 }
 
+$discoveredTests = @(& dotnet test $testProjectPath --list-tests --no-restore 2>&1)
+if ($LASTEXITCODE -ne 0) {
+    $discoveredTests | ForEach-Object { Write-Host $_ }
+    throw "Could not discover testcase IDs from xUnit."
+}
 $automatedCases = [System.Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
-Get-ChildItem -LiteralPath $testSourcePath -Recurse -Filter *.cs |
-    Select-String -Pattern 'Trait\("TC",\s*"(TC_M\d+_\d+)"\)' -AllMatches |
-    ForEach-Object {
-        foreach ($match in $_.Matches) {
-            [void]$automatedCases.Add($match.Groups[1].Value)
-        }
-    }
-Select-String -LiteralPath (Join-Path $testSourcePath "ExcelTestCaseIntegrationTests.cs") `
-    -Pattern '^\s*"(TC_M\d+_\d+)"[,]?\s*$' -AllMatches |
-    ForEach-Object {
-        foreach ($match in $_.Matches) {
-            [void]$automatedCases.Add($match.Groups[1].Value)
-        }
-    }
+[regex]::Matches(($discoveredTests -join "`n"), '\bTC_M\d+_\d+\b') | ForEach-Object {
+    [void]$automatedCases.Add($_.Value)
+}
 
 $summaryOnly = @($summaryCases | Where-Object { -not $dumpCases.Contains($_) } | Sort-Object)
 $dumpOnly = @($dumpCases | Where-Object { -not $summaryCases.Contains($_) } | Sort-Object)
@@ -51,8 +45,16 @@ if ($summaryOnly.Count -gt 0 -or $dumpOnly.Count -gt 0) {
 
 $covered = @($summaryCases | Where-Object { $automatedCases.Contains($_) } | Sort-Object)
 $uncovered = @($summaryCases | Where-Object { -not $automatedCases.Contains($_) } | Sort-Object)
+$manualReviewIds = [System.Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
+@("TC_M3_025", "TC_M4_021", "TC_M6_006", "TC_M6_010") | ForEach-Object {
+    [void]$manualReviewIds.Add($_)
+}
+$manualReview = @($uncovered | Where-Object { $manualReviewIds.Contains($_) } | Sort-Object)
+$needsHandler = @($uncovered | Where-Object { -not $manualReviewIds.Contains($_) })
 
 Write-Host "Testcase source consistency: $($summaryCases.Count) IDs match in both files."
 Write-Host "Automated coverage: $($covered.Count)/$($summaryCases.Count)"
-Write-Host "Not yet automated: $($uncovered.Count)"
+Write-Host "Needs shared handler: $($needsHandler.Count); manual review: $($manualReview.Count)"
+Write-Host "Workbook classification: Catalog 45; Query/list 31; Warehouse workflows 61; Reports/security 42; Manual/provider review 4."
+Write-Host "Manual review IDs: $($manualReview -join ', ')"
 Write-Host "Covered IDs: $($covered -join ', ')"

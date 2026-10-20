@@ -13,6 +13,7 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.12" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.10.1" />
     <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="System.Security.Cryptography.Pkcs" Version="9.0.21" />
     <PackageReference Include="xunit.runner.visualstudio" Version="4.0.0">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
@@ -27,6 +28,8 @@
     <None Include="..\..\TestCase_QuanLyKhoHang_ASPNetCore10.xlsx"
           Link="TestCase_QuanLyKhoHang_ASPNetCore10.xlsx"
           CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\..\testcase_dump.txt" Link="testcase_dump.txt" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\..\testcase_summary.txt" Link="testcase_summary.txt" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>
