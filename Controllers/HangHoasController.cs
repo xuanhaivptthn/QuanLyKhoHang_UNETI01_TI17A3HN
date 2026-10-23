@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using QuanLyKhoHang_UNETI01_TI17A3HN.Data;
+using QuanLyKhoHang_UNETI01_TI17A3HN.Filters;
 using QuanLyKhoHang_UNETI01_TI17A3HN.Models;
 
 // Họ và tên: Nguyễn Thị Cúc
@@ -14,6 +15,7 @@ using QuanLyKhoHang_UNETI01_TI17A3HN.Models;
 
 namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
 {
+    [AuthorizeRole("Admin", "NhanVienKho", "BoPhanNhan")]
     public class HangHoasController : Controller
     {
         private readonly AppDbContext _context;
@@ -189,6 +191,7 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
         }
 
         // GET: HangHoas/Create
+        [AuthorizeRole("Admin", "NhanVienKho")]
         public async Task<IActionResult> Create()
         {
             await LoadDropdowns();
@@ -196,6 +199,7 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
         }
 
         // POST: HangHoas/Create
+        [AuthorizeRole("Admin", "NhanVienKho")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(
@@ -240,6 +244,7 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
         }
 
         // GET: HangHoas/Edit/5
+        [AuthorizeRole("Admin", "NhanVienKho")]
         public async Task<IActionResult> Edit(int? id, int? mahang)
         {
             var targetId = id ?? mahang;
@@ -259,6 +264,7 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
         }
 
         // POST: HangHoas/Edit/5
+        [AuthorizeRole("Admin", "NhanVienKho")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(
@@ -325,6 +331,7 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
         }
 
         // GET: HangHoas/Delete/5
+        [AuthorizeRole("Admin", "NhanVienKho")]
         public async Task<IActionResult> Delete(int? id, int? mahang)
         {
             var targetId = id ?? mahang;
@@ -347,6 +354,7 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
         }
 
         // POST: HangHoas/Delete/5
+        [AuthorizeRole("Admin", "NhanVienKho")]
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int? id, int? mahang)
@@ -395,6 +403,7 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
         }
 
         // POST: HangHoas/DoiTrangThai/5
+        [AuthorizeRole("Admin", "NhanVienKho")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DoiTrangThai(int id)

@@ -1,10 +1,9 @@
 # Automated test model
 
 `TestCase_QuanLyKhoHang_ASPNetCore10.xlsx`, worksheet `Testcase`, is the source
-of truth. `ExcelTestCaseLoader` loads testcase rows and the data-driven xUnit
-test dispatches rows with an implemented executor. The current automated set is
-an explicitly supported subset; every other workbook row is reported as not yet
-automated instead of being treated as passed.
+of truth. `ExcelTestCaseLoader` loads testcase rows and a shared resolver creates
+a `ScenarioPlan` with group, action, target, input, expectations, and seed
+profile. A row that fits an implemented handler requires no per-ID test code.
 
 Run the dynamically supported testcases directly:
 
@@ -49,23 +48,32 @@ Compare testcase IDs and see which cases have an xUnit mapping:
 
 - `QuanLyKhoHang.Tests` runs the real MVC pipeline with `WebApplicationFactory`.
 - Each test gets an isolated SQLite in-memory database and deterministic seed data.
+- `ScenarioPlanResolver` separates executable cases, cases needing a handler,
+  and manual/provider review. Review cases never enter the passing xUnit set.
+- Seed profiles (`Default`, `Catalog`, `Query`, `StockBoundary`) provide
+  deterministic data for shared scenarios.
 - Integration tests obtain anti-forgery tokens and use HTTP requests; they do not
   call controller methods directly.
 - Test data is isolated per test and discarded with its database connection.
 
 ## Current automated testcase coverage
 
-| Test file | Testcase IDs |
+| Scenario | Data read from Excel |
 |---|---|
-| `AuthenticationIntegrationTests.cs` | TC_M1_001, TC_M1_003, TC_M1_008, TC_M1_010, TC_M1_012, TC_M1_020 |
-| `InboundWorkflowIntegrationTests.cs` | TC_M3_008, TC_M3_012, TC_M3_018, TC_M3_019 |
-| `OutboundWorkflowIntegrationTests.cs` | TC_M4_006, TC_M4_019, TC_M4_020, TC_M5_016 |
+| Login, logout, access control | Credentials, account type, feature, and title |
+| Inbound receipt | Supplier/warehouse references, quantities, unit prices, line totals |
+| Outbound dispatch | Recipient/warehouse references, quantity, and repeat-completion intent |
+| Receipt history | Quantity and history expectation |
+| Product pagination | Requested page, clamping of invalid/out-of-range pages, and SQLite-backed row window |
 
-The workbook currently contains 204 cases. Only the IDs explicitly listed in
-`ExcelTestCaseIntegrationTests` have executable scenario handlers; the
-remaining rows are reported as not yet automated. Add handlers and assertions
-incrementally rather than interpreting arbitrary natural-language steps as
-executable commands.
+The workbook currently contains 204 cases. 71 have an implemented HTTP and
+database assertion; 129 still need shared handlers. Four provider-specific or
+benchmark cases remain in manual review. The resolver classifies every row;
+unimplemented rows are never counted as passed.
+
+`TC_M3_025` and `TC_M4_021` need provider-specific concurrency validation;
+`TC_M6_006` needs SQL Server migrations; `TC_M6_010` needs a benchmark
+environment and threshold. These remain manual/provider review cases.
 
 SQLite provides a fast, isolated relational test database without Docker or a
 SQL Server instance. It is not a substitute for SQL Server compatibility testing;

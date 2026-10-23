@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using QuanLyKhoHang_UNETI01_TI17A3HN.Data;
+using QuanLyKhoHang_UNETI01_TI17A3HN.Filters;
 using QuanLyKhoHang_UNETI01_TI17A3HN.Models;
 
 // Họ và tên: Lê Văn Hùng
@@ -13,6 +14,7 @@ using QuanLyKhoHang_UNETI01_TI17A3HN.Models;
 
 namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
 {
+    [AuthorizeRole("Admin", "NhanVienKho")]
     public class NhaCungCapsController : Controller
     {
         private readonly AppDbContext _context;
@@ -23,8 +25,11 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
         }
 
         // GET: NhaCungCaps
-        public async Task<IActionResult> Index(string? searchString, bool? trangThai)
+        public async Task<IActionResult> Index(string? searchString, bool? trangThai, int page = 1)
         {
+            const int pageSize = 10;
+            page = Math.Max(page, 1);
+
             var query = _context.NhaCungCap.AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(searchString))
@@ -41,10 +46,24 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
                 query = query.Where(n => n.TrangThai == trangThai.Value);
             }
 
+            query = query.OrderBy(n => n.MaNhaCungCap);
+
+            var totalItems = await query.CountAsync();
+            var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
+            page = totalPages == 0 ? 1 : Math.Min(page, totalPages);
+
+            var nhaCungCaps = await query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
             ViewBag.SearchString = searchString;
             ViewBag.TrangThai = trangThai;
+            ViewBag.CurrentPage = page;
+            ViewBag.TotalPages = totalPages;
+            ViewBag.TotalItems = totalItems;
 
-            return View(await query.ToListAsync());
+            return View(nhaCungCaps);
         }
 
         // GET: NhaCungCaps/Details/5
@@ -174,6 +193,7 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
         }
 
         // GET: NhaCungCaps/Delete/5
+        [AuthorizeRole("Admin")]
         public async Task<IActionResult> Delete(int? id, int? manhacungcap)
         {
             var targetId = id ?? manhacungcap;
@@ -193,6 +213,7 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
         }
 
         // POST: NhaCungCaps/Delete/5
+        [AuthorizeRole("Admin")]
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int? id, int? manhacungcap)

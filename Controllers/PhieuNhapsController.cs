@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using QuanLyKhoHang_UNETI01_TI17A3HN.Data;
+using QuanLyKhoHang_UNETI01_TI17A3HN.Filters;
 using QuanLyKhoHang_UNETI01_TI17A3HN.Models;
 
 // Họ và tên: Lê Văn Hùng
@@ -14,6 +16,7 @@ using QuanLyKhoHang_UNETI01_TI17A3HN.Models;
 
 namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
 {
+    [AuthorizeRole("Admin", "NhanVienKho")]
     public class PhieuNhapsController : Controller
     {
         private readonly AppDbContext _context;
@@ -24,13 +27,151 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
         }
 
         // GET: PhieuNhaps
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(
+            string? searchString,
+            int? maKho,
+            string? tuNgay,
+            string? denNgay,
+            TrangThaiPhieuNhap? trangThai,
+            int page = 1)
         {
-            var appDbContext = _context.PhieuNhap
+            const int pageSize = 10;
+            page = Math.Max(page, 1);
+
+            var tuNgayText = tuNgay?.Trim();
+            var denNgayText = denNgay?.Trim();
+            DateTime? ngayBatDau = ParseFilterDate(tuNgayText, "tuNgay");
+            DateTime? ngayKetThuc = ParseFilterDate(denNgayText, "denNgay");
+
+            if (ngayBatDau.HasValue && ngayKetThuc.HasValue && ngayBatDau.Value.Date > ngayKetThuc.Value.Date)
+            {
+                ModelState.AddModelError("denNgay", "Đến ngày phải bằng hoặc sau từ ngày.");
+            }
+
+            IQueryable<PhieuNhap> query = _context.PhieuNhap
                 .Include(p => p.Kho)
                 .Include(p => p.NhaCungCap)
                 .Include(p => p.ChiTietPhieuNhaps);
-            return View(await appDbContext.ToListAsync());
+
+            searchString = searchString?.Trim();
+            if (!string.IsNullOrWhiteSpace(searchString))
+            {
+                var hasMaPhieuNhap = int.TryParse(searchString, out var maPhieuNhap);
+                query = query.Where(p =>
+                    (hasMaPhieuNhap && p.MaPhieuNhap == maPhieuNhap) ||
+                    (p.NhaCungCap != null && p.NhaCungCap.TenNhaCungCap.Contains(searchString)));
+            }
+
+            if (maKho.HasValue)
+            {
+                query = query.Where(p => p.MaKho == maKho.Value);
+            }
+
+            if (ngayBatDau.HasValue)
+            {
+                query = query.Where(p => p.NgayNhap >= ngayBatDau.Value.Date);
+            }
+
+            if (ngayKetThuc.HasValue)
+            {
+                var ngaySauDen = ngayKetThuc.Value.Date.AddDays(1);
+                query = query.Where(p => p.NgayNhap < ngaySauDen);
+            }
+
+            if (trangThai.HasValue)
+            {
+                query = query.Where(p => p.TrangThai == trangThai.Value);
+            }
+
+            var orderedQuery = query.OrderBy(p => p.MaPhieuNhap);
+
+            var totalItems = await orderedQuery.CountAsync();
+            var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
+            page = totalPages == 0 ? 1 : Math.Min(page, totalPages);
+
+            var phieuNhaps = await orderedQuery
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            ViewBag.CurrentPage = page;
+            ViewBag.TotalPages = totalPages;
+            ViewBag.TotalItems = totalItems;
+            ViewBag.SearchString = searchString;
+            ViewBag.MaKho = maKho;
+            ViewBag.TuNgay = tuNgayText;
+            ViewBag.DenNgay = denNgayText;
+            ViewBag.TrangThai = trangThai.HasValue ? (int?)trangThai.Value : null;
+            ViewBag.Khos = new SelectList(
+                await _context.Kho.OrderBy(k => k.TenKho).ToListAsync(),
+                "MaKho",
+                "TenKho",
+                maKho);
+
+            return View(phieuNhaps);
+        }
+
+        private DateTime? ParseFilterDate(string? value, string fieldName)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return null;
+            }
+
+            if (DateTime.TryParseExact(value, "dd/MM/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out var date))
+            {
+                return date;
+            }
+
+            ModelState.AddModelError(fieldName, "Ngày phải đúng định dạng dd/MM/yyyy.");
+            return null;
+        }
+
+        // GET: PhieuNhaps/Suggestions
+        [HttpGet]
+        public async Task<IActionResult> Suggestions(string? searchString)
+        {
+            searchString = searchString?.Trim();
+            if (string.IsNullOrWhiteSpace(searchString) || searchString.Length < 2)
+            {
+                return Json(Array.Empty<object>());
+            }
+
+            var suggestions = new List<object>();
+            var maPhieuNhaps = await _context.PhieuNhap
+                .AsNoTracking()
+                .Where(p => p.MaPhieuNhap.ToString().Contains(searchString))
+                .OrderBy(p => p.MaPhieuNhap)
+                .Select(p => p.MaPhieuNhap)
+                .Take(8)
+                .ToListAsync();
+
+            suggestions.AddRange(maPhieuNhaps.Select(id => (object)new
+            {
+                value = id.ToString(),
+                label = $"Mã phiếu: #{id}"
+            }));
+
+            var remainingCount = 8 - suggestions.Count;
+            if (remainingCount > 0)
+            {
+                var nhaCungCaps = await _context.NhaCungCap
+                    .AsNoTracking()
+                    .Where(n => n.TenNhaCungCap.Contains(searchString))
+                    .OrderBy(n => n.TenNhaCungCap)
+                    .Select(n => n.TenNhaCungCap)
+                    .Distinct()
+                    .Take(remainingCount)
+                    .ToListAsync();
+
+                suggestions.AddRange(nhaCungCaps.Select(name => (object)new
+                {
+                    value = name,
+                    label = $"Nhà cung cấp: {name}"
+                }));
+            }
+
+            return Json(suggestions);
         }
 
         // GET: PhieuNhaps/Details/5

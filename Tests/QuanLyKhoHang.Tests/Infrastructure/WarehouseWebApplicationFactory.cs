@@ -42,7 +42,7 @@ public sealed class WarehouseWebApplicationFactory : WebApplicationFactory<Progr
         });
     }
 
-    public async Task InitializeDatabaseAsync()
+    public async Task InitializeDatabaseAsync(SeedProfile profile = SeedProfile.Default)
     {
         await using var scope = Services.CreateAsyncScope();
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
@@ -104,7 +104,7 @@ public sealed class WarehouseWebApplicationFactory : WebApplicationFactory<Progr
         db.Kho.Add(new Kho
         {
             MaKho = 1,
-            TenKho = "Test warehouse",
+            TenKho = profile == SeedProfile.Catalog ? "Test warehouse" : "Kho Hà Nội",
             TrangThai = true
         });
         db.NhaCungCap.Add(new NhaCungCap
@@ -122,22 +122,22 @@ public sealed class WarehouseWebApplicationFactory : WebApplicationFactory<Progr
         db.LoaiHangs.Add(new LoaiHang
         {
             MaLoaiHang = 1,
-            TenLoaiHang = "Test category",
+            TenLoaiHang = profile == SeedProfile.Query ? "Điện tử" : "Test category",
             TrangThai = true
         });
         db.DonViTinhs.Add(new DonViTinh
         {
             MaDonViTinh = 1,
-            TenDonViTinh = "Piece",
+            TenDonViTinh = profile == SeedProfile.Query ? "Hộp" : "Piece",
             TrangThai = true
         });
         db.HangHoa.Add(new HangHoa
         {
             MaHang = 1,
-            TenHang = "Test item",
+            TenHang = "chuột quang",
             MaLoaiHang = 1,
             MaDonViTinh = 1,
-            GiaNhapThamKhao = 100,
+            GiaNhapThamKhao = 25000,
             MucTonToiThieu = 5,
             TrangThai = true
         });
@@ -145,30 +145,101 @@ public sealed class WarehouseWebApplicationFactory : WebApplicationFactory<Progr
             new HangHoa
             {
                 MaHang = 2,
-                TenHang = "Test item 2",
+                TenHang = "Bàn phím",
                 MaLoaiHang = 1,
                 MaDonViTinh = 1,
-                GiaNhapThamKhao = 100,
+                GiaNhapThamKhao = 50000,
                 MucTonToiThieu = 5,
                 TrangThai = true
             },
             new HangHoa
             {
                 MaHang = 3,
-                TenHang = "Test item 3",
+                TenHang = "Màn hình",
                 MaLoaiHang = 1,
                 MaDonViTinh = 1,
-                GiaNhapThamKhao = 100,
+                GiaNhapThamKhao = 75000,
                 MucTonToiThieu = 5,
                 TrangThai = true
             });
-        db.TonKhoes.Add(new TonKho
+
+        if (profile != SeedProfile.Default)
         {
-            MaKho = 1,
-            MaHang = 1,
-            SoLuongTon = 100,
-            NgayCapNhat = DateTime.Today
-        });
+            db.Kho.AddRange(
+                new Kho { MaKho = 2, TenKho = "Secondary warehouse", TrangThai = true },
+                new Kho { MaKho = 3, TenKho = "Inactive warehouse", TrangThai = false });
+            db.NhaCungCap.Add(new NhaCungCap
+            {
+                MaNhaCungCap = 2,
+                TenNhaCungCap = "Secondary supplier",
+                TrangThai = true
+            });
+            db.BoPhanNhans.Add(new BoPhanNhan
+            {
+                MaBoPhan = 2,
+                TenBoPhan = "Secondary department",
+                TrangThai = true
+            });
+            db.LoaiHangs.AddRange(
+                new LoaiHang { MaLoaiHang = 2, TenLoaiHang = "Category B", TrangThai = true },
+                new LoaiHang { MaLoaiHang = 3, TenLoaiHang = "Inactive category", TrangThai = false });
+            db.DonViTinhs.AddRange(
+                new DonViTinh { MaDonViTinh = 2, TenDonViTinh = "Box", TrangThai = true },
+                new DonViTinh { MaDonViTinh = 3, TenDonViTinh = "Inactive unit", TrangThai = false });
+
+            var extraProductCount = profile switch
+            {
+                SeedProfile.Query => 22,
+                SeedProfile.StockBoundary => 3,
+                _ => 2
+            };
+            var extraProducts = Enumerable.Range(4, extraProductCount)
+                .Select(id => new HangHoa
+                {
+                    MaHang = id,
+                    TenHang = profile == SeedProfile.Query ? $"chuột model {id:D2}" : $"Test item {id:D2}",
+                    MaLoaiHang = profile == SeedProfile.Query ? 1 : id % 3 == 0 ? 2 : 1,
+                    MaDonViTinh = id % 2 == 0 ? 2 : 1,
+                    GiaNhapThamKhao = profile == SeedProfile.Query ? id * 25000 : 50 + (id * 25),
+                    MucTonToiThieu = id % 2 == 0 ? 5 : 10,
+                    TrangThai = id % 5 != 0
+                })
+                .ToArray();
+            db.HangHoa.AddRange(extraProducts);
+        }
+
+        if (profile == SeedProfile.Default)
+        {
+            db.TonKhoes.Add(new TonKho
+            {
+                MaKho = 1,
+                MaHang = 1,
+                SoLuongTon = 100,
+                NgayCapNhat = DateTime.Today
+            });
+        }
+        else
+        {
+            var productCount = profile switch
+            {
+                SeedProfile.Query => 25,
+                SeedProfile.StockBoundary => 6,
+                _ => 5
+            };
+            for (var itemId = 1; itemId <= productCount; itemId++)
+            {
+                var quantity = profile == SeedProfile.StockBoundary
+                    ? itemId switch { 1 => 100, 2 => 0, 3 => 5, 4 => 1, 5 => 10, _ => 25 }
+                    : (itemId * 7) % 31;
+                db.TonKhoes.Add(new TonKho
+                {
+                    MaKho = profile != SeedProfile.Query && itemId % 4 == 0 ? 2 : 1,
+                    MaHang = itemId,
+                    SoLuongTon = quantity,
+                    NgayCapNhat = DateTime.Today.AddDays(-(itemId % 7))
+                });
+            }
+        }
 
         await db.SaveChangesAsync();
     }

@@ -5,13 +5,17 @@ param(
 
 $ErrorActionPreference = "Stop"
 $repositoryRoot = Split-Path -Parent $PSScriptRoot
-$solutionPath = Join-Path $repositoryRoot "QuanLyKhoHang_UNETI01_TI17A3HN.slnx"
+$testProjectPath = Join-Path $PSScriptRoot "QuanLyKhoHang.Tests\QuanLyKhoHang.Tests.csproj"
 $testcaseWorkbookPath = Join-Path $repositoryRoot "TestCase_QuanLyKhoHang_ASPNetCore10.xlsx"
 $resultsRoot = Join-Path ([System.IO.Path]::GetTempPath()) "QuanLyKhoHang-TestResults"
 $runId = "{0}-{1}" -f (Get-Date -Format "yyyyMMdd-HHmmss"), ([guid]::NewGuid().ToString("N"))
 $resultsDirectory = Join-Path $resultsRoot $runId
 $trxFileName = "test-results.trx"
 $trxPath = Join-Path $resultsDirectory $trxFileName
+$manualReviewIds = [System.Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
+@("TC_M3_025", "TC_M4_021", "TC_M6_006", "TC_M6_010") | ForEach-Object {
+    [void]$manualReviewIds.Add($_)
+}
 
 function Read-ZipEntryText {
     param(
@@ -199,8 +203,8 @@ if (-not [string]::IsNullOrWhiteSpace($TestCase) -and -not [string]::IsNullOrWhi
     exit 1
 }
 
-if (-not (Test-Path -LiteralPath $solutionPath)) {
-    Write-Error "Solution file not found: $solutionPath"
+if (-not (Test-Path -LiteralPath $testProjectPath)) {
+    Write-Error "Test project not found: $testProjectPath"
     exit 1
 }
 
@@ -212,7 +216,7 @@ if (([string]::IsNullOrWhiteSpace($TestFilter)) -and -not (Test-Path -LiteralPat
 if ([string]::IsNullOrWhiteSpace($TestFilter)) {
     try {
         $allTestCases = @(Read-WorkbookTestCases -Path $testcaseWorkbookPath)
-        $discoveredIds = Get-DiscoveredExcelTestIds -Solution $solutionPath
+        $discoveredIds = Get-DiscoveredExcelTestIds -Solution $testProjectPath
     }
     catch {
         Write-Error $_.Exception.Message
@@ -220,7 +224,9 @@ if ([string]::IsNullOrWhiteSpace($TestFilter)) {
     }
 
     $unsupportedCases = @($allTestCases | Where-Object { -not $discoveredIds.Contains($_.Id) })
-    Write-Host "Excel testcases: $($allTestCases.Count) total; $($allTestCases.Count - $unsupportedCases.Count) dynamically executable; $($unsupportedCases.Count) not yet automated."
+    $manualCases = @($unsupportedCases | Where-Object { $manualReviewIds.Contains($_.Id) })
+    $needsHandler = $unsupportedCases.Count - $manualCases.Count
+    Write-Host "Excel testcases: $($allTestCases.Count) total; $($allTestCases.Count - $unsupportedCases.Count) executable; $needsHandler need a shared handler; $($manualCases.Count) require manual/provider review."
 
     if ($unsupportedCases.Count -gt 0) {
         Write-Host "Not yet automated:"
@@ -243,12 +249,14 @@ if ([string]::IsNullOrWhiteSpace($TestFilter)) {
             Select-Object -ExpandProperty Id -Unique)
         Write-Host "Testcases matching '$TestCase':"
         $matchingTestCases | ForEach-Object {
-            $coverage = if ($discoveredIds.Contains($_.Id)) { "automated" } else { "not automated yet" }
+            $coverage = if ($discoveredIds.Contains($_.Id)) { "automated" }
+                elseif ($manualReviewIds.Contains($_.Id)) { "manual/provider review" }
+                else { "needs a shared handler" }
             Write-Host ("- {0}: {1} [{2}]" -f $_.Id, $_.Title, $coverage)
         }
 
         if ($automatedIds.Count -eq 0) {
-            Write-Error "Matching Excel testcase(s) have no automated scenario; no unrelated tests were run."
+            Write-Error "Matching Excel testcase(s) have no executable shared scenario; review the status above. No unrelated tests were run."
             exit 1
         }
 
@@ -263,7 +271,7 @@ New-Item -ItemType Directory -Path $resultsDirectory -Force | Out-Null
 
 $dotnetArguments = @(
     "test",
-    $solutionPath,
+    $testProjectPath,
     "--logger",
     "trx;LogFileName=$trxFileName",
     "--results-directory",

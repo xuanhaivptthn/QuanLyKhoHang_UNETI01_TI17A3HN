@@ -1,12 +1,23 @@
 @*
     Họ và tên: Lê Văn Hùng
-    Mã sinh viên: 23103100178
+    Mã sinh viên: 23103100177
     Phụ trách Module 3: Nhà cung cấp, Phiếu nhập, Chi tiết phiếu nhập
 *@
 @model IEnumerable<QuanLyKhoHang_UNETI01_TI17A3HN.Models.PhieuNhap>
 
 @{
     ViewData["Title"] = "Danh sách phiếu nhập kho";
+    int currentPage = ViewBag.CurrentPage ?? 1;
+    int totalPages = ViewBag.TotalPages ?? 0;
+    var routeFor = new Func<int, Dictionary<string, string?>>(page => new Dictionary<string, string?>
+    {
+        ["searchString"] = ViewBag.SearchString,
+        ["maKho"] = ViewBag.MaKho?.ToString(),
+        ["tuNgay"] = ViewBag.TuNgay,
+        ["denNgay"] = ViewBag.DenNgay,
+        ["trangThai"] = ViewBag.TrangThai?.ToString(),
+        ["page"] = page.ToString()
+    });
 }
 
 <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
@@ -27,10 +38,74 @@
     </div>
 </div>
 
+<!-- Bộ lọc và tìm kiếm phiếu nhập -->
+<div class="card border-0 shadow-sm rounded-2 mb-4">
+    <div class="card-body p-3">
+        <form asp-action="Index" method="get" id="phieuNhapSearchForm">
+            <div asp-validation-summary="All" class="text-danger mb-2 small"></div>
+            <div class="row g-3 align-items-end">
+                <div class="col-12 col-lg-8 position-relative">
+                    <label for="phieuNhapSearchInput" class="form-label small fw-semibold text-secondary mb-1">Tìm phiếu nhập</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
+                        <input type="search" name="searchString" value="@ViewBag.SearchString" class="form-control border-start-0" placeholder="Nhập mã phiếu hoặc tên nhà cung cấp..." aria-label="Tìm phiếu nhập theo mã phiếu hoặc nhà cung cấp" aria-autocomplete="list" aria-controls="phieuNhapSuggestions" aria-expanded="false" autocomplete="off" id="phieuNhapSearchInput" />
+                    </div>
+                    <div class="dropdown-menu w-100" id="phieuNhapSuggestions" role="listbox"></div>
+                    <div class="visually-hidden" id="phieuNhapSuggestionsStatus" role="status" aria-live="polite"></div>
+                </div>
+                <div class="col-12 col-lg-4 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary flex-grow-1 d-inline-flex align-items-center justify-content-center gap-1">
+                        <i class="bi bi-funnel-fill"></i> Tìm kiếm / Lọc
+                    </button>
+                    <a asp-action="Index" class="btn btn-outline-secondary d-inline-flex align-items-center justify-content-center gap-1">
+                        <i class="bi bi-arrow-counterclockwise"></i> Tất cả
+                    </a>
+                </div>
+                <div class="col-12 col-sm-6 col-lg-3">
+                    <label for="maKho" class="form-label small fw-semibold text-secondary mb-1">Kho tiếp nhận</label>
+                    <select id="maKho" name="maKho" class="form-select" asp-items="ViewBag.Khos">
+                        <option value="">-- Tất cả kho --</option>
+                    </select>
+                </div>
+                <div class="col-12 col-sm-6 col-lg-3">
+                    <label for="tuNgay" class="form-label small fw-semibold text-secondary mb-1">Từ ngày</label>
+                    <div class="input-group position-relative">
+                        <input id="tuNgay" type="text" name="tuNgay" value="@ViewBag.TuNgay" class="form-control" placeholder="dd/MM/yyyy" inputmode="numeric" autocomplete="off" aria-label="Ngày nhập từ, định dạng ngày/tháng/năm" />
+                        <button type="button" class="btn btn-outline-secondary" tabindex="-1" aria-hidden="true">
+                            <i class="bi bi-calendar3"></i>
+                        </button>
+                        <input id="tuNgayPicker" type="date" class="position-absolute top-0 end-0 h-100 opacity-0" style="width: 3rem; cursor: pointer; z-index: 2;" aria-label="Chọn ngày nhập từ trên lịch" />
+                    </div>
+                </div>
+                <div class="col-12 col-sm-6 col-lg-3">
+                    <label for="denNgay" class="form-label small fw-semibold text-secondary mb-1">Đến ngày</label>
+                    <div class="input-group position-relative">
+                        <input id="denNgay" type="text" name="denNgay" value="@ViewBag.DenNgay" class="form-control" placeholder="dd/MM/yyyy" inputmode="numeric" autocomplete="off" aria-label="Ngày nhập đến, định dạng ngày/tháng/năm" />
+                        <button type="button" class="btn btn-outline-secondary" tabindex="-1" aria-hidden="true">
+                            <i class="bi bi-calendar3"></i>
+                        </button>
+                        <input id="denNgayPicker" type="date" class="position-absolute top-0 end-0 h-100 opacity-0" style="width: 3rem; cursor: pointer; z-index: 2;" aria-label="Chọn ngày nhập đến trên lịch" />
+                    </div>
+                </div>
+                <div class="col-12 col-sm-6 col-lg-3">
+                    <label for="trangThai" class="form-label small fw-semibold text-secondary mb-1">Trạng thái</label>
+                    <select id="trangThai" name="trangThai" class="form-select" aria-label="Lọc theo trạng thái">
+                        <option value="">-- Tất cả trạng thái --</option>
+                        <option value="@((int)TrangThaiPhieuNhap.Nhap)" selected="@((int?)ViewBag.TrangThai == (int)TrangThaiPhieuNhap.Nhap)">Nháp</option>
+                        <option value="@((int)TrangThaiPhieuNhap.ChoXacNhan)" selected="@((int?)ViewBag.TrangThai == (int)TrangThaiPhieuNhap.ChoXacNhan)">Chờ xác nhận</option>
+                        <option value="@((int)TrangThaiPhieuNhap.DaHoanTat)" selected="@((int?)ViewBag.TrangThai == (int)TrangThaiPhieuNhap.DaHoanTat)">Đã hoàn tất</option>
+                        <option value="@((int)TrangThaiPhieuNhap.DaHuy)" selected="@((int?)ViewBag.TrangThai == (int)TrangThaiPhieuNhap.DaHuy)">Đã hủy</option>
+                    </select>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
 <div class="card border-0 shadow-sm rounded-2">
     <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
         <span class="fw-semibold text-secondary">
-            <i class="bi bi-receipt me-1"></i> Tổng số: <strong>@(Model?.Count() ?? 0)</strong> phiếu nhập
+            <i class="bi bi-receipt me-1"></i> Tổng số: <strong>@(ViewBag.TotalItems ?? Model?.Count() ?? 0)</strong> phiếu nhập
         </span>
     </div>
     <div class="card-body p-0">
@@ -127,7 +202,7 @@
                         <tr>
                             <td colspan="9" class="text-center text-muted py-5">
                                 <i class="bi bi-receipt fs-1 d-block text-secondary opacity-50 mb-2"></i>
-                                Chưa có phiếu nhập kho nào.
+                                @(string.IsNullOrWhiteSpace(ViewBag.SearchString) ? "Chưa có phiếu nhập kho nào." : "Không tìm thấy phiếu nhập phù hợp.")
                             </td>
                         </tr>
                     }
@@ -135,4 +210,155 @@
             </table>
         </div>
     </div>
+    @if (totalPages > 1)
+    {
+        <div class="card-footer bg-white py-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <span class="text-muted small">
+                Hiển thị trang <strong>@currentPage</strong> / <strong>@totalPages</strong> (Tổng cộng: @ViewBag.TotalItems phiếu nhập)
+            </span>
+            <nav aria-label="Phân trang phiếu nhập">
+                <ul class="pagination pagination-sm mb-0">
+                    <li class="page-item @(currentPage <= 1 ? "disabled" : "")">
+                        <a class="page-link" asp-action="Index" asp-all-route-data="routeFor(currentPage - 1)">
+                            <i class="bi bi-chevron-left"></i> Trước
+                        </a>
+                    </li>
+                    @for (int i = 1; i <= totalPages; i++)
+                    {
+                        <li class="page-item @(i == currentPage ? "active" : "")">
+                            <a class="page-link" asp-action="Index" asp-all-route-data="routeFor(i)">@i</a>
+                        </li>
+                    }
+                    <li class="page-item @(currentPage >= totalPages ? "disabled" : "")">
+                        <a class="page-link" asp-action="Index" asp-all-route-data="routeFor(currentPage + 1)">
+                            Sau <i class="bi bi-chevron-right"></i>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    }
 </div>
+
+@section Scripts {
+    <script>
+        (() => {
+            const form = document.getElementById("phieuNhapSearchForm");
+            const input = document.getElementById("phieuNhapSearchInput");
+            const menu = document.getElementById("phieuNhapSuggestions");
+            const status = document.getElementById("phieuNhapSuggestionsStatus");
+            const suggestionsUrl = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Url.Action("Suggestions", "PhieuNhaps")));
+            let debounceTimer;
+            let activeRequest;
+
+            const connectDatePicker = (textInputId, datePickerId) => {
+                const textInput = document.getElementById(textInputId);
+                const datePicker = document.getElementById(datePickerId);
+                const toDatePickerValue = value => {
+                    const match = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(value);
+                    if (!match) {
+                        return "";
+                    }
+
+                    const [, day, month, year] = match;
+                    const date = new Date(Date.UTC(Number(year), Number(month) - 1, Number(day)));
+                    if (date.getUTCFullYear() !== Number(year) ||
+                        date.getUTCMonth() !== Number(month) - 1 ||
+                        date.getUTCDate() !== Number(day)) {
+                        return "";
+                    }
+
+                    return `${year}-${month}-${day}`;
+                };
+
+                textInput.addEventListener("input", () => {
+                    datePicker.value = toDatePickerValue(textInput.value.trim());
+                });
+                datePicker.addEventListener("change", () => {
+                    if (datePicker.value) {
+                        const [year, month, day] = datePicker.value.split("-");
+                        textInput.value = `${day}/${month}/${year}`;
+                    }
+                });
+
+                datePicker.value = toDatePickerValue(textInput.value.trim());
+            };
+
+            connectDatePicker("tuNgay", "tuNgayPicker");
+            connectDatePicker("denNgay", "denNgayPicker");
+
+            const closeSuggestions = () => {
+                menu.classList.remove("show");
+                menu.replaceChildren();
+                input.setAttribute("aria-expanded", "false");
+            };
+
+            input.addEventListener("input", () => {
+                window.clearTimeout(debounceTimer);
+                if (activeRequest) {
+                    activeRequest.abort();
+                }
+
+                const term = input.value.trim();
+                status.textContent = "";
+                if (term.length < 2) {
+                    closeSuggestions();
+                    return;
+                }
+
+                debounceTimer = window.setTimeout(async () => {
+                    activeRequest = new AbortController();
+                    try {
+                        const url = new URL(suggestionsUrl, window.location.origin);
+                        url.searchParams.set("searchString", term);
+                        const response = await fetch(url, { signal: activeRequest.signal });
+                        if (!response.ok) {
+                            throw new Error(`Không thể tải gợi ý (HTTP ${response.status}).`);
+                        }
+
+                        const suggestions = await response.json();
+                        menu.replaceChildren();
+                        for (const suggestion of suggestions) {
+                            const option = document.createElement("button");
+                            option.type = "button";
+                            option.className = "dropdown-item";
+                            option.setAttribute("role", "option");
+                            option.textContent = suggestion.label;
+                            option.addEventListener("click", () => {
+                                input.value = suggestion.value;
+                                closeSuggestions();
+                                form.requestSubmit();
+                            });
+                            menu.appendChild(option);
+                        }
+
+                        menu.classList.toggle("show", suggestions.length > 0);
+                        input.setAttribute("aria-expanded", suggestions.length > 0 ? "true" : "false");
+                        status.textContent = suggestions.length > 0 ? `Có ${suggestions.length} gợi ý.` : "Không có gợi ý phù hợp.";
+                    } catch (error) {
+                        if (error.name !== "AbortError") {
+                            closeSuggestions();
+                            status.textContent = "Không thể tải gợi ý. Vui lòng thử lại.";
+                            console.error(error);
+                        }
+                    }
+                }, 200);
+            });
+
+            input.addEventListener("keydown", event => {
+                if (event.key === "Escape") {
+                    closeSuggestions();
+                } else if (event.key === "ArrowDown") {
+                    menu.querySelector("button")?.focus();
+                }
+            });
+
+            form.addEventListener("submit", closeSuggestions);
+            document.addEventListener("click", event => {
+                if (!form.contains(event.target)) {
+                    closeSuggestions();
+                }
+            });
+        })();
+    </script>
+}

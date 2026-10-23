@@ -26,6 +26,8 @@
 
   <ItemGroup>
     <None Include="..\..\TestCase_QuanLyKhoHang_ASPNetCore10.xlsx" Link="TestCase_QuanLyKhoHang_ASPNetCore10.xlsx" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\..\testcase_dump.txt" Link="testcase_dump.txt" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\..\testcase_summary.txt" Link="testcase_summary.txt" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>

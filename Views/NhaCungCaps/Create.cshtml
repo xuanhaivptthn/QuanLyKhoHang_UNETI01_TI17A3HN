@@ -41,7 +41,7 @@
                             <label asp-for="SoDienThoai" class="form-label fw-semibold">
                                 <i class="bi bi-telephone me-1 text-success"></i> Số điện thoại
                             </label>
-                            <input asp-for="SoDienThoai" class="form-control" placeholder="0987..." />
+                            <input asp-for="SoDienThoai" type="tel" class="form-control" placeholder="0987..." />
                             <span asp-validation-for="SoDienThoai" class="text-danger small"></span>
                         </div>
 
@@ -49,7 +49,7 @@
                             <label asp-for="Email" class="form-label fw-semibold">
                                 <i class="bi bi-envelope me-1 text-primary"></i> Email liên hệ
                             </label>
-                            <input asp-for="Email" type="email" class="form-control" placeholder="contact@@company.com" />
+                            <input asp-for="Email" type="email" class="form-control" placeholder="contact@company.com" />
                             <span asp-validation-for="Email" class="text-danger small"></span>
                         </div>
 

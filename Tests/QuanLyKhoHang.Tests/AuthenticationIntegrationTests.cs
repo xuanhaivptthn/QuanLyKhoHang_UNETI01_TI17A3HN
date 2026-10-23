@@ -360,6 +360,124 @@ public sealed class AuthenticationIntegrationTests : WarehouseIntegrationTest
             });
         Assert.Equal(HttpStatusCode.Redirect, successLogin.StatusCode);
     }
+
+    [Fact]
+    [Trait("RBAC", "BoPhanNhan")]
+    public async Task BoPhanNhan_permission_matrix_is_strictly_enforced()
+    {
+        // 1. Đăng nhập tài khoản vai trò BoPhanNhan
+        var token = await GetAntiForgeryTokenAsync("/TaiKhoan/DangNhap");
+        using var loginResp = await PostFormAsync(
+            "/TaiKhoan/DangNhap",
+            token,
+            new Dictionary<string, string>
+            {
+                ["TenDangNhap"] = "bophan",
+                ["MatKhau"] = "BoPhan@123"
+            });
+        Assert.Equal(HttpStatusCode.Redirect, loginResp.StatusCode);
+
+        // 2. Chức năng được phép: Phiếu xuất, Hàng hóa (tra cứu), Hồ sơ cá nhân
+        using var phieuXuatResp = await Client.GetAsync("/PhieuXuat");
+        Assert.Equal(HttpStatusCode.OK, phieuXuatResp.StatusCode);
+
+        using var hangHoaResp = await Client.GetAsync("/HangHoa");
+        Assert.Equal(HttpStatusCode.OK, hangHoaResp.StatusCode);
+
+        using var profileResp = await Client.GetAsync("/TaiKhoan/Profile");
+        Assert.Equal(HttpStatusCode.OK, profileResp.StatusCode);
+
+        // 3. Các chức năng BỊ CẤM (chuyển hướng sang AccessDenied):
+        var forbiddenUrls = new[]
+        {
+            "/Khoes",
+            "/Khoes/Create",
+            "/Khoes/Details/1",
+            "/PhieuNhap",
+            "/PhieuNhap/Create",
+            "/LoaiHangs",
+            "/DonViTinhs",
+            "/NhaCungCaps",
+            "/BoPhanNhans",
+            "/TonKho/CanhBao",
+            "/TonKho/LichSu",
+            "/ThongKe/Dashboard"
+        };
+
+        foreach (var url in forbiddenUrls)
+        {
+            using var forbiddenResp = await Client.GetAsync(url);
+            Assert.Equal(HttpStatusCode.Redirect, forbiddenResp.StatusCode);
+            Assert.Contains("AccessDenied", forbiddenResp.Headers.Location?.ToString());
+        }
+
+        // 4. Thử POST tạo phiếu xuất khi không đủ quyền -> bị chặn AccessDenied
+        var pxToken = await GetAntiForgeryTokenAsync("/TaiKhoan/CapNhatProfile");
+        using var postPxResp = await PostFormAsync(
+            "/PhieuXuat/Create",
+            pxToken,
+            new Dictionary<string, string>
+            {
+                ["MaBoPhan"] = "1",
+                ["MaKho"] = "1",
+                ["NgayXuat"] = DateTime.Today.ToString("yyyy-MM-dd"),
+                ["NguoiLap"] = "Dai dien Bo phan nhan"
+            });
+        Assert.Equal(HttpStatusCode.Redirect, postPxResp.StatusCode);
+        Assert.Contains("AccessDenied", postPxResp.Headers.Location?.ToString());
+    }
+
+    [Fact]
+    [Trait("RBAC", "NhanVienKho")]
+    public async Task NhanVienKho_cannot_create_or_delete_warehouses()
+    {
+        // 1. Đăng nhập tài khoản vai trò NhanVienKho
+        var token = await GetAntiForgeryTokenAsync("/TaiKhoan/DangNhap");
+        using var loginResp = await PostFormAsync(
+            "/TaiKhoan/DangNhap",
+            token,
+            new Dictionary<string, string>
+            {
+                ["TenDangNhap"] = "nvkho",
+                ["MatKhau"] = "Kho@123"
+            });
+        Assert.Equal(HttpStatusCode.Redirect, loginResp.StatusCode);
+
+        // 2. Nhân viên kho chỉ có quyền xem danh sách và chi tiết kho
+        using var indexKhoResp = await Client.GetAsync("/Khoes");
+        Assert.Equal(HttpStatusCode.OK, indexKhoResp.StatusCode);
+
+        using var detailsKhoResp = await Client.GetAsync("/Khoes/Details/1");
+        Assert.Equal(HttpStatusCode.OK, detailsKhoResp.StatusCode);
+
+        // 3. Nhân viên kho xem được hồ sơ cá nhân
+        using var profileResp = await Client.GetAsync("/TaiKhoan/Profile");
+        Assert.Equal(HttpStatusCode.OK, profileResp.StatusCode);
+
+        // 4. Các thao tác ghi trên Kho bị chặn (chỉ dành cho Admin):
+        using var getCreateKho = await Client.GetAsync("/Khoes/Create");
+        Assert.Equal(HttpStatusCode.Redirect, getCreateKho.StatusCode);
+        Assert.Contains("AccessDenied", getCreateKho.Headers.Location?.ToString());
+
+        var khoToken = await GetAntiForgeryTokenAsync("/TaiKhoan/CapNhatProfile");
+        using var postCreateKho = await PostFormAsync(
+            "/Khoes/Create",
+            khoToken,
+            new Dictionary<string, string>
+            {
+                ["TenKho"] = "Kho Trai Phep",
+                ["DiaDiem"] = "Ha Noi"
+            });
+        Assert.Equal(HttpStatusCode.Redirect, postCreateKho.StatusCode);
+        Assert.Contains("AccessDenied", postCreateKho.Headers.Location?.ToString());
+
+        using var postDeleteKho = await PostFormAsync(
+            "/Khoes/Delete/1",
+            khoToken,
+            new Dictionary<string, string>());
+        Assert.Equal(HttpStatusCode.Redirect, postDeleteKho.StatusCode);
+        Assert.Contains("AccessDenied", postDeleteKho.Headers.Location?.ToString());
+    }
 }
 
 

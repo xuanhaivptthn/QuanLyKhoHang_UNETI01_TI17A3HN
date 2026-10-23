@@ -74,7 +74,7 @@ flowchart TD
 | **`Services/`** | Hệ thống High-Availability Failover gồm [`DatabaseConnectionManager.cs`](../Services/DatabaseConnectionManager.cs), [`DatabaseFailoverInterceptor.cs`](../Services/DatabaseFailoverInterceptor.cs) và [`DatabaseHealthCheckService.cs`](../Services/DatabaseHealthCheckService.cs). |
 | **`Tests/`** | Bộ kiểm thử tự động xUnit sử dụng `WebApplicationFactory` và SQLite In-Memory, đối soát theo file Excel [`TestCase_QuanLyKhoHang_ASPNetCore10.xlsx`](../TestCase_QuanLyKhoHang_ASPNetCore10.xlsx). |
 | **`wwwroot/`** | Tệp tĩnh phía client (CSS tùy biến `site.css`, JavaScript `site.js`, thư viện Bootstrap 5, jQuery, Chart.js). |
-| **`docs/`** | Lưu trữ toàn bộ tài liệu hướng dẫn chuyên sâu, cẩm nang cài đặt, ma trận phân quyền và 13 ảnh chụp giao diện chất lượng cao tại `docs/screenshots/`. |
+| **`docs/`** | Lưu trữ toàn bộ tài liệu hướng dẫn chuyên sâu, cẩm nang cài đặt, ma trận phân quyền và 17 ảnh chụp giao diện chất lượng cao tại `docs/screenshots/`. |
 
 ---
 
@@ -114,7 +114,7 @@ flowchart TD
 │   ├── ARCHITECTURE_AND_STRUCTURE.md              # Kiến trúc hệ thống 5 tầng & cây thư mục
 │   ├── RBAC_SECURITY.md                           # Ma trận phân quyền RBAC & chính sách bảo mật
 │   ├── INSTALLATION_AND_TESTING.md                # Cẩm nang cài đặt, khởi chạy & kiểm thử tự động
-│   └── screenshots                                # Thư mục ảnh chụp màn hình minh chứng 13 chức năng thực tế
+│   └── screenshots                                # Thư mục ảnh chụp màn hình minh chứng 17 chức năng thực tế
 │       ├── 01_dang_nhap.png                       # Ảnh chụp: Giao diện xác thực đăng nhập & bảo vệ brute-force
 │       ├── 02_dashboard.png                       # Ảnh chụp: Bảng điều khiển trung tâm KPIs & biểu đồ Chart.js
 │       ├── 03_hang_hoa.png                        # Ảnh chụp: Danh mục hàng hóa, bộ lọc LINQ đa tiêu chí & phân trang
@@ -127,7 +127,11 @@ flowchart TD
 │       ├── 10_canh_bao_ton_kho.png                # Ảnh chụp: Màn hình cảnh báo hàng hết & hàng sắp hết mức tối thiểu
 │       ├── 11_lich_su_ton_kho.png                 # Ảnh chụp: Nhật ký lịch sử biến động kho (Audit Trail)
 │       ├── 12_bao_cao_nhap_xuat.png               # Ảnh chụp: Báo cáo tổng hợp Nhập - Xuất - Tồn theo khoảng ngày
-│       └── 13_quan_ly_tai_khoan.png               # Ảnh chụp: Quản trị tài khoản người dùng, phân quyền & khóa tài khoản
+│       ├── 13_quan_ly_tai_khoan.png               # Ảnh chụp: Quản trị tài khoản người dùng, phân quyền & khóa tài khoản
+│       ├── 14_nha_cung_cap.png                    # Ảnh chụp: Danh mục nhà cung cấp đối tác
+│       ├── 15_bo_phan_nhan.png                    # Ảnh chụp: Danh mục đối tác khách hàng / bộ phận nhận hàng
+│       ├── 16_loai_hang.png                       # Ảnh chụp: Phân loại nhóm hàng hóa
+│       └── 17_don_vi_tinh.png                     # Ảnh chụp: Danh mục đơn vị tính hàng hóa
 ├── dotnet-tools.json                              # Cấu hình công cụ dòng lệnh .NET CLI cục bộ (dotnet-ef)
 ├── Filters                                        # Bộ lọc tùy biến Controller (Action Filters)
 │   └── AuthorizeRoleAttribute.cs                  # Bộ lọc phân quyền truy cập theo vai trò (Admin, NhanVienKho, BoPhanNhan)

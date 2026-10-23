@@ -43,7 +43,7 @@
                             <label asp-for="MaLoaiHang" class="form-label fw-semibold">
                                 <i class="bi bi-tags me-1 text-primary"></i> Loại hàng hóa <span class="text-danger">*</span>
                             </label>
-                            <select asp-for="MaLoaiHang" class="form-select" asp-items="ViewBag.MaLoaiHang">
+                            <select asp-for="MaLoaiHang" class="form-select" asp-items="ViewBag.LoaiHangs">
                                 <option value="">-- Chọn loại hàng --</option>
                             </select>
                             <span asp-validation-for="MaLoaiHang" class="text-danger small"></span>
@@ -53,7 +53,7 @@
                             <label asp-for="MaDonViTinh" class="form-label fw-semibold">
                                 <i class="bi bi-rulers me-1 text-primary"></i> Đơn vị tính <span class="text-danger">*</span>
                             </label>
-                            <select asp-for="MaDonViTinh" class="form-select" asp-items="ViewBag.MaDonViTinh">
+                            <select asp-for="MaDonViTinh" class="form-select" asp-items="ViewBag.DonViTinhs">
                                 <option value="">-- Chọn đơn vị tính --</option>
                             </select>
                             <span asp-validation-for="MaDonViTinh" class="text-danger small"></span>

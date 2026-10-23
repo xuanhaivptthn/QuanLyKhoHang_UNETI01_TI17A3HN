@@ -16,6 +16,7 @@ using System.Data;
 
 namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
 {
+    [AuthorizeRole("Admin", "NhanVienKho", "BoPhanNhan")]
     public class PhieuXuatsController : Controller
     {
         private readonly AppDbContext _context;
