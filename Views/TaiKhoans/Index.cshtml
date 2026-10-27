@@ -15,6 +15,9 @@
 <p>
     <a asp-action="Create">Create New</a>
 </p>
+
+@Html.AntiForgeryToken()
+
 <table class="table">
     <thead>
         <tr>
@@ -65,14 +68,105 @@
                 @Html.DisplayFor(modelItem => item.VaiTro)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.TrangThai)
+                <div class="form-check form-switch">
+                    <input class="form-check-input switch-trangthai" type="checkbox" role="switch"
+                           id="switch_@item.MaTaiKhoan"
+                           data-id="@item.MaTaiKhoan"
+                           data-username="@item.TenDangNhap"
+                           @(item.TrangThai ? "checked" : "") />
+                    <label class="form-check-label" for="switch_@item.MaTaiKhoan" id="label_status_@item.MaTaiKhoan">
+                        @(item.TrangThai ? "Hoạt động" : "Bị khóa")
+                    </label>
+                </div>
             </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.MaTaiKhoan">Edit</a> |
                 <a asp-action="Details" asp-route-id="@item.MaTaiKhoan">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.MaTaiKhoan">Delete</a>
+                <a asp-action="Delete" asp-route-id="@item.MaTaiKhoan">Delete</a> |
+                <a href="javascript:void(0);" class="btn-reset-password" data-id="@item.MaTaiKhoan" data-username="@item.TenDangNhap">Đặt lại mật khẩu</a>
             </td>
         </tr>
 }
     </tbody>
 </table>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            function getAntiForgeryToken() {
+                return $('input[name="__RequestVerificationToken"]').val() || '';
+            }
+
+            // 1. Nút "Đặt lại mật khẩu mặc định" nhanh cho Admin (ResetPasswordQuick)
+            $(document).on('click', '.btn-reset-password', function (e) {
+                e.preventDefault();
+                var btn = $(this);
+                var userId = btn.data('id');
+                var username = btn.data('username');
+
+                if (!confirm('Bạn có chắc chắn muốn đặt lại mật khẩu cho tài khoản "' + username + '" về mặc định (123456@@)?')) {
+                    return;
+                }
+
+                $.ajax({
+                    url: '@Url.Action("ResetPasswordQuick", "TaiKhoans")',
+                    type: 'POST',
+                    data: {
+                        id: userId,
+                        __RequestVerificationToken: getAntiForgeryToken()
+                    },
+                    headers: {
+                        'RequestVerificationToken': getAntiForgeryToken()
+                    },
+                    success: function (res) {
+                        if (res && res.success) {
+                            alert(res.message || 'Đặt lại mật khẩu thành công!');
+                        } else {
+                            alert((res && res.message) ? res.message : 'Không thể đặt lại mật khẩu.');
+                        }
+                    },
+                    error: function () {
+                        alert('Đã xảy ra lỗi máy chủ khi thực hiện yêu cầu.');
+                    }
+                });
+            });
+
+            // 2. Bật/Tắt trạng thái tài khoản (Khóa/Mở) bằng Bootstrap Switch AJAX (DoiTrangThai)
+            $(document).on('change', '.switch-trangthai', function () {
+                var toggle = $(this);
+                var userId = toggle.data('id');
+                var isChecked = toggle.is(':checked');
+                var label = $('#label_status_' + userId);
+
+                toggle.prop('disabled', true);
+
+                $.ajax({
+                    url: '@Url.Action("DoiTrangThai", "TaiKhoans")',
+                    type: 'POST',
+                    data: {
+                        id: userId,
+                        __RequestVerificationToken: getAntiForgeryToken()
+                    },
+                    headers: {
+                        'RequestVerificationToken': getAntiForgeryToken()
+                    },
+                    success: function (res) {
+                        toggle.prop('disabled', false);
+                        if (res && res.success) {
+                            label.text(res.trangThai ? 'Hoạt động' : 'Bị khóa');
+                            toggle.prop('checked', res.trangThai);
+                        } else {
+                            toggle.prop('checked', !isChecked);
+                            alert((res && res.message) ? res.message : 'Không thể thay đổi trạng thái.');
+                        }
+                    },
+                    error: function () {
+                        toggle.prop('disabled', false);
+                        toggle.prop('checked', !isChecked);
+                        alert('Đã xảy ra lỗi máy chủ khi cập nhật trạng thái.');
+                    }
+                });
+            });
+        });
+    </script>
+}

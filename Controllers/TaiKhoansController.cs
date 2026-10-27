@@ -657,6 +657,152 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        #region AJAX Quick Actions (Admin: ResetPasswordQuick & DoiTrangThai)
+
+        /// <summary>
+        /// Đặt lại mật khẩu mặc định nhanh cho Admin qua AJAX.
+        /// Băm lại mật khẩu chuẩn (123456@) bằng PasswordHasher&lt;TaiKhoan&gt;, reset lockout và phản hồi JSON.
+        /// </summary>
+        [HttpPost]
+        [AuthorizeRole("Admin")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ResetPasswordQuick(int? id, int? mataikhoan)
+        {
+            var targetId = id ?? mataikhoan;
+            if (targetId == null && Request.HasFormContentType && int.TryParse(Request.Form["id"], out int formId))
+            {
+                targetId = formId;
+            }
+            if (targetId == null && Request.HasFormContentType && int.TryParse(Request.Form["MaTaiKhoan"], out int formMaTk))
+            {
+                targetId = formMaTk;
+            }
+
+            bool isAjax = Request.Headers["X-Requested-With"] == "XMLHttpRequest"
+                || Request.Headers.Accept.Any(a => a != null && a.Contains("application/json"));
+
+            if (targetId == null)
+            {
+                if (isAjax) return Json(new { success = false, message = "Mã tài khoản không hợp lệ." });
+                return NotFound();
+            }
+
+            var taiKhoan = await _context.TaiKhoans.FindAsync(targetId);
+            if (taiKhoan == null)
+            {
+                if (isAjax) return Json(new { success = false, message = "Không tìm thấy thông tin tài khoản." });
+                return NotFound();
+            }
+
+            const string defaultPassword = "123456@";
+            taiKhoan.MatKhau = _passwordHasher.HashPassword(taiKhoan, defaultPassword);
+            taiKhoan.SoLanDangNhapSai = 0;
+            taiKhoan.KhoaDenUtc = null;
+
+            _context.Update(taiKhoan);
+            await _context.SaveChangesAsync();
+
+            string message = $"Đặt lại mật khẩu cho tài khoản '{taiKhoan.TenDangNhap}' thành công! Mật khẩu mặc định mới là: {defaultPassword}";
+
+            if (isAjax)
+            {
+                return Json(new { 
+                    success = true, 
+                    message = message, 
+                    defaultPassword = defaultPassword,
+                    tenDangNhap = taiKhoan.TenDangNhap,
+                    maTaiKhoan = taiKhoan.MaTaiKhoan
+                });
+            }
+
+            TempData["Success"] = message;
+            return RedirectToAction(nameof(Index));
+        }
+
+        /// <summary>
+        /// Bật/Tắt trạng thái tài khoản (Khóa/Mở) bằng Bootstrap Switch AJAX không reload trang.
+        /// Cập nhật taiKhoan.TrangThai = !taiKhoan.TrangThai và lưu SaveChangesAsync().
+        /// </summary>
+        [HttpPost]
+        [AuthorizeRole("Admin")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DoiTrangThai(int? id, int? mataikhoan)
+        {
+            var targetId = id ?? mataikhoan;
+            if (targetId == null && Request.HasFormContentType && int.TryParse(Request.Form["id"], out int formId))
+            {
+                targetId = formId;
+            }
+            if (targetId == null && Request.HasFormContentType && int.TryParse(Request.Form["MaTaiKhoan"], out int formMaTk))
+            {
+                targetId = formMaTk;
+            }
+
+            bool isAjax = Request.Headers["X-Requested-With"] == "XMLHttpRequest"
+                || Request.Headers.Accept.Any(a => a != null && a.Contains("application/json"));
+
+            if (targetId == null)
+            {
+                if (isAjax) return Json(new { success = false, message = "Mã tài khoản không hợp lệ." });
+                return NotFound();
+            }
+
+            var taiKhoan = await _context.TaiKhoans.FindAsync(targetId);
+            if (taiKhoan == null)
+            {
+                if (isAjax) return Json(new { success = false, message = "Không tìm thấy thông tin tài khoản." });
+                return NotFound();
+            }
+
+            // An toàn 1: Chống tự khóa chính mình
+            int.TryParse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value, out int claimId);
+            var currentUserId = HttpContext.Session.GetInt32("MaTaiKhoan") ?? (claimId > 0 ? claimId : (int?)null);
+            if (currentUserId == targetId && taiKhoan.TrangThai)
+            {
+                string errMsg = "Bạn không thể tự khóa tài khoản Admin đang đăng nhập.";
+                if (isAjax) return Json(new { success = false, message = errMsg, trangThai = taiKhoan.TrangThai });
+                TempData["Error"] = errMsg;
+                return RedirectToAction(nameof(Index));
+            }
+
+            // An toàn 2: Nếu là Admin và đang hoạt động, cần đảm bảo còn ít nhất 1 Admin khác hoạt động
+            if (string.Equals(taiKhoan.VaiTro, "Admin", StringComparison.OrdinalIgnoreCase) && taiKhoan.TrangThai)
+            {
+                var otherActiveAdminCount = await _context.TaiKhoans.CountAsync(t => t.VaiTro == "Admin" && t.TrangThai && t.MaTaiKhoan != targetId);
+                if (otherActiveAdminCount == 0)
+                {
+                    string errMsg = "Hệ thống phải có ít nhất 1 tài khoản Admin đang hoạt động. Không thể khóa.";
+                    if (isAjax) return Json(new { success = false, message = errMsg, trangThai = taiKhoan.TrangThai });
+                    TempData["Error"] = errMsg;
+                    return RedirectToAction(nameof(Index));
+                }
+            }
+
+            taiKhoan.TrangThai = !taiKhoan.TrangThai;
+            _context.Update(taiKhoan);
+            await _context.SaveChangesAsync();
+
+            string statusText = taiKhoan.TrangThai ? "Hoạt động" : "Bị khóa";
+            string message = $"Tài khoản '{taiKhoan.TenDangNhap}' đã chuyển sang trạng thái: {statusText}.";
+
+            if (isAjax)
+            {
+                return Json(new { 
+                    success = true, 
+                    message = message, 
+                    trangThai = taiKhoan.TrangThai, 
+                    statusText = statusText,
+                    tenDangNhap = taiKhoan.TenDangNhap,
+                    maTaiKhoan = taiKhoan.MaTaiKhoan
+                });
+            }
+
+            TempData["Success"] = message;
+            return RedirectToAction(nameof(Index));
+        }
+
+        #endregion
+
         private bool TaiKhoanExists(int id)
         {
             return _context.TaiKhoans.Any(e => e.MaTaiKhoan == id);

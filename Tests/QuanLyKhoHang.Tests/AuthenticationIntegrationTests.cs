@@ -3,6 +3,7 @@
 // Phụ trách Module 1: Bộ kiểm thử tích hợp xác thực Cookie, Lockout và phân quyền RBAC
 
 using System.Net;
+using Microsoft.EntityFrameworkCore;
 using QuanLyKhoHang.Tests.Infrastructure;
 using Xunit;
 
@@ -483,6 +484,149 @@ public sealed class AuthenticationIntegrationTests : WarehouseIntegrationTest
             new Dictionary<string, string>());
         Assert.Equal(HttpStatusCode.Redirect, postDeleteKho.StatusCode);
         Assert.Contains("AccessDenied", postDeleteKho.Headers.Location?.ToString());
+    }
+
+    [Fact]
+    public async Task ResetPasswordQuick_AsAdmin_UpdatesPasswordToDefaultAndAllowsLogin()
+    {
+        await LoginAsAdminAsync();
+
+        var nvkho = await WithDbAsync(db => db.TaiKhoans.FirstAsync(t => t.TenDangNhap == "nvkho"));
+        var token = await GetAntiForgeryTokenAsync("/TaiKhoan/CapNhatProfile");
+
+        var request = new HttpRequestMessage(HttpMethod.Post, "/TaiKhoan/ResetPasswordQuick");
+        request.Headers.Add("X-Requested-With", "XMLHttpRequest");
+        request.Content = new FormUrlEncodedContent(new Dictionary<string, string>
+        {
+            ["id"] = nvkho.MaTaiKhoan.ToString(),
+            ["__RequestVerificationToken"] = token
+        });
+
+        using var response = await Client.SendAsync(request);
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var json = await response.Content.ReadAsStringAsync();
+        Assert.Contains("\"success\":true", json);
+        Assert.Contains("123456@", json);
+
+        // Đăng xuất Admin
+        using var logout = await Client.GetAsync("/TaiKhoan/DangXuat");
+        Assert.Equal(HttpStatusCode.Redirect, logout.StatusCode);
+
+        // Đăng nhập tài khoản nvkho với mật khẩu mặc định mới (123456@)
+        var loginToken = await GetAntiForgeryTokenAsync("/TaiKhoan/DangNhap");
+        using var nvkhoLogin = await PostFormAsync(
+            "/TaiKhoan/DangNhap",
+            loginToken,
+            new Dictionary<string, string>
+            {
+                ["TenDangNhap"] = "nvkho",
+                ["MatKhau"] = "123456@"
+            });
+
+        Assert.Equal(HttpStatusCode.Redirect, nvkhoLogin.StatusCode);
+        Assert.True(nvkhoLogin.Headers.Location?.ToString() == "/" || nvkhoLogin.Headers.Location?.ToString().Contains("Home") == true);
+    }
+
+    [Fact]
+    public async Task DoiTrangThai_AsAdmin_TogglesAccountStatusSuccessfully()
+    {
+        await LoginAsAdminAsync();
+
+        var bophan = await WithDbAsync(db => db.TaiKhoans.FirstAsync(t => t.TenDangNhap == "bophan"));
+        Assert.True(bophan.TrangThai);
+        var token = await GetAntiForgeryTokenAsync("/TaiKhoan/CapNhatProfile");
+
+        // 1. Tắt trạng thái (Khóa tài khoản)
+        var reqLock = new HttpRequestMessage(HttpMethod.Post, "/TaiKhoan/DoiTrangThai");
+        reqLock.Headers.Add("X-Requested-With", "XMLHttpRequest");
+        reqLock.Content = new FormUrlEncodedContent(new Dictionary<string, string>
+        {
+            ["id"] = bophan.MaTaiKhoan.ToString(),
+            ["__RequestVerificationToken"] = token
+        });
+
+        using var respLock = await Client.SendAsync(reqLock);
+        Assert.Equal(HttpStatusCode.OK, respLock.StatusCode);
+        var jsonLock = await respLock.Content.ReadAsStringAsync();
+        Assert.Contains("\"success\":true", jsonLock);
+        Assert.Contains("\"trangThai\":false", jsonLock);
+
+        var bophanAfterLock = await WithDbAsync(db => db.TaiKhoans.FirstAsync(t => t.TenDangNhap == "bophan"));
+        Assert.False(bophanAfterLock.TrangThai);
+
+        // 2. Bật lại trạng thái (Mở khóa tài khoản)
+        var reqUnlock = new HttpRequestMessage(HttpMethod.Post, "/TaiKhoan/DoiTrangThai");
+        reqUnlock.Headers.Add("X-Requested-With", "XMLHttpRequest");
+        reqUnlock.Content = new FormUrlEncodedContent(new Dictionary<string, string>
+        {
+            ["id"] = bophan.MaTaiKhoan.ToString(),
+            ["__RequestVerificationToken"] = token
+        });
+
+        using var respUnlock = await Client.SendAsync(reqUnlock);
+        Assert.Equal(HttpStatusCode.OK, respUnlock.StatusCode);
+        var jsonUnlock = await respUnlock.Content.ReadAsStringAsync();
+        Assert.Contains("\"success\":true", jsonUnlock);
+        Assert.Contains("\"trangThai\":true", jsonUnlock);
+
+        var bophanAfterUnlock = await WithDbAsync(db => db.TaiKhoans.FirstAsync(t => t.TenDangNhap == "bophan"));
+        Assert.True(bophanAfterUnlock.TrangThai);
+
+        // 3. Kiểm tra an toàn: Chặn Admin tự khóa tài khoản của chính mình
+        var admin = await WithDbAsync(db => db.TaiKhoans.FirstAsync(t => t.TenDangNhap == "admin"));
+        var reqSelf = new HttpRequestMessage(HttpMethod.Post, "/TaiKhoan/DoiTrangThai");
+        reqSelf.Headers.Add("X-Requested-With", "XMLHttpRequest");
+        reqSelf.Content = new FormUrlEncodedContent(new Dictionary<string, string>
+        {
+            ["id"] = admin.MaTaiKhoan.ToString(),
+            ["__RequestVerificationToken"] = token
+        });
+
+        using var respSelf = await Client.SendAsync(reqSelf);
+        Assert.Equal(HttpStatusCode.OK, respSelf.StatusCode);
+        var jsonSelf = await respSelf.Content.ReadAsStringAsync();
+        Assert.Contains("\"success\":false", jsonSelf);
+    }
+
+    [Fact]
+    public async Task QuickActions_NonAdminAccess_IsForbiddenOrRedirected()
+    {
+        // 1. Người dùng ẩn danh (chưa đăng nhập)
+        var token = await GetAntiForgeryTokenAsync("/TaiKhoan/DangNhap");
+        var reqAnon = new HttpRequestMessage(HttpMethod.Post, "/TaiKhoan/ResetPasswordQuick");
+        reqAnon.Content = new FormUrlEncodedContent(new Dictionary<string, string>
+        {
+            ["id"] = "2",
+            ["__RequestVerificationToken"] = token
+        });
+
+        using var respAnon = await Client.SendAsync(reqAnon);
+        Assert.Equal(HttpStatusCode.Redirect, respAnon.StatusCode);
+        Assert.True(respAnon.Headers.Location?.ToString().Contains("login", StringComparison.OrdinalIgnoreCase) == true
+                 || respAnon.Headers.Location?.ToString().Contains("DangNhap", StringComparison.OrdinalIgnoreCase) == true);
+
+        // 2. Đăng nhập với tài khoản không phải Admin (nvkho)
+        using var loginResp = await PostFormAsync(
+            "/TaiKhoan/DangNhap",
+            token,
+            new Dictionary<string, string>
+            {
+                ["TenDangNhap"] = "nvkho",
+                ["MatKhau"] = "Kho@123"
+            });
+        Assert.Equal(HttpStatusCode.Redirect, loginResp.StatusCode);
+
+        var tokenNv = await GetAntiForgeryTokenAsync("/TaiKhoan/CapNhatProfile");
+        var reqForbidden = new HttpRequestMessage(HttpMethod.Post, "/TaiKhoan/DoiTrangThai");
+        reqForbidden.Content = new FormUrlEncodedContent(new Dictionary<string, string>
+        {
+            ["id"] = "2",
+            ["__RequestVerificationToken"] = tokenNv
+        });
+
+        using var respForbidden = await Client.SendAsync(reqForbidden);
+        Assert.Equal(HttpStatusCode.Redirect, respForbidden.StatusCode);
+        Assert.Contains("AccessDenied", respForbidden.Headers.Location?.ToString());
     }
 }
 
