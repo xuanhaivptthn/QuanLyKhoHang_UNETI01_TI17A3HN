@@ -101,6 +101,41 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
             return View(viewModel);
         }
 
+        // GET: /ThongKe/GetDashboardData
+        [HttpGet]
+        public async Task<IActionResult> GetDashboardData()
+        {
+            var today = DateTime.Today;
+
+            var tongSoKho = await _context.Khoes.Where(k => k.TrangThai == true).CountAsync();
+            var soPhieuXuatTrongNgay = await _context.PhieuXuats.Where(p => p.NgayXuat.Date == today).CountAsync();
+            var soHangHet = await _context.TonKhoes.Where(t => t.SoLuongTon == 0).CountAsync();
+            var tongSoHangHoa = await _context.HangHoa.CountAsync();
+            var soPhieuNhapTrongNgay = await _context.PhieuNhap.Where(p => p.NgayNhap.Date == today).CountAsync();
+            var soHangSapHet = await _context.TonKhoes
+                .Include(t => t.HangHoa)
+                .Where(t => t.SoLuongTon > 0 && t.SoLuongTon <= t.HangHoa!.MucTonToiThieu)
+                .CountAsync();
+
+            decimal tongGiaTriTonKho = await _context.TonKhoes
+                .Include(t => t.HangHoa)
+                .SumAsync(t => (decimal)t.SoLuongTon * t.HangHoa!.GiaNhapThamKhao);
+
+            return Json(new
+            {
+                success = true,
+                tongSoHangHoa,
+                tongSoKho,
+                soPhieuNhapTrongNgay,
+                soPhieuXuatTrongNgay,
+                soHangHet,
+                soHangSapHet,
+                tongGiaTriTonKho,
+                tongGiaTriTonKhoFormatted = tongGiaTriTonKho.ToString("N0") + " ₫",
+                updatedAt = DateTime.Now.ToString("HH:mm:ss dd/MM/yyyy")
+            });
+        }
+
         // Yêu cầu 9.6 & 9.7: Báo cáo Thống kê theo thời gian (Sử dụng LINQ)
         public async Task<IActionResult> BaoCaoNhapXuat(DateTime? tuNgay, DateTime? denNgay)
         {

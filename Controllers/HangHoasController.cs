@@ -408,16 +408,66 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DoiTrangThai(int id)
         {
+            bool isAjax = Request.Headers["X-Requested-With"] == "XMLHttpRequest";
             var hangHoa = await _context.HangHoa.FindAsync(id);
             if (hangHoa == null)
             {
+                if (isAjax) return Json(new { success = false, message = "Không tìm thấy hàng hóa." });
                 return NotFound();
             }
 
             hangHoa.TrangThai = !hangHoa.TrangThai;
             await _context.SaveChangesAsync();
 
+            if (isAjax)
+            {
+                return Json(new { success = true, trangThai = hangHoa.TrangThai, message = "Đã cập nhật trạng thái hàng hóa." });
+            }
+
             return RedirectToAction(nameof(Index));
+        }
+
+        // GET: HangHoas/GetHangHoaInfo/5
+        [HttpGet]
+        public async Task<IActionResult> GetHangHoaInfo(int id)
+        {
+            var hangHoa = await _context.HangHoa
+                .Include(h => h.DonViTinh)
+                .Include(h => h.LoaiHang)
+                .FirstOrDefaultAsync(h => h.MaHang == id);
+
+            if (hangHoa == null)
+            {
+                return Json(new { success = false, message = "Không tìm thấy thông tin hàng hóa." });
+            }
+
+            return Json(new
+            {
+                success = true,
+                maHang = hangHoa.MaHang,
+                tenHang = hangHoa.TenHang,
+                giaNhapThamKhao = hangHoa.GiaNhapThamKhao,
+                mucTonToiThieu = hangHoa.MucTonToiThieu,
+                tenDonViTinh = hangHoa.DonViTinh?.TenDonViTinh ?? "—",
+                tenLoaiHang = hangHoa.LoaiHang?.TenLoaiHang ?? "—",
+                trangThai = hangHoa.TrangThai
+            });
+        }
+
+        // GET: HangHoas/CheckTenHang
+        [HttpGet]
+        public async Task<IActionResult> CheckTenHang(string? tenHang, int? maHang)
+        {
+            if (string.IsNullOrWhiteSpace(tenHang))
+            {
+                return Json(new { exists = false });
+            }
+
+            tenHang = tenHang.Trim();
+            bool exists = await _context.HangHoa
+                .AnyAsync(h => h.TenHang == tenHang && (!maHang.HasValue || h.MaHang != maHang.Value));
+
+            return Json(new { exists });
         }
 
         private async Task LoadDropdowns(int? selectedLoaiHang = null, int? selectedDonViTinh = null)

@@ -145,8 +145,15 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DangNhap(LoginViewModel model, string? returnUrl = null)
         {
+            bool isAjax = Request.Headers["X-Requested-With"] == "XMLHttpRequest";
+
             if (!ModelState.IsValid)
             {
+                if (isAjax)
+                {
+                    var errorMsg = ModelState.Values.SelectMany(v => v.Errors).FirstOrDefault()?.ErrorMessage ?? "Vui lòng nhập đầy đủ thông tin.";
+                    return Json(new { success = false, message = errorMsg });
+                }
                 ViewBag.ReturnUrl = returnUrl;
                 return View(model);
             }
@@ -157,6 +164,7 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
 
             if (taiKhoan == null)
             {
+                if (isAjax) return Json(new { success = false, message = "Tên đăng nhập hoặc mật khẩu không chính xác." });
                 ModelState.AddModelError(string.Empty, "Tên đăng nhập hoặc mật khẩu không chính xác.");
                 ViewBag.ReturnUrl = returnUrl;
                 return View(model);
@@ -165,6 +173,7 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
             // 1. Kiểm tra trạng thái tài khoản bị khóa bởi Quản trị viên
             if (!taiKhoan.TrangThai)
             {
+                if (isAjax) return Json(new { success = false, message = "Tài khoản này hiện đang bị khóa bởi Quản trị viên." });
                 ModelState.AddModelError(string.Empty, "Tài khoản này hiện đang bị khóa bởi Quản trị viên.");
                 ViewBag.ReturnUrl = returnUrl;
                 return View(model);
@@ -177,7 +186,9 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
                 {
                     var remainingMinutes = (int)Math.Ceiling((taiKhoan.KhoaDenUtc.Value - DateTime.UtcNow).TotalMinutes);
                     if (remainingMinutes < 1) remainingMinutes = 1;
-                    ModelState.AddModelError(string.Empty, $"Tài khoản tạm thời bị khóa do nhập sai mật khẩu quá 5 lần. Vui lòng thử lại sau {remainingMinutes} phút.");
+                    string lockoutMsg = $"Tài khoản tạm thời bị khóa do nhập sai mật khẩu quá 5 lần. Vui lòng thử lại sau {remainingMinutes} phút.";
+                    if (isAjax) return Json(new { success = false, message = lockoutMsg });
+                    ModelState.AddModelError(string.Empty, lockoutMsg);
                     ViewBag.ReturnUrl = returnUrl;
                     return View(model);
                 }
@@ -195,19 +206,21 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
             if (!isPasswordValid)
             {
                 taiKhoan.SoLanDangNhapSai++;
+                string failMsg = "Tên đăng nhập hoặc mật khẩu không chính xác.";
                 if (taiKhoan.SoLanDangNhapSai >= 5)
                 {
                     taiKhoan.KhoaDenUtc = DateTime.UtcNow.AddMinutes(5);
                     taiKhoan.SoLanDangNhapSai = 0;
                     await _context.SaveChangesAsync();
-                    ModelState.AddModelError(string.Empty, "Tài khoản tạm thời bị khóa 5 phút do nhập sai mật khẩu quá 5 lần liên tiếp.");
+                    failMsg = "Tài khoản tạm thời bị khóa 5 phút do nhập sai mật khẩu quá 5 lần liên tiếp.";
                 }
                 else
                 {
                     await _context.SaveChangesAsync();
-                    ModelState.AddModelError(string.Empty, "Tên đăng nhập hoặc mật khẩu không chính xác.");
                 }
 
+                if (isAjax) return Json(new { success = false, message = failMsg });
+                ModelState.AddModelError(string.Empty, failMsg);
                 ViewBag.ReturnUrl = returnUrl;
                 return View(model);
             }
@@ -270,12 +283,30 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
             HttpContext.Session.SetString("VaiTro", taiKhoan.VaiTro ?? string.Empty);
             HttpContext.Session.SetString("TenDangNhap", taiKhoan.TenDangNhap ?? string.Empty);
 
-            if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+            string targetRedirect = (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl)) ? returnUrl : Url.Action("Index", "Home")!;
+            if (isAjax)
             {
-                return Redirect(returnUrl);
+                return Json(new { success = true, redirectUrl = targetRedirect });
             }
 
-            return RedirectToAction("Index", "Home");
+            return Redirect(targetRedirect);
+        }
+
+        // GET: /TaiKhoans/CheckTenDangNhap
+        [AllowAnonymous]
+        [HttpGet]
+        public async Task<IActionResult> CheckTenDangNhap(string? username, int? maTaiKhoan)
+        {
+            if (string.IsNullOrWhiteSpace(username))
+            {
+                return Json(new { exists = false });
+            }
+
+            username = username.Trim();
+            bool exists = await _context.TaiKhoans
+                .AnyAsync(t => t.TenDangNhap == username && (!maTaiKhoan.HasValue || t.MaTaiKhoan != maTaiKhoan.Value));
+
+            return Json(new { exists });
         }
 
         // GET: /TaiKhoans/DangXuat hoặc /TaiKhoan/DangXuat

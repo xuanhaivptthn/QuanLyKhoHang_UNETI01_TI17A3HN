@@ -356,5 +356,16 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
                 && c.MaHang == maHang
                 && (!excludeId.HasValue || c.MaChiTietXuat != excludeId.Value));
         }
+
+        // GET: /ChiTietPhieuXuats/GetTonKhoHienTai
+        [HttpGet]
+        public async Task<IActionResult> GetTonKhoHienTai(int maKho, int maHang)
+        {
+            var tonKho = await _context.TonKhoes
+                .FirstOrDefaultAsync(t => t.MaKho == maKho && t.MaHang == maHang);
+
+            int soLuongTon = tonKho?.SoLuongTon ?? 0;
+            return Json(new { success = true, tonKho = soLuongTon });
+        }
     }
 }
