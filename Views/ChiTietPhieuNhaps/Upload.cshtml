@@ -1,0 +1,50 @@
+@using QuanLyKhoHang_UNETI01_TI17A3HN.Models
+@{
+    ViewData["Title"] = "Import hàng nhập";
+    var phieuNhap = ViewBag.PhieuNhap as PhieuNhap;
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <div class="page-header">
+            <div>
+                <h2 class="page-title"><i class="bi bi-file-earmark-arrow-up text-success"></i> Import hàng nhập</h2>
+                <p class="page-subtitle">Nhập nhanh danh sách hàng hóa từ Excel hoặc CSV vào phiếu #PN-@phieuNhap?.MaPhieuNhap</p>
+            </div>
+            <a asp-controller="PhieuNhaps" asp-action="Details" asp-route-id="@phieuNhap?.MaPhieuNhap" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Quay lại phiếu nhập
+            </a>
+        </div>
+
+        <div class="card border-0 shadow-sm rounded-2">
+            <div class="card-body p-4 p-md-5">
+                <form asp-action="Upload" method="post" enctype="multipart/form-data">
+                    <input type="hidden" name="maPhieuNhap" value="@phieuNhap?.MaPhieuNhap" />
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-4 py-2" role="alert"></div>
+
+                    <div class="alert alert-info">
+                        <div class="fw-semibold mb-2"><i class="bi bi-info-circle me-1"></i>Định dạng file</div>
+                        <div>File hỗ trợ: <strong>.xlsx, .xlsm, .csv</strong>, tối đa 10 MB.</div>
+                        <div>Dòng đầu tiên là tiêu đề. Các cột bắt buộc: <code>MaHang</code>, <code>SoLuongNhap</code>, <code>DonGiaNhap</code>.</div>
+                        <div class="small mt-1">Mã hàng trùng sẽ được cộng vào dòng đã có trong phiếu; đơn giá dùng theo dòng import sau cùng.</div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="file" class="form-label fw-semibold">
+                            <i class="bi bi-file-earmark-spreadsheet me-1 text-primary"></i> Chọn file dữ liệu <span class="text-danger">*</span>
+                        </label>
+                        <input id="file" name="file" type="file" class="form-control" accept=".xlsx,.xlsm,.csv" required />
+                        <span class="text-danger small field-validation-error">@Html.ValidationMessage("file")</span>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2 pt-3 border-top">
+                        <a asp-controller="PhieuNhaps" asp-action="Details" asp-route-id="@phieuNhap?.MaPhieuNhap" class="btn btn-outline-secondary">Hủy bỏ</a>
+                        <button type="submit" class="btn btn-success px-4">
+                            <i class="bi bi-upload"></i> Import dữ liệu
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

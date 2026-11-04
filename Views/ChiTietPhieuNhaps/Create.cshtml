@@ -20,6 +20,9 @@
             <div>
                 @if (phieuId != null)
                 {
+                    <a asp-action="Upload" asp-route-maPhieuNhap="@phieuId" class="btn btn-outline-success me-1">
+                        <i class="bi bi-file-earmark-arrow-up"></i> Import file
+                    </a>
                     <a asp-controller="PhieuNhaps" asp-action="Details" asp-route-id="@phieuId" class="btn btn-outline-secondary">
                         <i class="bi bi-arrow-left"></i> Quay lại phiếu nhập
                     </a>
