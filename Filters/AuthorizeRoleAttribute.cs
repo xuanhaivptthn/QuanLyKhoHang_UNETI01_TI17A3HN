@@ -76,7 +76,10 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Filters
                     ?? session.GetString("VaiTro")
                     ?? string.Empty;
 
-                if (!_roles.Contains(userRole, StringComparer.OrdinalIgnoreCase))
+                bool hasRole = _roles.Contains(userRole, StringComparer.OrdinalIgnoreCase)
+                    || _roles.Any(r => httpContext.User.IsInRole(r));
+
+                if (!hasRole)
                 {
                     // Không đủ quyền -> Chuyển sang trang AccessDenied
                     context.Result = new RedirectToActionResult("AccessDenied", "Home", null);

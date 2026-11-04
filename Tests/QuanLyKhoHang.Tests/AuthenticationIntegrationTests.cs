@@ -260,8 +260,9 @@ public sealed class AuthenticationIntegrationTests : WarehouseIntegrationTest
         Assert.Contains("bg-primary", nvkhoHtml);
         Assert.Contains("NhanVienKho", nvkhoHtml);
 
-        // NhanVienKho: Ẩn menu Quản trị Tài khoản (chỉ dành cho Admin)
+        // NhanVienKho: Ẩn menu Quản trị Tài khoản (chỉ dành cho Admin) và Ẩn menu Bộ phận nhận
         Assert.DoesNotContain("Quản trị Tài khoản", nvkhoHtml);
+        Assert.DoesNotContain("Bộ phận nhận", nvkhoHtml);
 
         // NhanVienKho: Hiển thị các chức năng kho
         Assert.Contains("Phiếu nhập", nvkhoHtml);
@@ -288,13 +289,33 @@ public sealed class AuthenticationIntegrationTests : WarehouseIntegrationTest
         Assert.Equal(HttpStatusCode.OK, boPhanResp.StatusCode);
         var boPhanHtml = await boPhanResp.Content.ReadAsStringAsync();
 
-        // BoPhanNhan: Header hiển thị họ tên và badge BoPhanNhan
+        // BoPhanNhan: Header hiển thị họ tên và badge BoPhanNhan màu xanh lá
         Assert.Contains("Dai dien Bo phan nhan", boPhanHtml);
+        Assert.Contains("bg-success", boPhanHtml);
         Assert.Contains("BoPhanNhan", boPhanHtml);
 
-        // BoPhanNhan: Ẩn menu Quản trị Tài khoản
-        Assert.DoesNotContain("Quản trị Tài khoản", boPhanHtml);
+        // BoPhanNhan: Chỉ hiển thị Phiếu xuất / Hàng hóa, ẩn các mục quản lý nội bộ kho
         Assert.Contains("Phiếu xuất", boPhanHtml);
+        Assert.DoesNotContain("Quản trị Tài khoản", boPhanHtml);
+        Assert.DoesNotContain("Bộ phận nhận", boPhanHtml);
+        Assert.DoesNotContain("Phiếu nhập", boPhanHtml);
+        Assert.DoesNotContain("Loại hàng", boPhanHtml);
+        Assert.DoesNotContain("Đơn vị tính", boPhanHtml);
+
+        // 4. Kiểm tra với người dùng chưa đăng nhập (Khách ẩn danh)
+        using var logout3 = await Client.GetAsync("/TaiKhoan/DangXuat");
+        Assert.Equal(HttpStatusCode.Redirect, logout3.StatusCode);
+
+        using var homeResp = await Client.GetAsync("/");
+        Assert.Equal(HttpStatusCode.OK, homeResp.StatusCode);
+        var homeHtml = await homeResp.Content.ReadAsStringAsync();
+
+        // Khách ẩn danh: Ẩn toàn bộ menu tác nghiệp nội bộ trong sidebar
+        Assert.DoesNotContain("Quản trị Tài khoản", homeHtml);
+        Assert.DoesNotContain("Phiếu nhập", homeHtml);
+        Assert.DoesNotContain("Phiếu xuất", homeHtml);
+        Assert.DoesNotContain("Loại hàng", homeHtml);
+        Assert.DoesNotContain("Đơn vị tính", homeHtml);
     }
 
     [Fact]

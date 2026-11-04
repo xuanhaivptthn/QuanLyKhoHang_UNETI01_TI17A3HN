@@ -7,6 +7,8 @@
 
 @{
     ViewData["Title"] = "Danh mục Đơn vị tính";
+    var currentRole = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value ?? Context.Session.GetString("VaiTro");
+    var isAdmin = User.IsInRole("Admin") || string.Equals(currentRole, "Admin", StringComparison.OrdinalIgnoreCase);
 }
 
 <div class="page-header">
@@ -73,9 +75,12 @@
                                         <a asp-action="Edit" asp-route-id="@item.MaDonViTinh" class="btn btn-outline-primary btn-sm text-nowrap" title="Sửa đơn vị tính">
                                             <i class="bi bi-pencil-square me-1"></i> Sửa
                                         </a>
-                                        <a asp-action="Delete" asp-route-id="@item.MaDonViTinh" class="btn btn-outline-danger btn-sm text-nowrap" title="Xóa đơn vị tính">
-                                            <i class="bi bi-trash me-1"></i> Xóa
-                                        </a>
+                                        @if (isAdmin)
+                                        {
+                                            <a asp-action="Delete" asp-route-id="@item.MaDonViTinh" class="btn btn-outline-danger btn-sm text-nowrap" title="Xóa đơn vị tính">
+                                                <i class="bi bi-trash me-1"></i> Xóa
+                                            </a>
+                                        }
                                     </div>
                                 </td>
                             </tr>

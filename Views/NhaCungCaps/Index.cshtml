@@ -7,6 +7,8 @@
 
 @{
     ViewData["Title"] = "Danh sách nhà cung cấp";
+    var currentRole = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value ?? Context.Session.GetString("VaiTro");
+    var isAdmin = User.IsInRole("Admin") || string.Equals(currentRole, "Admin", StringComparison.OrdinalIgnoreCase);
     int currentPage = ViewBag.CurrentPage ?? 1;
     int totalPages = ViewBag.TotalPages ?? 0;
 
@@ -136,9 +138,12 @@
                                         <a asp-action="Edit" asp-route-id="@item.MaNhaCungCap" class="btn btn-outline-primary btn-sm text-nowrap" title="Sửa nhà cung cấp">
                                             <i class="bi bi-pencil-square me-1"></i> Sửa
                                         </a>
-                                        <a asp-action="Delete" asp-route-id="@item.MaNhaCungCap" class="btn btn-outline-danger btn-sm text-nowrap" title="Xóa nhà cung cấp">
-                                            <i class="bi bi-trash me-1"></i> Xóa
-                                        </a>
+                                        @if (isAdmin)
+                                        {
+                                            <a asp-action="Delete" asp-route-id="@item.MaNhaCungCap" class="btn btn-outline-danger btn-sm text-nowrap" title="Xóa nhà cung cấp">
+                                                <i class="bi bi-trash me-1"></i> Xóa
+                                            </a>
+                                        }
                                     </div>
                                 </td>
                             </tr>
