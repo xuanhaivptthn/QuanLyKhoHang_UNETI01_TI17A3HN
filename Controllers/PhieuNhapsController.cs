@@ -197,6 +197,57 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
             return View(phieuNhap);
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SaveDetails(int id, int[] detailIds, int[] quantities, decimal[] unitPrices)
+        {
+            var phieuNhap = await _context.PhieuNhap
+                .Include(p => p.ChiTietPhieuNhaps)
+                .FirstOrDefaultAsync(p => p.MaPhieuNhap == id);
+            if (phieuNhap == null)
+            {
+                return NotFound();
+            }
+
+            if (phieuNhap.TrangThai != TrangThaiPhieuNhap.Nhap && phieuNhap.TrangThai != TrangThaiPhieuNhap.ChoXacNhan)
+            {
+                TempData["Error"] = "Chỉ có thể lưu thay đổi khi phiếu ở trạng thái Nháp hoặc Chờ xác nhận.";
+                return RedirectToAction(nameof(Details), new { id });
+            }
+
+            if (detailIds.Length != quantities.Length || detailIds.Length != unitPrices.Length)
+            {
+                TempData["Error"] = "Dữ liệu chi tiết phiếu nhập không hợp lệ.";
+                return RedirectToAction(nameof(Details), new { id });
+            }
+
+            var detailsById = phieuNhap.ChiTietPhieuNhaps.ToDictionary(c => c.MaChiTietNhap);
+            for (var index = 0; index < detailIds.Length; index++)
+            {
+                if (!detailsById.TryGetValue(detailIds[index], out var detail))
+                {
+                    TempData["Error"] = "Có dòng chi tiết không thuộc phiếu nhập này.";
+                    return RedirectToAction(nameof(Details), new { id });
+                }
+
+                if (quantities[index] <= 0 || unitPrices[index] < 0)
+                {
+                    TempData["Error"] = "Số lượng phải lớn hơn 0 và đơn giá không được âm.";
+                    return RedirectToAction(nameof(Details), new { id });
+                }
+
+                detail.SoLuongNhap = quantities[index];
+                detail.DonGiaNhap = unitPrices[index];
+            }
+
+            await using var transaction = await _context.Database.BeginTransactionAsync();
+            await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
+
+            TempData["Success"] = "Đã lưu các thay đổi chi tiết phiếu nhập.";
+            return RedirectToAction(nameof(Details), new { id });
+        }
+
         // GET: PhieuNhaps/Create
         public IActionResult Create()
         {
