@@ -33,9 +33,12 @@ document.addEventListener("DOMContentLoaded", function () {
             const current = (document.documentElement.getAttribute("data-theme") || "").replace(/["'&;]|quot/g, "").trim();
             const next = current === "dark" ? "light" : "dark";
             document.documentElement.setAttribute("data-theme", next);
+            document.documentElement.setAttribute("data-bs-theme", next);
             try {
                 localStorage.setItem("theme", next);
             } catch (e) {}
+            // Dispatch custom event for dynamic components like Chart.js
+            window.dispatchEvent(new CustomEvent("themechange", { detail: { theme: next } }));
         });
     }
 
@@ -45,6 +48,8 @@ document.addEventListener("DOMContentLoaded", function () {
             if (!localStorage.getItem("theme")) {
                 const next = e.matches ? "dark" : "light";
                 document.documentElement.setAttribute("data-theme", next);
+                document.documentElement.setAttribute("data-bs-theme", next);
+                window.dispatchEvent(new CustomEvent("themechange", { detail: { theme: next } }));
             }
         } catch (e) {}
     });

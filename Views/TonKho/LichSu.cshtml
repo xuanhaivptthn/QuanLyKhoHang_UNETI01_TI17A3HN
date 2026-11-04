@@ -35,8 +35,9 @@
             <div class="row g-2 align-items-center">
                 <div class="col-md-8 col-lg-6">
                     <div class="input-group">
+                        <label for="lichSuTimKiemInput" class="visually-hidden">Tìm kiếm lịch sử biến động</label>
                         <span class="input-group-text bg-white text-muted border-end-0"><i class="bi bi-search"></i></span>
-                        <input type="text" name="timKiem" value="@ViewBag.TimKiem" class="form-control border-start-0 ps-0" placeholder="Tìm theo tên hàng, mã phiếu, người thực hiện..." />
+                        <input type="text" id="lichSuTimKiemInput" name="timKiem" value="@ViewBag.TimKiem" class="form-control border-start-0 ps-0" placeholder="Tìm theo tên hàng, mã phiếu, người thực hiện..." aria-label="Tìm kiếm lịch sử theo tên hàng, mã phiếu hoặc người thực hiện" />
                     </div>
                 </div>
                 <div class="col-md-4 col-lg-3 d-flex gap-2">
