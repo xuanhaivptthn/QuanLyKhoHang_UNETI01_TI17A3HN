@@ -25,6 +25,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light dark" />
     <title>@ViewData["Title"] - Quản Lý Kho Hàng UNETI</title>
     @* Synchronous inline theme check before CSS/DOM to prevent flash of unstyled content on navigation *@
     <script>
@@ -33,6 +34,7 @@
                 var saved = localStorage.getItem('theme');
                 var theme = saved || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
                 document.documentElement.setAttribute('data-theme', theme);
+                document.documentElement.setAttribute('data-bs-theme', theme);
             } catch (e) {}
         })();
     </script>
@@ -48,6 +50,7 @@
     <link rel="stylesheet" href="~/QuanLyKhoHang_UNETI01_TI17A3HN.styles.css" asp-append-version="true" />
 </head>
 <body class="app-shell">
+    <a href="#main-content" class="skip-link">Chuyển đến nội dung chính</a>
     <div class="sidebar-backdrop no-print" id="sidebarBackdrop"></div>
 
     <aside class="app-sidebar no-print" id="appSidebar">
@@ -268,7 +271,7 @@
 
 
         <div class="app-content">
-            <main role="main">
+            <main role="main" id="main-content" tabindex="-1">
                 @if (TempData["Error"] != null || TempData["ErrorMessage"] != null)
                 {
                     <div class="alert alert-danger alert-dismissible fade show shadow-sm mb-3" role="alert">

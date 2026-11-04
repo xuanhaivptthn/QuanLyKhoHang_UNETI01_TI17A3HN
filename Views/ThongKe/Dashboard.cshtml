@@ -33,60 +33,44 @@
 <div class="row g-3 mb-4">
     <div class="col-sm-6 col-xl-3">
         <a asp-controller="HangHoas" asp-action="Index" class="text-decoration-none">
-            <div class="card border-0 shadow-sm rounded-2 h-100 hover-lift">
-                <div class="card-body p-4">
-                    <div class="d-flex align-items-center justify-content-between mb-2">
-                        <span class="text-secondary small fw-semibold text-uppercase">Tổng Hàng Hóa</span>
-                        <i class="bi bi-box-seam fs-4 text-primary"></i>
-                    </div>
-                    <div class="h2 fw-bold text-dark mb-1">@Model.TongSoHangHoa</div>
-                    <small class="text-muted"><i class="bi bi-arrow-right me-1"></i>Xem danh mục mặt hàng</small>
-                </div>
+            <div class="kpi-card kpi-primary h-100">
+                <span class="kpi-icon"><i class="bi bi-box-seam"></i></span>
+                <div class="kpi-label">Tổng Hàng Hóa</div>
+                <div class="kpi-value">@Model.TongSoHangHoa</div>
+                <small class="d-block mt-2"><i class="bi bi-arrow-right me-1"></i>Xem danh mục mặt hàng</small>
             </div>
         </a>
     </div>
 
     <div class="col-sm-6 col-xl-3">
         <a asp-controller="Khoes" asp-action="Index" class="text-decoration-none">
-            <div class="card border-0 shadow-sm rounded-2 h-100 hover-lift">
-                <div class="card-body p-4">
-                    <div class="d-flex align-items-center justify-content-between mb-2">
-                        <span class="text-secondary small fw-semibold text-uppercase">Kho Đang Hoạt Động</span>
-                        <i class="bi bi-building fs-4 text-success"></i>
-                    </div>
-                    <div class="h2 fw-bold text-dark mb-1">@Model.TongSoKho</div>
-                    <small class="text-muted"><i class="bi bi-arrow-right me-1"></i>Hệ thống điểm kho bãi</small>
-                </div>
+            <div class="kpi-card kpi-success h-100">
+                <span class="kpi-icon"><i class="bi bi-building"></i></span>
+                <div class="kpi-label">Kho Đang Hoạt Động</div>
+                <div class="kpi-value">@Model.TongSoKho</div>
+                <small class="d-block mt-2"><i class="bi bi-arrow-right me-1"></i>Hệ thống điểm kho bãi</small>
             </div>
         </a>
     </div>
 
     <div class="col-sm-6 col-xl-3">
         <a asp-controller="PhieuNhaps" asp-action="Index" class="text-decoration-none">
-            <div class="card border-0 shadow-sm rounded-2 h-100 hover-lift">
-                <div class="card-body p-4">
-                    <div class="d-flex align-items-center justify-content-between mb-2">
-                        <span class="text-secondary small fw-semibold text-uppercase">Phiếu Nhập Hôm Nay</span>
-                        <i class="bi bi-box-arrow-in-down fs-4 text-info"></i>
-                    </div>
-                    <div class="h2 fw-bold text-info mb-1">@Model.SoPhieuNhapTrongNgay</div>
-                    <small class="text-muted"><i class="bi bi-arrow-right me-1"></i>Quản lý nhập kho</small>
-                </div>
+            <div class="kpi-card kpi-info h-100">
+                <span class="kpi-icon"><i class="bi bi-box-arrow-in-down"></i></span>
+                <div class="kpi-label">Phiếu Nhập Hôm Nay</div>
+                <div class="kpi-value">@Model.SoPhieuNhapTrongNgay</div>
+                <small class="d-block mt-2"><i class="bi bi-arrow-right me-1"></i>Quản lý nhập kho</small>
             </div>
         </a>
     </div>
 
     <div class="col-sm-6 col-xl-3">
         <a asp-controller="PhieuXuats" asp-action="Index" class="text-decoration-none">
-            <div class="card border-0 shadow-sm rounded-2 h-100 hover-lift">
-                <div class="card-body p-4">
-                    <div class="d-flex align-items-center justify-content-between mb-2">
-                        <span class="text-secondary small fw-semibold text-uppercase">Phiếu Xuất Hôm Nay</span>
-                        <i class="bi bi-box-arrow-up-right fs-4 text-danger"></i>
-                    </div>
-                    <div class="h2 fw-bold text-danger mb-1">@Model.SoPhieuXuatTrongNgay</div>
-                    <small class="text-muted"><i class="bi bi-arrow-right me-1"></i>Quản lý xuất kho</small>
-                </div>
+            <div class="kpi-card kpi-danger h-100">
+                <span class="kpi-icon"><i class="bi bi-box-arrow-up-right"></i></span>
+                <div class="kpi-label">Phiếu Xuất Hôm Nay</div>
+                <div class="kpi-value">@Model.SoPhieuXuatTrongNgay</div>
+                <small class="d-block mt-2"><i class="bi bi-arrow-right me-1"></i>Quản lý xuất kho</small>
             </div>
         </a>
     </div>
@@ -197,80 +181,119 @@
             const loaiLabels = @Html.Raw(JsonSerializer.Serialize(ViewBag.LoaiHangLabels ?? new List<string>()));
             const loaiData = @Html.Raw(JsonSerializer.Serialize(ViewBag.LoaiHangData ?? new List<int>()));
 
-            // 1. Biểu đồ Bar Nhập - Xuất
-            const ctxBar = document.getElementById("barChartNhapXuat");
-            if (ctxBar) {
-                new Chart(ctxBar, {
-                    type: 'bar',
-                    data: {
-                        labels: daysLabels.length ? daysLabels : ['Hôm nay'],
-                        datasets: [
-                            {
-                                label: 'Phiếu Nhập',
-                                data: nhapData.length ? nhapData : [0],
-                                backgroundColor: 'rgba(37, 99, 235, 0.85)',
-                                borderColor: '#2563eb',
-                                borderWidth: 1,
-                                borderRadius: 6
-                            },
-                            {
-                                label: 'Phiếu Xuất',
-                                data: xuatData.length ? xuatData : [0],
-                                backgroundColor: 'rgba(239, 68, 68, 0.85)',
-                                borderColor: '#ef4444',
-                                borderWidth: 1,
-                                borderRadius: 6
-                            }
-                        ]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                position: 'top',
-                            }
+            function getThemeConfig() {
+                const isDark = (document.documentElement.getAttribute("data-theme") || "") === "dark";
+                return {
+                    textColor: isDark ? "#c1bce2" : "#46406e",
+                    gridColor: isDark ? "rgba(255, 255, 255, 0.08)" : "rgba(80, 70, 140, 0.08)",
+                    doughnutBorder: isDark ? "#1e2130" : "#ffffff"
+                };
+            }
+
+            let barChartInstance = null;
+            let pieChartInstance = null;
+
+            function initCharts() {
+                const cfg = getThemeConfig();
+
+                // 1. Biểu đồ Bar Nhập - Xuất
+                const ctxBar = document.getElementById("barChartNhapXuat");
+                if (ctxBar) {
+                    if (barChartInstance) barChartInstance.destroy();
+                    barChartInstance = new Chart(ctxBar, {
+                        type: 'bar',
+                        data: {
+                            labels: daysLabels.length ? daysLabels : ['Hôm nay'],
+                            datasets: [
+                                {
+                                    label: 'Phiếu Nhập',
+                                    data: nhapData.length ? nhapData : [0],
+                                    backgroundColor: 'rgba(91, 142, 230, 0.85)',
+                                    borderColor: '#4a76c9',
+                                    borderWidth: 1,
+                                    borderRadius: 6
+                                },
+                                {
+                                    label: 'Phiếu Xuất',
+                                    data: xuatData.length ? xuatData : [0],
+                                    backgroundColor: 'rgba(224, 108, 130, 0.85)',
+                                    borderColor: '#c14f67',
+                                    borderWidth: 1,
+                                    borderRadius: 6
+                                }
+                            ]
                         },
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                ticks: {
-                                    stepSize: 1
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'top',
+                                    labels: {
+                                        color: cfg.textColor,
+                                        font: { family: "Inter, system-ui, sans-serif", weight: '500' }
+                                    }
+                                }
+                            },
+                            scales: {
+                                x: {
+                                    ticks: { color: cfg.textColor },
+                                    grid: { color: cfg.gridColor }
+                                },
+                                y: {
+                                    beginAtZero: true,
+                                    ticks: {
+                                        color: cfg.textColor,
+                                        stepSize: 1
+                                    },
+                                    grid: { color: cfg.gridColor }
                                 }
                             }
                         }
-                    }
-                });
-            }
+                    });
+                }
 
-            // 2. Biểu đồ Doughnut / Pie Loại Hàng
-            const ctxPie = document.getElementById("pieChartLoaiHang");
-            if (ctxPie) {
-                const backgroundColors = [
-                    '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4', '#64748b'
-                ];
-                new Chart(ctxPie, {
-                    type: 'doughnut',
-                    data: {
-                        labels: loaiLabels.length ? loaiLabels : ['Chưa có loại'],
-                        datasets: [{
-                            data: loaiData.length ? loaiData : [1],
-                            backgroundColor: backgroundColors.slice(0, loaiLabels.length || 1),
-                            borderWidth: 2,
-                            borderColor: '#ffffff'
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                position: 'bottom',
+                // 2. Biểu đồ Doughnut / Pie Loại Hàng
+                const ctxPie = document.getElementById("pieChartLoaiHang");
+                if (ctxPie) {
+                    if (pieChartInstance) pieChartInstance.destroy();
+                    const backgroundColors = [
+                        '#5b8ee6', '#4cb584', '#e3a24a', '#9272d1', '#e06c82', '#4bb3bd', '#8884ab'
+                    ];
+                    pieChartInstance = new Chart(ctxPie, {
+                        type: 'doughnut',
+                        data: {
+                            labels: loaiLabels.length ? loaiLabels : ['Chưa có loại'],
+                            datasets: [{
+                                data: loaiData.length ? loaiData : [1],
+                                backgroundColor: backgroundColors.slice(0, loaiLabels.length || 1),
+                                borderWidth: 2,
+                                borderColor: cfg.doughnutBorder
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'bottom',
+                                    labels: {
+                                        color: cfg.textColor,
+                                        font: { family: "Inter, system-ui, sans-serif", weight: '500' }
+                                    }
+                                }
                             }
                         }
-                    }
-                });
+                    });
+                }
             }
+
+            initCharts();
+
+            // Re-render charts when theme changes
+            window.addEventListener("themechange", function () {
+                initCharts();
+            });
         });
     </script>
 }

@@ -12,7 +12,7 @@ Dưới đây là các tài liệu đặc tả nghiệp vụ, kiến trúc CSDL,
 
 | Module | Tên Module | Sinh viên phụ trách | MSSV | Tài liệu chi tiết |
 | :---: | :--- | :--- | :---: | :---: |
-| **Module 1** | **Tài khoản, Xác thực, Phân quyền, Profile & Danh mục cơ sở** | **Trần Xuân Hải** | `23103100135` | [Xem Module 1](MODULE_01_TAI_KHOAN_XAC_THUC.md) |
+| **Module 1** | **Tài khoản, Xác thực, Phân quyền, Profile & Danh mục cơ sở** | **Trần Xuân Hải** | `23103100135` | [Xem Module 1](MODULE_01_TAI_KHOAN_XAC_THUC.md) • [Bản tóm tắt](../MODULE_01_SUMMARY.md) |
 | **Module 2** | **Kho hàng, Hàng hóa & Bộ tra cứu LINQ đa tiêu chí** | **Nguyễn Thị Cúc** | `23103100178` | [Xem Module 2](MODULE_02_KHO_HANG_HOA.md) |
 | **Module 3** | **Nhà cung cấp & Nghiệp vụ Nhập kho (Inbound Logistics)** | **Lê Văn Hùng** | `23103100177` | [Xem Module 3](MODULE_03_NHA_CUNG_CAP_NHAP_KHO.md) |
 | **Module 4** | **Bộ phận nhận, Xuất kho & Kiểm thử tự động (Outbound Logistics)** | **Nguyễn Việt Dũng** | `23103100127` | [Xem Module 4](MODULE_04_BO_PHAN_NHAN_XUAT_KHO.md) |

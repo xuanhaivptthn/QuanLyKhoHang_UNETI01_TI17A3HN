@@ -34,41 +34,41 @@
         <form asp-action="Index" method="get" class="row g-2 align-items-end">
             <!-- Tìm kiếm theo tên / mô tả -->
             <div class="col-md-3">
-                <label class="form-label small fw-semibold text-secondary mb-1">Tìm kiếm</label>
+                <label for="filterSearchString" class="form-label small fw-semibold text-secondary mb-1">Tìm kiếm</label>
                 <div class="input-group">
                     <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
-                    <input type="text" name="searchString" value="@ViewBag.SearchString" class="form-control border-start-0" placeholder="Tên hàng hóa, quy cách..." />
+                    <input type="text" id="filterSearchString" name="searchString" value="@ViewBag.SearchString" class="form-control border-start-0" placeholder="Tên hàng hóa, quy cách..." aria-label="Tìm kiếm hàng hóa theo tên hoặc quy cách" />
                 </div>
             </div>
 
             <!-- Loại hàng -->
             <div class="col-md-2">
-                <label class="form-label small fw-semibold text-secondary mb-1">Loại hàng</label>
-                <select name="maLoaiHang" class="form-select" asp-items="ViewBag.LoaiHangs">
+                <label for="filterLoaiHang" class="form-label small fw-semibold text-secondary mb-1">Loại hàng</label>
+                <select id="filterLoaiHang" name="maLoaiHang" class="form-select" asp-items="ViewBag.LoaiHangs" aria-label="Lọc theo loại hàng">
                     <option value="">-- Tất cả loại hàng --</option>
                 </select>
             </div>
 
             <!-- Đơn vị tính -->
             <div class="col-md-2">
-                <label class="form-label small fw-semibold text-secondary mb-1">Đơn vị tính</label>
-                <select name="maDonViTinh" class="form-select" asp-items="ViewBag.DonViTinhs">
+                <label for="filterDonViTinh" class="form-label small fw-semibold text-secondary mb-1">Đơn vị tính</label>
+                <select id="filterDonViTinh" name="maDonViTinh" class="form-select" asp-items="ViewBag.DonViTinhs" aria-label="Lọc theo đơn vị tính">
                     <option value="">-- Tất cả ĐVT --</option>
                 </select>
             </div>
 
             <!-- Kho hàng -->
             <div class="col-md-2">
-                <label class="form-label small fw-semibold text-secondary mb-1">Kho lưu trữ</label>
-                <select name="maKho" class="form-select" asp-items="ViewBag.Khos">
+                <label for="filterKho" class="form-label small fw-semibold text-secondary mb-1">Kho lưu trữ</label>
+                <select id="filterKho" name="maKho" class="form-select" asp-items="ViewBag.Khos" aria-label="Lọc theo kho lưu trữ">
                     <option value="">-- Tất cả kho --</option>
                 </select>
             </div>
 
             <!-- Trạng thái -->
             <div class="col-md-3">
-                <label class="form-label small fw-semibold text-secondary mb-1">Trạng thái hàng</label>
-                <select name="trangThai" class="form-select">
+                <label for="filterTrangThai" class="form-label small fw-semibold text-secondary mb-1">Trạng thái hàng</label>
+                <select id="filterTrangThai" name="trangThai" class="form-select" aria-label="Lọc theo trạng thái hoạt động">
                     <option value="">-- Tất cả trạng thái --</option>
                     <option value="true" selected="@(ViewBag.TrangThai == true)">Đang hoạt động</option>
                     <option value="false" selected="@(ViewBag.TrangThai == false)">Ngừng hoạt động</option>
@@ -77,20 +77,20 @@
 
             <!-- Khoảng giá từ -->
             <div class="col-md-2">
-                <label class="form-label small fw-semibold text-secondary mb-1">Giá từ (VNĐ)</label>
-                <input type="number" name="giaTu" min="0" step="any" value="@ViewBag.GiaTu" class="form-control" placeholder="Tối thiểu" />
+                <label for="filterGiaTu" class="form-label small fw-semibold text-secondary mb-1">Giá từ (VNĐ)</label>
+                <input type="number" id="filterGiaTu" name="giaTu" min="0" step="any" value="@ViewBag.GiaTu" class="form-control" placeholder="Tối thiểu" aria-label="Giá tối thiểu" />
             </div>
 
             <!-- Khoảng giá đến -->
             <div class="col-md-2">
-                <label class="form-label small fw-semibold text-secondary mb-1">Giá đến (VNĐ)</label>
-                <input type="number" name="giaDen" min="0" step="any" value="@ViewBag.GiaDen" class="form-control" placeholder="Tối đa" />
+                <label for="filterGiaDen" class="form-label small fw-semibold text-secondary mb-1">Giá đến (VNĐ)</label>
+                <input type="number" id="filterGiaDen" name="giaDen" min="0" step="any" value="@ViewBag.GiaDen" class="form-control" placeholder="Tối đa" aria-label="Giá tối đa" />
             </div>
 
             <!-- Cảnh báo tồn -->
             <div class="col-md-3">
-                <label class="form-label small fw-semibold text-secondary mb-1">Tình trạng tồn</label>
-                <select name="canhBao" class="form-select">
+                <label for="filterCanhBao" class="form-label small fw-semibold text-secondary mb-1">Tình trạng tồn</label>
+                <select id="filterCanhBao" name="canhBao" class="form-select" aria-label="Lọc theo tình trạng cảnh báo tồn kho">
                     <option value="">-- Tất cả tình trạng --</option>
                     <option value="canh_bao" selected="@(ViewBag.CanhBao == "canh_bao")">Cảnh báo (Tồn &le; Mức tối thiểu)</option>
                     <option value="binh_thuong" selected="@(ViewBag.CanhBao == "binh_thuong")">Đủ an toàn</option>
@@ -99,8 +99,8 @@
 
             <!-- Sắp xếp -->
             <div class="col-md-3">
-                <label class="form-label small fw-semibold text-secondary mb-1">Sắp xếp</label>
-                <select name="sortOrder" class="form-select">
+                <label for="filterSortOrder" class="form-label small fw-semibold text-secondary mb-1">Sắp xếp</label>
+                <select id="filterSortOrder" name="sortOrder" class="form-select" aria-label="Sắp xếp kết quả">
                     <option value="">-- Mặc định --</option>
                     <option value="ten_tang_dan" selected="@(ViewBag.SortOrder == "ten_tang_dan")">Tên A &rarr; Z</option>
                     <option value="ten_giam_dan" selected="@(ViewBag.SortOrder == "ten_giam_dan")">Tên Z &rarr; A</option>

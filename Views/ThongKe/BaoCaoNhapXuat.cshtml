@@ -28,18 +28,18 @@
         <form asp-action="BaoCaoNhapXuat" method="get">
             <div class="row g-3 align-items-end">
                 <div class="col-md-4 col-lg-3">
-                    <label class="form-label small fw-semibold text-muted">Từ ngày</label>
+                    <label for="baoCaoTuNgay" class="form-label small fw-semibold text-secondary">Từ ngày</label>
                     <div class="input-group">
                         <span class="input-group-text bg-light text-muted"><i class="bi bi-calendar-event"></i></span>
-                        <input type="date" name="tuNgay" value="@ViewBag.TuNgay" class="form-control" />
+                        <input type="date" id="baoCaoTuNgay" name="tuNgay" value="@ViewBag.TuNgay" class="form-control" aria-label="Báo cáo từ ngày" />
                     </div>
                 </div>
 
                 <div class="col-md-4 col-lg-3">
-                    <label class="form-label small fw-semibold text-muted">Đến ngày</label>
+                    <label for="baoCaoDenNgay" class="form-label small fw-semibold text-secondary">Đến ngày</label>
                     <div class="input-group">
                         <span class="input-group-text bg-light text-muted"><i class="bi bi-calendar-event"></i></span>
-                        <input type="date" name="denNgay" value="@ViewBag.DenNgay" class="form-control" />
+                        <input type="date" id="baoCaoDenNgay" name="denNgay" value="@ViewBag.DenNgay" class="form-control" aria-label="Báo cáo đến ngày" />
                     </div>
                 </div>
 

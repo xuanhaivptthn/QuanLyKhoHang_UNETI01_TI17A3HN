@@ -69,3 +69,9 @@ Markdown/
 
 .claude
 Migrations/
+
+# AI Agent files and workspace configurations
+.agents/
+.agent/
+AGENTS.md
+GEMINI.md
