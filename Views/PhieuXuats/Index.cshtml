@@ -1,92 +1,145 @@
+@*
+    Họ và tên: Nguyễn Việt Dũng
+    Mã sinh viên: 23103100127
+    Phụ trách Module 4: Bộ phận nhận, Phiếu xuất, Chi tiết phiếu xuất
+*@
 @model IEnumerable<QuanLyKhoHang_UNETI01_TI17A3HN.Models.PhieuXuat>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Danh sách phiếu xuất kho";
+    var currentRole = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value ?? Context.Session.GetString("VaiTro");
+    var isAdmin = User.IsInRole("Admin") || string.Equals(currentRole, "Admin", StringComparison.OrdinalIgnoreCase);
+    var canManageExports = isAdmin || User.IsInRole("NhanVienKho") || string.Equals(currentRole, "NhanVienKho", StringComparison.OrdinalIgnoreCase);
 }
 
-<h1>Index</h1>
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-1">
+                <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" class="text-decoration-none">Trang chủ</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Phiếu xuất</li>
+            </ol>
+        </nav>
+        <h3 class="fw-bold mb-0 text-dark">Quản Lý Xuất Kho Hàng Hóa</h3>
+    </div>
+    @if (canManageExports)
+    {
+        <div class="d-flex gap-2">
+            <a asp-action="Create" class="btn btn-primary d-inline-flex align-items-center gap-2">
+                <i class="bi bi-plus-lg"></i>
+                <span>Tạo phiếu xuất mới</span>
+            </a>
+        </div>
+    }
+</div>
 
-@{
-    var currentRole = Context.Session.GetString("VaiTro");
-    var isAdmin = string.Equals(currentRole, "Admin", StringComparison.OrdinalIgnoreCase);
-    var canManageExports = isAdmin || string.Equals(currentRole, "NhanVienKho", StringComparison.OrdinalIgnoreCase);
-}
-
-@if (TempData["ErrorMessage"] is string errorMessage)
-{
-    <div class="alert alert-danger" role="alert">@errorMessage</div>
-}
-@if (TempData["SuccessMessage"] is string successMessage)
-{
-    <div class="alert alert-success" role="alert">@successMessage</div>
-}
-
-@if (canManageExports)
-{
-    <p>
-        <a asp-action="Create">Tạo phiếu xuất</a>
-    </p>
-}
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.NgayXuat)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.NguoiLap)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.TrangThai)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.GhiChu)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.BoPhanNhan)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Kho)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.NgayXuat)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.NguoiLap)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.TrangThai)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.GhiChu)
-            </td>
-            <td>
-                @(item.BoPhanNhan?.TenBoPhan)
-            </td>
-            <td>
-                @(item.Kho?.TenKho)
-            </td>
-            <td>
-                <a asp-controller="ChiTietPhieuXuats" asp-action="Index" asp-route-maPhieuXuat="@item.MaPhieuXuat">Chi tiết hàng</a> |
-                <a asp-action="Details" asp-route-id="@item.MaPhieuXuat">Details</a> |
-                @if (canManageExports && (item.TrangThai == TrangThaiPhieuXuat.Nhap || isAdmin))
-                {
-                    <span> | </span>
-                    <a asp-action="Edit" asp-route-id="@item.MaPhieuXuat">Xử lý phiếu</a>
-                }
-                @if (canManageExports && item.TrangThai == TrangThaiPhieuXuat.Nhap)
-                {
-                    <span> | </span>
-                    <a asp-action="Delete" asp-route-id="@item.MaPhieuXuat">Xóa nháp</a>
-                }
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+<div class="card border-0 shadow-sm rounded-2">
+    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+        <span class="fw-semibold text-secondary">
+            <i class="bi bi-receipt-cutoff me-1"></i> Tổng số: <strong>@(Model?.Count() ?? 0)</strong> phiếu xuất
+        </span>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th class="ps-4">Mã phiếu</th>
+                        <th>Bộ phận nhận / Cửa hàng</th>
+                        <th>Kho xuất</th>
+                        <th>Ngày xuất</th>
+                        <th>Người lập</th>
+                        <th class="text-center">Số món</th>
+                        <th class="text-center">Trạng thái</th>
+                        <th class="text-end pe-4">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Any())
+                    {
+                        foreach (var item in Model)
+                        {
+                            var chiTiets = item.ChiTietPhieuXuats?.ToList() ?? new List<QuanLyKhoHang_UNETI01_TI17A3HN.Models.ChiTietPhieuXuat>();
+                            var soMon = item.SoMatHang > 0 ? item.SoMatHang : chiTiets.Count;
+                            <tr>
+                                <td class="ps-4">
+                                    <a asp-action="Details" asp-route-id="@item.MaPhieuXuat" class="fw-bold font-monospace text-danger text-decoration-none">
+                                        #PX-@item.MaPhieuXuat.ToString("D4")
+                                    </a>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <i class="bi bi-shop text-secondary"></i>
+                                        <span class="fw-semibold text-dark">@(item.BoPhanNhan?.TenBoPhan ?? "---")</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="text-dark">
+                                        <i class="bi bi-building me-1 text-secondary small"></i>@(item.Kho?.TenKho ?? "---")
+                                    </span>
+                                </td>
+                                <td class="text-muted small">
+                                    @item.NgayXuat.ToString("dd/MM/yyyy HH:mm")
+                                </td>
+                                <td>
+                                    <span class="text-muted small"><i class="bi bi-person me-1"></i>@item.NguoiLap</span>
+                                </td>
+                                <td class="text-center font-monospace text-muted">
+                                    @soMon mặt hàng
+                                </td>
+                                <td class="text-center">
+                                    @switch (item.TrangThai)
+                                    {
+                                        case TrangThaiPhieuXuat.Nhap:
+                                            <span class="badge bg-secondary">Nháp</span>
+                                            break;
+                                        case TrangThaiPhieuXuat.ChoXacNhan:
+                                            <span class="badge bg-warning text-dark">Chờ xác nhận</span>
+                                            break;
+                                        case TrangThaiPhieuXuat.DaHoanTat:
+                                            <span class="badge bg-success"><i class="bi bi-check2-circle me-1"></i> Đã hoàn tất</span>
+                                            break;
+                                        case TrangThaiPhieuXuat.DaHuy:
+                                            <span class="badge bg-danger">Đã hủy</span>
+                                            break;
+                                    }
+                                </td>
+                                <td class="text-end pe-4 text-nowrap">
+                                    <div class="d-inline-flex gap-1" role="group">
+                                        <a asp-controller="ChiTietPhieuXuats" asp-action="Index" asp-route-maPhieuXuat="@item.MaPhieuXuat" class="btn btn-outline-secondary btn-sm text-nowrap" title="Danh sách chi tiết hàng">
+                                            <i class="bi bi-list-ul me-1"></i> Chi tiết
+                                        </a>
+                                        <a asp-action="Details" asp-route-id="@item.MaPhieuXuat" class="btn btn-outline-info btn-sm text-nowrap" title="Xem hóa đơn xuất">
+                                            <i class="bi bi-eye me-1"></i> Xem phiếu
+                                        </a>
+                                        @if (canManageExports && (item.TrangThai == TrangThaiPhieuXuat.Nhap || isAdmin))
+                                        {
+                                            <a asp-action="Edit" asp-route-id="@item.MaPhieuXuat" class="btn btn-outline-primary btn-sm text-nowrap" title="Sửa thông tin phiếu xuất">
+                                                <i class="bi bi-pencil-square me-1"></i> Sửa
+                                            </a>
+                                        }
+                                        @if (canManageExports && item.TrangThai == TrangThaiPhieuXuat.Nhap)
+                                        {
+                                            <a asp-action="Delete" asp-route-id="@item.MaPhieuXuat" class="btn btn-outline-danger btn-sm text-nowrap" title="Xóa phiếu xuất nháp">
+                                                <i class="bi bi-trash me-1"></i> Xóa
+                                            </a>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="8" class="text-center text-muted py-5">
+                                <i class="bi bi-receipt-cutoff fs-1 d-block text-secondary opacity-50 mb-2"></i>
+                                Chưa có phiếu xuất kho nào.
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

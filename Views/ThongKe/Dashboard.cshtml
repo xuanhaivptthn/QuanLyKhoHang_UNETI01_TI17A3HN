@@ -1,94 +1,276 @@
-﻿@model QuanLyKhoHang_UNETI01_TI17A3HN.ViewModels.DashboardViewModel
+@*
+    Họ và tên: Nguyễn Văn Cường
+    Mã sinh viên: 23103100132
+    Phụ trách Module 5: Cảnh báo hàng tồn & Lịch sử biến động kho
+*@
+@model QuanLyKhoHang_UNETI01_TI17A3HN.ViewModels.DashboardViewModel
+@using System.Text.Json
 
 @{
-    ViewData["Title"] = "Dashboard Tổng quan";
+    ViewData["Title"] = "Dashboard Thống kê Kho Hàng";
+    decimal tongGiaTri = ViewBag.TongGiaTriTonKho != null ? (decimal)ViewBag.TongGiaTriTonKho : 0;
 }
 
-<style>
-    
-    .dashboard-card {
-        transition: transform 0.2s;
-    }
-    .dashboard-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-    }
-</style>
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-1">
+                <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" class="text-decoration-none">Trang chủ</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Dashboard</li>
+            </ol>
+        </nav>
+        <h3 class="fw-bold mb-0 text-dark">Trung Tâm Điều Hành &amp; Thống Kê Kho</h3>
+    </div>
+    <div class="d-flex gap-2">
+        <a asp-action="BaoCaoNhapXuat" class="btn btn-outline-primary d-inline-flex align-items-center gap-2">
+            <i class="bi bi-file-earmark-bar-graph"></i>
+            <span>Báo cáo tổng hợp Nhập - Xuất</span>
+        </a>
+    </div>
+</div>
 
-<div class="container-fluid mt-4">
-    <h2 class="mb-4"><i class="fas fa-chart-line"></i> Bảng Điều Khiển - Hệ thống quản lý kho vật tư</h2>
-    <div class="row">
-        <!-- Box 1: Tổng Hàng Hóa -->
-        <div class="col-md-3">
-            <a href="/HangHoas/Index" class="text-decoration-none">
-                <div class="card text-white bg-primary mb-3 dashboard-card">
-                    <div class="card-header">Tổng Hàng Hóa</div>
-                    <div class="card-body">
-                        <h3 class="card-title text-center">@Model.TongSoHangHoa</h3>
-                        <p class="text-center mb-0 mt-2" style="font-size: 0.85rem; opacity: 0.8;">Xem toàn bộ <i class="fas fa-arrow-circle-right"></i></p>
+<!-- Khối 4 Thẻ KPI Chỉ số chính -->
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-xl-3">
+        <a asp-controller="HangHoas" asp-action="Index" class="text-decoration-none">
+            <div class="card border-0 shadow-sm rounded-2 h-100 hover-lift">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span class="text-secondary small fw-semibold text-uppercase">Tổng Hàng Hóa</span>
+                        <i class="bi bi-box-seam fs-4 text-primary"></i>
                     </div>
+                    <div class="h2 fw-bold text-dark mb-1">@Model.TongSoHangHoa</div>
+                    <small class="text-muted"><i class="bi bi-arrow-right me-1"></i>Xem danh mục mặt hàng</small>
                 </div>
-            </a>
-        </div>
+            </div>
+        </a>
+    </div>
 
-        <!-- Box 2: Tổng Kho -->
-        <div class="col-md-3">
-            <a href="/Khoes/Index" class="text-decoration-none">
-                <div class="card text-white bg-success mb-3 dashboard-card">
-                    <div class="card-header">Kho Đang Hoạt Động</div>
-                    <div class="card-body">
-                        <h3 class="card-title text-center">@Model.TongSoKho</h3>
-                        <p class="text-center mb-0 mt-2" style="font-size: 0.85rem; opacity: 0.8;">Xem chi tiết <i class="fas fa-arrow-circle-right"></i></p>
+    <div class="col-sm-6 col-xl-3">
+        <a asp-controller="Khoes" asp-action="Index" class="text-decoration-none">
+            <div class="card border-0 shadow-sm rounded-2 h-100 hover-lift">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span class="text-secondary small fw-semibold text-uppercase">Kho Đang Hoạt Động</span>
+                        <i class="bi bi-building fs-4 text-success"></i>
                     </div>
+                    <div class="h2 fw-bold text-dark mb-1">@Model.TongSoKho</div>
+                    <small class="text-muted"><i class="bi bi-arrow-right me-1"></i>Hệ thống điểm kho bãi</small>
                 </div>
-            </a>
-        </div>
+            </div>
+        </a>
+    </div>
 
-        <!-- Box 3: Số Phiếu Nhập Hôm Nay -->
-        <div class="col-md-3">
-            <a href="/PhieuNhaps/Index" class="text-decoration-none">
-                <div class="card text-white bg-info mb-3 dashboard-card">
-                    <div class="card-header">Phiếu Nhập (Hôm Nay)</div>
-                    <div class="card-body">
-                        <h3 class="card-title text-center">@Model.SoPhieuNhapTrongNgay</h3>
-                        <p class="text-center mb-0 mt-2" style="font-size: 0.85rem; opacity: 0.8;">Đến trang nhập <i class="fas fa-arrow-circle-right"></i></p>
+    <div class="col-sm-6 col-xl-3">
+        <a asp-controller="PhieuNhaps" asp-action="Index" class="text-decoration-none">
+            <div class="card border-0 shadow-sm rounded-2 h-100 hover-lift">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span class="text-secondary small fw-semibold text-uppercase">Phiếu Nhập Hôm Nay</span>
+                        <i class="bi bi-box-arrow-in-down fs-4 text-info"></i>
                     </div>
+                    <div class="h2 fw-bold text-info mb-1">@Model.SoPhieuNhapTrongNgay</div>
+                    <small class="text-muted"><i class="bi bi-arrow-right me-1"></i>Quản lý nhập kho</small>
                 </div>
-            </a>
-        </div>
+            </div>
+        </a>
+    </div>
 
-        <!-- Box 4: Số Phiếu Xuất Hôm Nay -->
-        <div class="col-md-3">
-            <a href="/PhieuXuats/Index" class="text-decoration-none">
-                <div class="card text-white bg-secondary mb-3 dashboard-card">
-                    <div class="card-header">Phiếu Xuất (Hôm Nay)</div>
-                    <div class="card-body">
-                        <h3 class="card-title text-center">@Model.SoPhieuXuatTrongNgay</h3>
-                        <p class="text-center mb-0 mt-2" style="font-size: 0.85rem; opacity: 0.8;">Đến trang xuất <i class="fas fa-arrow-circle-right"></i></p>
+    <div class="col-sm-6 col-xl-3">
+        <a asp-controller="PhieuXuats" asp-action="Index" class="text-decoration-none">
+            <div class="card border-0 shadow-sm rounded-2 h-100 hover-lift">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span class="text-secondary small fw-semibold text-uppercase">Phiếu Xuất Hôm Nay</span>
+                        <i class="bi bi-box-arrow-up-right fs-4 text-danger"></i>
                     </div>
+                    <div class="h2 fw-bold text-danger mb-1">@Model.SoPhieuXuatTrongNgay</div>
+                    <small class="text-muted"><i class="bi bi-arrow-right me-1"></i>Quản lý xuất kho</small>
                 </div>
-            </a>
+            </div>
+        </a>
+    </div>
+</div>
+
+<!-- Khối Cảnh Báo Tồn Kho Khẩn Cấp -->
+<div class="row g-3 mb-4">
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm rounded-2 border-start border-danger border-4">
+            <div class="card-body p-4 d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="d-flex align-items-center gap-2 mb-1">
+                        <i class="bi bi-x-octagon-fill text-danger fs-4"></i>
+                        <h5 class="fw-bold mb-0 text-dark">Cảnh Báo Hết Hàng</h5>
+                    </div>
+                    <p class="text-muted small mb-0">Hiện có <strong>@Model.SoHangHet</strong> sản phẩm có lượng tồn bằng 0.</p>
+                </div>
+                <a asp-controller="TonKho" asp-action="CanhBao" class="btn btn-danger btn-sm text-nowrap">
+                    Xem chi tiết <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
         </div>
     </div>
 
-    <hr />
-
-    <div class="row mt-3">
-        <!-- Cảnh báo Hàng Hết -->
-        <div class="col-md-6">
-            <div class="alert alert-danger shadow-sm">
-                <h4><i class="fas fa-exclamation-triangle"></i> Cảnh Báo Hết Hàng</h4>
-                <p class="mb-0">Hiện tại có <strong>@Model.SoHangHet</strong> sản phẩm có số lượng tồn bằng 0.</p>
-                <a href="/TonKho/CanhBao" class="btn btn-sm btn-danger mt-2">Xem chi tiết</a>
-            </div>
-        </div>
-        <!-- Cảnh báo Hàng Sắp Hết -->
-        <div class="col-md-6">
-            <div class="alert alert-warning shadow-sm">
-                <h4><i class="fas fa-exclamation-circle"></i> Cảnh Báo Hàng Sắp Hết</h4>
-                <p class="mb-0">Hiện tại có <strong>@Model.SoHangSapHet</strong> sản phẩm đã chạm mức tồn tối thiểu.</p>
-                <a href="/TonKho/CanhBao" class="btn btn-sm btn-warning mt-2">Xem chi tiết</a>
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm rounded-2 border-start border-warning border-4">
+            <div class="card-body p-4 d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="d-flex align-items-center gap-2 mb-1">
+                        <i class="bi bi-exclamation-triangle-fill text-warning fs-4"></i>
+                        <h5 class="fw-bold mb-0 text-dark">Cảnh Báo Sắp Hết Hàng</h5>
+                    </div>
+                    <p class="text-muted small mb-0">Hiện có <strong>@Model.SoHangSapHet</strong> sản phẩm chạm hoặc dưới mức tối thiểu.</p>
+                </div>
+                <a asp-controller="TonKho" asp-action="CanhBao" class="btn btn-warning btn-sm text-dark text-nowrap">
+                    Xem chi tiết <i class="bi bi-arrow-right"></i>
+                </a>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Hàng Biểu Đồ Trực Quan -->
+<div class="row g-4 mb-4">
+    <!-- Biểu đồ cột: So sánh Nhập - Xuất 7 ngày gần nhất -->
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm rounded-2 h-100">
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                <h5 class="fw-bold mb-0 text-dark">
+                    <i class="bi bi-bar-chart-line-fill text-primary me-2"></i> Xu Hướng Nhập &amp; Xuất (7 Ngày Gần Nhất)
+                </h5>
+                <span class="badge bg-light text-secondary border">Chứng từ</span>
+            </div>
+            <div class="card-body p-4">
+                <div style="position: relative; height: 320px; width: 100%;">
+                    <canvas id="barChartNhapXuat"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Biểu đồ tròn: Cơ cấu theo loại hàng -->
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm rounded-2 h-100">
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                <h5 class="fw-bold mb-0 text-dark">
+                    <i class="bi bi-pie-chart-fill text-success me-2"></i> Cơ Cấu Theo Loại Hàng
+                </h5>
+                <span class="badge bg-light text-secondary border">Danh mục</span>
+            </div>
+            <div class="card-body p-4">
+                <div style="position: relative; height: 320px; width: 100%;">
+                    <canvas id="pieChartLoaiHang"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Thống kê Giá Trị Kho Hàng -->
+<div class="card border-0 shadow-sm rounded-2 mb-4 bg-light">
+    <div class="card-body p-4 d-flex align-items-center justify-content-between flex-wrap gap-3">
+        <div class="d-flex align-items-center gap-3">
+            <i class="bi bi-cash-stack fs-1 text-primary"></i>
+            <div>
+                <h5 class="fw-bold mb-1 text-dark">Tổng Trị Giá Hàng Hóa Tồn Kho Ước Tính</h5>
+                <small class="text-muted">Tính theo công thức: &Sigma; (Số lượng tồn &times; Giá nhập tham khảo)</small>
+            </div>
+        </div>
+        <div class="text-end">
+            <div class="fs-3 fw-bold text-primary font-monospace">@tongGiaTri.ToString("#,##0") VNĐ</div>
+            <span class="badge bg-success-subtle text-success border border-success-subtle">
+                <i class="bi bi-shield-check me-1"></i> Đối soát tài chính kho
+            </span>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/lib/chartjs/chart.umd.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Dữ liệu từ controller
+            const daysLabels = @Html.Raw(JsonSerializer.Serialize(ViewBag.ChartDaysLabels ?? new List<string>()));
+            const nhapData = @Html.Raw(JsonSerializer.Serialize(ViewBag.ChartNhapData ?? new List<int>()));
+            const xuatData = @Html.Raw(JsonSerializer.Serialize(ViewBag.ChartXuatData ?? new List<int>()));
+
+            const loaiLabels = @Html.Raw(JsonSerializer.Serialize(ViewBag.LoaiHangLabels ?? new List<string>()));
+            const loaiData = @Html.Raw(JsonSerializer.Serialize(ViewBag.LoaiHangData ?? new List<int>()));
+
+            // 1. Biểu đồ Bar Nhập - Xuất
+            const ctxBar = document.getElementById("barChartNhapXuat");
+            if (ctxBar) {
+                new Chart(ctxBar, {
+                    type: 'bar',
+                    data: {
+                        labels: daysLabels.length ? daysLabels : ['Hôm nay'],
+                        datasets: [
+                            {
+                                label: 'Phiếu Nhập',
+                                data: nhapData.length ? nhapData : [0],
+                                backgroundColor: 'rgba(37, 99, 235, 0.85)',
+                                borderColor: '#2563eb',
+                                borderWidth: 1,
+                                borderRadius: 6
+                            },
+                            {
+                                label: 'Phiếu Xuất',
+                                data: xuatData.length ? xuatData : [0],
+                                backgroundColor: 'rgba(239, 68, 68, 0.85)',
+                                borderColor: '#ef4444',
+                                borderWidth: 1,
+                                borderRadius: 6
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    stepSize: 1
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // 2. Biểu đồ Doughnut / Pie Loại Hàng
+            const ctxPie = document.getElementById("pieChartLoaiHang");
+            if (ctxPie) {
+                const backgroundColors = [
+                    '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4', '#64748b'
+                ];
+                new Chart(ctxPie, {
+                    type: 'doughnut',
+                    data: {
+                        labels: loaiLabels.length ? loaiLabels : ['Chưa có loại'],
+                        datasets: [{
+                            data: loaiData.length ? loaiData : [1],
+                            backgroundColor: backgroundColors.slice(0, loaiLabels.length || 1),
+                            borderWidth: 2,
+                            borderColor: '#ffffff'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                            }
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+}

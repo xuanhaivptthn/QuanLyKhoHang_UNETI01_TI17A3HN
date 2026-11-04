@@ -1,82 +1,138 @@
+@*
+    Họ và tên: Nguyễn Việt Dũng
+    Mã sinh viên: 23103100127
+    Phụ trách Module 4: Bộ phận nhận, Phiếu xuất, Chi tiết phiếu xuất
+*@
 @model IEnumerable<QuanLyKhoHang_UNETI01_TI17A3HN.Models.BoPhanNhan>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Danh sách Bộ phận nhận hàng";
 }
 
-<h1>Index</h1>
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-1">
+                <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" class="text-decoration-none">Trang chủ</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Bộ phận nhận</li>
+            </ol>
+        </nav>
+        <h3 class="fw-bold mb-0 text-dark">Quản Lý Bộ Phận Nhận / Điểm Bán</h3>
+    </div>
+    <a asp-action="Create" class="btn btn-primary d-inline-flex align-items-center gap-2">
+        <i class="bi bi-plus-lg"></i>
+        <span>Thêm bộ phận mới</span>
+    </a>
+</div>
 
-@if (TempData["ErrorMessage"] is string errorMessage)
-{
-    <div class="alert alert-danger" role="alert">@errorMessage</div>
-}
-@if (TempData["SuccessMessage"] is string successMessage)
-{
-    <div class="alert alert-success" role="alert">@successMessage</div>
-}
+<!-- Bộ lọc tìm kiếm -->
+<div class="card border-0 shadow-sm rounded-2 mb-4">
+    <div class="card-body p-3">
+        <form asp-action="Index" method="get" class="row g-2 align-items-end">
+            <div class="col-md-5">
+                <label for="searchString" class="form-label small fw-semibold text-secondary">Tìm kiếm</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
+                    <input id="searchString" name="searchString" value="@ViewData["SearchString"]" class="form-control border-start-0" placeholder="Tên bộ phận, người đại diện hoặc số điện thoại..." />
+                </div>
+            </div>
+            <div class="col-md-3">
+                <label for="trangThai" class="form-label small fw-semibold text-secondary">Trạng thái</label>
+                <select id="trangThai" name="trangThai" class="form-select" asp-items="ViewBag.TrangThaiFilter"></select>
+            </div>
+            <div class="col-md-auto d-flex gap-2">
+                <button type="submit" class="btn btn-primary d-inline-flex align-items-center gap-1">
+                    <i class="bi bi-funnel-fill"></i> Lọc dữ liệu
+                </button>
+                <a asp-action="Index" class="btn btn-outline-secondary d-inline-flex align-items-center gap-1">
+                    <i class="bi bi-arrow-counterclockwise"></i> Xóa lọc
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<form asp-action="Index" method="get" class="row g-2 mb-3">
-    <div class="col-md-5">
-        <label for="searchString" class="form-label">Tìm theo tên bộ phận, người đại diện hoặc số điện thoại</label>
-        <input id="searchString" name="searchString" value="@ViewData["SearchString"]" class="form-control" />
+<div class="card border-0 shadow-sm rounded-2">
+    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+        <span class="fw-semibold text-secondary">
+            <i class="bi bi-shop me-1"></i> Tổng số: <strong>@(Model?.Count() ?? 0)</strong> đơn vị nhận
+        </span>
     </div>
-    <div class="col-md-3">
-        <label for="trangThai" class="form-label">Trạng thái</label>
-        <select id="trangThai" name="trangThai" class="form-select" asp-items="ViewBag.TrangThaiFilter"></select>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th class="ps-4">Tên bộ phận / Cửa hàng</th>
+                        <th>Người đại diện</th>
+                        <th>Số điện thoại</th>
+                        <th>Mô tả / Ghi chú</th>
+                        <th class="text-center">Trạng thái</th>
+                        <th class="text-end pe-4">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Any())
+                    {
+                        foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="ps-4">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <i class="bi bi-shop text-secondary fs-5"></i>
+                                        <div>
+                                            <strong class="text-dark d-block">@item.TenBoPhan</strong>
+                                            <small class="text-muted font-monospace">#BPN-@item.MaBoPhan</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="fw-semibold text-secondary"><i class="bi bi-person me-1"></i>@(string.IsNullOrEmpty(item.NguoiDaiDien) ? "---" : item.NguoiDaiDien)</span>
+                                </td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(item.SoDienThoai))
+                                    {
+                                        <a href="tel:@item.SoDienThoai" class="text-decoration-none text-muted small"><i class="bi bi-telephone text-success me-1"></i>@item.SoDienThoai</a>
+                                    }
+                                    else { <span class="text-muted small">---</span> }
+                                </td>
+                                <td>
+                                    <span class="text-muted small">@(string.IsNullOrEmpty(item.MoTa) ? "---" : item.MoTa)</span>
+                                </td>
+                                <td class="text-center">
+                                    @if (item.TrangThai)
+                                    {
+                                        <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i> Hoạt động</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">Ngừng HĐ</span>
+                                    }
+                                </td>
+                                <td class="text-end pe-4 text-nowrap">
+                                    <div class="d-inline-flex gap-1" role="group">
+                                        <a asp-action="Details" asp-route-id="@item.MaBoPhan" class="btn btn-outline-info btn-sm text-nowrap" title="Xem chi tiết bộ phận">
+                                            <i class="bi bi-eye me-1"></i> Chi tiết
+                                        </a>
+                                        <a asp-action="Edit" asp-route-id="@item.MaBoPhan" class="btn btn-outline-primary btn-sm text-nowrap" title="Sửa thông tin bộ phận">
+                                            <i class="bi bi-pencil-square me-1"></i> Sửa
+                                        </a>
+                                        <a asp-action="Delete" asp-route-id="@item.MaBoPhan" class="btn btn-outline-danger btn-sm text-nowrap" title="Ngừng hoạt động bộ phận nhận">
+                                            <i class="bi bi-trash me-1"></i> Ngừng HĐ
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="6" class="text-center text-muted py-4">Chưa có bộ phận nhận nào phù hợp.</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
     </div>
-    <div class="col-md-auto align-self-end">
-        <button type="submit" class="btn btn-primary">Tìm kiếm</button>
-        <a asp-action="Index" class="btn btn-secondary">Xóa lọc</a>
-    </div>
-</form>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.TenBoPhan)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.NguoiDaiDien)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.SoDienThoai)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.MoTa)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.TrangThai)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.TenBoPhan)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.NguoiDaiDien)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.SoDienThoai)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.MoTa)
-            </td>
-            <td>
-                @(item.TrangThai ? "Đang hoạt động" : "Ngừng hoạt động")
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.MaBoPhan">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.MaBoPhan">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.MaBoPhan">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+</div>

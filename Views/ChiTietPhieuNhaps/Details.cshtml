@@ -1,78 +1,84 @@
+@*
+    Họ và tên: Lê Văn Hùng
+    Mã sinh viên: 23103100177
+    Phụ trách Module 3: Nhà cung cấp, Phiếu nhập, Chi tiết phiếu nhập
+*@
 @model QuanLyKhoHang_UNETI01_TI17A3HN.Models.ChiTietPhieuNhap
 
 @{
-    ViewData["Title"] = "Chi tiết dòng nhập";
-    var currentRole = Context.Session.GetString("VaiTro");
-    var isAdmin = string.Equals(currentRole, "Admin", StringComparison.OrdinalIgnoreCase);
-    var isWarehouseStaff = string.Equals(currentRole, "NhanVienKho", StringComparison.OrdinalIgnoreCase);
+    ViewData["Title"] = "Chi tiết mặt hàng nhập";
+    var currentUserRole = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value ?? Context.Session.GetString("VaiTro");
+    var isAdmin = User.IsInRole("Admin") || string.Equals(currentUserRole, "Admin", StringComparison.OrdinalIgnoreCase);
+    var isWarehouseStaff = User.IsInRole("NhanVienKho") || string.Equals(currentUserRole, "NhanVienKho", StringComparison.OrdinalIgnoreCase);
     var canManage = isAdmin || isWarehouseStaff;
+    var canEdit = canManage && (Model.PhieuNhap?.TrangThai == TrangThaiPhieuNhap.Nhap || Model.PhieuNhap?.TrangThai == TrangThaiPhieuNhap.ChoXacNhan);
 }
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h2><i class="bi bi-bag-check"></i> Chi tiết dòng nhập hàng</h2>
-    <div>
-        <a asp-controller="PhieuNhaps" asp-action="Details" asp-route-id="@Model.MaPhieuNhap" class="btn btn-outline-secondary btn-sm">
-            <i class="bi bi-arrow-left"></i> Quay lại phiếu nhập
-        </a>
-    </div>
-</div>
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="page-header">
+            <div>
+                <h2 class="page-title"><i class="bi bi-box-arrow-in-down text-success"></i> Chi Tiết Hàng Nhập Kho</h2>
+                <p class="page-subtitle">Thông tin dòng nhập trong phiếu PN@(Model.MaPhieuNhap.ToString("D4"))</p>
+            </div>
+            <div>
+                <a asp-controller="PhieuNhaps" asp-action="Details" asp-route-id="@Model.MaPhieuNhap" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Quay lại phiếu nhập
+                </a>
+            </div>
+        </div>
 
-<div class="row g-3">
-    <div class="col-lg-7">
-        <div class="card shadow-sm h-100">
-            <div class="card-header bg-light fw-bold">Thông tin chi tiết nhập</div>
-            <div class="card-body">
-                <dl class="row mb-0">
+        <div class="card border-0 shadow-sm rounded-2">
+            <div class="card-body p-4">
+                <dl class="row gy-3 mb-0">
                     <dt class="col-sm-4 text-muted">Mã chi tiết:</dt>
-                    <dd class="col-sm-8 fw-semibold">CTN@(Model.MaChiTietNhap.ToString("D4"))</dd>
+                    <dd class="col-sm-8 font-monospace fw-bold text-secondary">CTN@(Model.MaChiTietNhap.ToString("D4"))</dd>
 
-                    <dt class="col-sm-4 text-muted">Phiếu nhập:</dt>
-                    <dd class="col-sm-8">
+                    <dt class="col-sm-4 text-muted">Mã phiếu nhập:</dt>
+                    <dd class="col-sm-8 font-monospace fw-bold text-primary">
                         <a asp-controller="PhieuNhaps" asp-action="Details" asp-route-id="@Model.MaPhieuNhap" class="text-decoration-none">
-                            PN@(Model.MaPhieuNhap.ToString("D4"))
+                            #PN-@Model.MaPhieuNhap
                         </a>
                     </dd>
 
-                    <dt class="col-sm-4 text-muted">Mã hàng:</dt>
-                    <dd class="col-sm-8">@(Model.HangHoa?.MaHang ?? Model.MaHang)</dd>
-
-                    <dt class="col-sm-4 text-muted">Tên hàng:</dt>
-                    <dd class="col-sm-8 fw-semibold">@(Model.HangHoa?.TenHang ?? "Mặt hàng #" + Model.MaHang)</dd>
+                    <dt class="col-sm-4 text-muted">Mặt hàng:</dt>
+                    <dd class="col-sm-8 fw-bold">@(Model.HangHoa?.TenHang ?? "Mặt hàng #" + Model.MaHang)</dd>
 
                     <dt class="col-sm-4 text-muted">Số lượng nhập:</dt>
-                    <dd class="col-sm-8 fw-semibold text-primary">@Model.SoLuongNhap</dd>
+                    <dd class="col-sm-8 font-monospace fw-bold fs-6 text-success">@Model.SoLuongNhap</dd>
 
                     <dt class="col-sm-4 text-muted">Đơn giá nhập:</dt>
-                    <dd class="col-sm-8 text-success fw-semibold">@Model.DonGiaNhap.ToString("N0") VNĐ</dd>
+                    <dd class="col-sm-8 text-primary fw-semibold">@Model.DonGiaNhap.ToString("#,##0") VNĐ</dd>
 
                     <dt class="col-sm-4 text-muted">Thành tiền:</dt>
-                    <dd class="col-sm-8 text-success fw-bold">@Model.ThanhTien.ToString("N0") VNĐ</dd>
+                    <dd class="col-sm-8 text-success fw-bold fs-5">@Model.ThanhTien.ToString("#,##0") VNĐ</dd>
+
+                    <dt class="col-sm-4 text-muted">Người lập phiếu:</dt>
+                    <dd class="col-sm-8">@(Model.PhieuNhap?.NguoiLap ?? "---")</dd>
                 </dl>
             </div>
-        </div>
-    </div>
-
-    <div class="col-lg-5">
-        <div class="card shadow-sm h-100">
-            <div class="card-header bg-light fw-bold">Thao tác</div>
-            <div class="card-body d-flex flex-column gap-2">
-                @if (canManage && (Model.PhieuNhap?.TrangThai == TrangThaiPhieuNhap.Nhap || Model.PhieuNhap?.TrangThai == TrangThaiPhieuNhap.ChoXacNhan))
-                {
-                    <a asp-action="Edit" asp-route-id="@Model.MaChiTietNhap" class="btn btn-primary">
-                        <i class="bi bi-pencil-square"></i> Sửa dòng nhập
+            <div class="card-footer bg-light p-3 d-flex justify-content-between align-items-center">
+                <div>
+                    @if (!canEdit)
+                    {
+                        <span class="text-muted small"><i class="bi bi-lock-fill me-1"></i> Dòng nhập đã khóa theo trạng thái phiếu</span>
+                    }
+                </div>
+                <div class="d-flex gap-2">
+                    @if (canEdit)
+                    {
+                        <a asp-action="Edit" asp-route-id="@Model.MaChiTietNhap" class="btn btn-primary">
+                            <i class="bi bi-pencil-square"></i> Chỉnh sửa
+                        </a>
+                        <a asp-action="Delete" asp-route-id="@Model.MaChiTietNhap" class="btn btn-outline-danger">
+                            <i class="bi bi-trash"></i> Xóa
+                        </a>
+                    }
+                    <a asp-controller="PhieuNhaps" asp-action="Details" asp-route-id="@Model.MaPhieuNhap" class="btn btn-outline-secondary">
+                        Quay lại
                     </a>
-                    <a asp-action="Delete" asp-route-id="@Model.MaChiTietNhap" class="btn btn-outline-danger">
-                        <i class="bi bi-trash"></i> Xóa dòng nhập
-                    </a>
-                }
-                else
-                {
-                    <div class="alert alert-light mb-0 border">
-                        Dòng nhập này đã được khóa do phiếu đã ở trạng thái không cho phép sửa.
-                    </div>
-                }
+                </div>
             </div>
         </div>
     </div>
 </div>
-

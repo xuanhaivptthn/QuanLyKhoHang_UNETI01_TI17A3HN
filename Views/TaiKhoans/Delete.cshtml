@@ -1,45 +1,69 @@
-@* // Họ và tên: Trần Xuân Hải // MSSV: 23103100135 *@
 @*
     Họ và tên: Trần Xuân Hải
     Mã sinh viên: 23103100135
-    Phụ trách Module 1: Giao diện xác nhận xóa tài khoản người dùng
+    Phụ trách Module 1: Tài khoản & Đăng nhập
 *@
 @model QuanLyKhoHang_UNETI01_TI17A3HN.Models.TaiKhoan
 
 @{
-    ViewData["Title"] = "Xóa Tài khoản";
+    ViewData["Title"] = "Xác nhận xóa tài khoản";
 }
 
-<div class="container mt-4">
-    <div class="card col-md-6 mx-auto p-4 shadow-sm border border-danger">
-        <h4 class="card-title text-center text-danger mb-2">Xác nhận Xóa Tài khoản</h4>
-        <p class="text-center text-muted small mb-3">Bạn có chắc chắn muốn xóa vĩnh viễn tài khoản này không?</p>
-        <hr class="mt-0 mb-3" />
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card border-danger shadow-sm rounded-2 overflow-hidden">
+            <div class="card-header bg-danger text-white p-3 d-flex align-items-center gap-2">
+                <i class="bi bi-exclamation-triangle-fill fs-4"></i>
+                <h5 class="mb-0 fw-bold">Xác Nhận Xóa Tài Khoản</h5>
+            </div>
+            <div class="card-body p-4">
+                <p class="text-danger fw-semibold">
+                    Bạn có chắc chắn muốn xóa vĩnh viễn tài khoản này không? Thao tác này sẽ hủy quyền truy cập của người dùng tương ứng.
+                </p>
 
-        <dl class="row mb-0">
-            <dt class="col-sm-4 text-muted">Mã tài khoản:</dt>
-            <dd class="col-sm-8 fw-semibold">#@Model.MaTaiKhoan</dd>
+                <div class="bg-light p-3 rounded-2 border mb-4">
+                    <dl class="row gy-2 mb-0">
+                        <dt class="col-sm-4 text-muted">Mã tài khoản:</dt>
+                        <dd class="col-sm-8 font-monospace fw-bold">#@Model.MaTaiKhoan</dd>
 
-            <dt class="col-sm-4 text-muted">Tên đăng nhập:</dt>
-            <dd class="col-sm-8 fw-bold">@Model.TenDangNhap</dd>
+                        <dt class="col-sm-4 text-muted">Tên đăng nhập:</dt>
+                        <dd class="col-sm-8 fw-bold">@Model.TenDangNhap</dd>
 
-            <dt class="col-sm-4 text-muted">Họ và tên:</dt>
-            <dd class="col-sm-8">@Model.HoTen</dd>
+                        <dt class="col-sm-4 text-muted">Họ và tên:</dt>
+                        <dd class="col-sm-8">@Model.HoTen</dd>
 
-            <dt class="col-sm-4 text-muted">Email:</dt>
-            <dd class="col-sm-8">@Model.Email</dd>
+                        <dt class="col-sm-4 text-muted">Email:</dt>
+                        <dd class="col-sm-8">@(string.IsNullOrEmpty(Model.Email) ? "---" : Model.Email)</dd>
 
-            <dt class="col-sm-4 text-muted">Vai trò:</dt>
-            <dd class="col-sm-8"><span class="badge bg-secondary">@Model.VaiTro</span></dd>
+                        <dt class="col-sm-4 text-muted">Vai trò:</dt>
+                        <dd class="col-sm-8">
+                            <span class="badge @(Model.VaiTro == "Admin" ? "bg-danger" : "bg-primary")">@Model.VaiTro</span>
+                        </dd>
 
-            <dt class="col-sm-4 text-muted">Trạng thái:</dt>
-            <dd class="col-sm-8">@(Model.TrangThai ? "Đang hoạt động" : "Bị khóa")</dd>
-        </dl>
+                        <dt class="col-sm-4 text-muted">Trạng thái:</dt>
+                        <dd class="col-sm-8">
+                            @if (Model.TrangThai)
+                            {
+                                <span class="badge bg-success">Đang hoạt động</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger">Bị khóa / Ngừng hoạt động</span>
+                            }
+                        </dd>
+                    </dl>
+                </div>
 
-        <form asp-action="Delete" method="post" class="text-center mt-4 pt-3 border-top">
-            <input type="hidden" asp-for="MaTaiKhoan" />
-            <button type="submit" class="btn btn-danger btn-sm me-2">Xác nhận xóa</button>
-            <a asp-action="Index" class="btn btn-outline-secondary btn-sm">Hủy bỏ</a>
-        </form>
+                <form asp-action="Delete" method="post" class="d-flex justify-content-end gap-2">
+                    <input type="hidden" asp-for="MaTaiKhoan" />
+                    <a asp-action="Index" class="btn btn-outline-secondary">
+                        <i class="bi bi-x-circle"></i> Hủy bỏ
+                    </a>
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash-fill"></i> Xác nhận xóa
+                    </button>
+                </form>
+            </div>
+        </div>
     </div>
 </div>
