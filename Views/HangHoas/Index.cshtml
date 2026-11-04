@@ -72,6 +72,7 @@
 <table class="table">
     <thead>
         <tr>
+            <th>Mã hàng</th>
             <th>
                 @Html.DisplayNameFor(model => model.TenHang)
             </th>
@@ -100,6 +101,7 @@
     <tbody>
 @foreach (var item in Model) {
         <tr>
+            <td>@item.MaHang</td>
             <td>
                 @Html.DisplayFor(modelItem => item.TenHang)
             </td>
@@ -171,7 +173,7 @@
             <li class="page-item @(currentPage <= 1 ? "disabled" : "")">
                 <a class="page-link" asp-action="Index" asp-all-route-data="routeFor(currentPage - 1)">Trước</a>
             </li>
-            @for (int i = 1; i <= totalPages; i++)
+            @for (int i = 1; i <= totalPages; i++)      
             {
                 <li class="page-item @(i == currentPage ? "active" : "")">
                     <a class="page-link" asp-action="Index" asp-all-route-data="routeFor(i)">@i</a>

@@ -3,8 +3,8 @@
 @{
     ViewData["Title"] = "Chi tiết phiếu nhập #" + Model.MaPhieuNhap;
     var currentRole = Context.Session.GetString("VaiTro");
-    var isAdmin = string.Equals(currentRole, "Admin", StringComparison.OrdinalIgnoreCase);
-    var isWarehouseStaff = string.Equals(currentRole, "NhanVienKho", StringComparison.OrdinalIgnoreCase);
+    var isAdmin = User.IsInRole("Admin") || string.Equals(currentRole, "Admin", StringComparison.OrdinalIgnoreCase);
+    var isWarehouseStaff = User.IsInRole("NhanVienKho") || string.Equals(currentRole, "NhanVienKho", StringComparison.OrdinalIgnoreCase);
     var canManage = isAdmin || isWarehouseStaff;
 }
 
@@ -84,7 +84,7 @@
                 @if (canManage)
                 {
                     <div class="mt-3 pt-3 border-top d-flex flex-wrap gap-2">
-                        @if (Model.TrangThai == TrangThaiPhieuNhap.Nhap || Model.TrangThai == TrangThaiPhieuNhap.ChoXacNhan)
+                        @if (isAdmin && (Model.TrangThai == TrangThaiPhieuNhap.Nhap || Model.TrangThai == TrangThaiPhieuNhap.ChoXacNhan))
                         {
                             <form asp-action="HoanTat" asp-route-id="@Model.MaPhieuNhap" method="post" class="d-inline" onsubmit="return confirm('Xác nhận hoàn tất phiếu nhập này? Số lượng tồn kho sẽ được cộng dồn.');">
                                 @Html.AntiForgeryToken()
@@ -93,6 +93,14 @@
                                 </button>
                             </form>
 
+                        }
+                        else if (isWarehouseStaff && (Model.TrangThai == TrangThaiPhieuNhap.Nhap || Model.TrangThai == TrangThaiPhieuNhap.ChoXacNhan))
+                        {
+                            <span class="text-muted small align-self-center">Phiếu đang chờ Admin duyệt hoàn tất.</span>
+                        }
+
+                        @if (Model.TrangThai == TrangThaiPhieuNhap.Nhap || Model.TrangThai == TrangThaiPhieuNhap.ChoXacNhan)
+                        {
                             <form asp-action="HuyPhieu" asp-route-id="@Model.MaPhieuNhap" method="post" class="d-inline" onsubmit="return confirm('Bạn có chắc chắn muốn hủy phiếu nhập này?');">
                                 @Html.AntiForgeryToken()
                                 <button type="submit" class="btn btn-outline-danger btn-sm">

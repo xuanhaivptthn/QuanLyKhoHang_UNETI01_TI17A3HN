@@ -2,6 +2,8 @@
 
 @{
     ViewData["Title"] = "Index";
+    var currentRole = Context.Session.GetString("VaiTro");
+    var isAdmin = User.IsInRole("Admin") || string.Equals(currentRole, "Admin", StringComparison.OrdinalIgnoreCase);
 }
 
 <h1>Index</h1>
@@ -130,6 +132,13 @@
                     <a asp-action="Edit" asp-route-id="@item.MaPhieuNhap">Edit</a> |
                     <a asp-action="Details" asp-route-id="@item.MaPhieuNhap">Details</a> |
                     <a asp-action="Delete" asp-route-id="@item.MaPhieuNhap">Delete</a>
+                    @if (isAdmin && (item.TrangThai == TrangThaiPhieuNhap.Nhap || item.TrangThai == TrangThaiPhieuNhap.ChoXacNhan))
+                    {
+                        <form asp-action="HoanTat" asp-route-id="@item.MaPhieuNhap" method="post" class="d-inline ms-2" onsubmit="return confirm('Xác nhận duyệt hoàn tất phiếu nhập này?');">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-sm btn-success">Duyệt hoàn tất</button>
+                        </form>
+                    }
                 </td>
             </tr>
 }
