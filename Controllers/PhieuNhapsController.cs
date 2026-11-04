@@ -211,6 +211,11 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("MaPhieuNhap,MaNhaCungCap,MaKho,NgayNhap,NguoiLap,TrangThai,GhiChu")] PhieuNhap phieuNhap)
         {
+            if (phieuNhap.TrangThai == TrangThaiPhieuNhap.DaHoanTat)
+            {
+                ModelState.AddModelError(nameof(phieuNhap.TrangThai), "Phiếu mới chỉ được tạo ở trạng thái Nháp hoặc Chờ xác nhận. Admin duyệt hoàn tất sau khi phiếu đã được lập.");
+            }
+
             if (ModelState.IsValid)
             {
                 _context.Add(phieuNhap);
@@ -237,7 +242,7 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
                 return NotFound();
             }
 
-            var isAdmin = string.Equals(HttpContext.Session.GetString("VaiTro"), "Admin", StringComparison.OrdinalIgnoreCase);
+            var isAdmin = User.IsInRole("Admin") || string.Equals(HttpContext.Session.GetString("VaiTro"), "Admin", StringComparison.OrdinalIgnoreCase);
             var isEditableStatus = phieuNhap.TrangThai == TrangThaiPhieuNhap.Nhap || phieuNhap.TrangThai == TrangThaiPhieuNhap.ChoXacNhan;
             if (!(isEditableStatus || (isAdmin && phieuNhap.TrangThai != TrangThaiPhieuNhap.DaHoanTat && phieuNhap.TrangThai != TrangThaiPhieuNhap.DaHuy)))
             {
@@ -266,7 +271,12 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
                 return NotFound();
             }
 
-            var isAdmin = string.Equals(HttpContext.Session.GetString("VaiTro"), "Admin", StringComparison.OrdinalIgnoreCase);
+            var isAdmin = User.IsInRole("Admin") || string.Equals(HttpContext.Session.GetString("VaiTro"), "Admin", StringComparison.OrdinalIgnoreCase);
+            if (!isAdmin && phieuNhap.TrangThai == TrangThaiPhieuNhap.DaHoanTat)
+            {
+                ModelState.AddModelError(nameof(phieuNhap.TrangThai), "Nhân viên kho chỉ được chuyển phiếu sang trạng thái Chờ xác nhận. Admin mới được duyệt hoàn tất.");
+            }
+
             var isEditableStatus = existing.TrangThai == TrangThaiPhieuNhap.Nhap || existing.TrangThai == TrangThaiPhieuNhap.ChoXacNhan;
             if (!(isEditableStatus || (isAdmin && existing.TrangThai != TrangThaiPhieuNhap.DaHoanTat && existing.TrangThai != TrangThaiPhieuNhap.DaHuy)))
             {
@@ -397,6 +407,7 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
         // POST: PhieuNhaps/HoanTat/5
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [AuthorizeRole("Admin")]
         public async Task<IActionResult> HoanTat(int id)
         {
             var phFull = await _context.PhieuNhap
