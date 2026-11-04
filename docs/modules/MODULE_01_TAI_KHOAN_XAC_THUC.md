@@ -112,6 +112,8 @@ erDiagram
 | 11 | **Quản lý Loại hàng** | `/LoaiHangs/*` (CRUD) | `GET`, `POST` | **Admin**, **NhanVienKho** | Quản lý danh mục ngành hàng: Chặn trùng tên, chặn xóa vật lý nếu đã có hàng hóa liên kết để bảo vệ toàn vẹn khóa ngoại. |
 | 12 | **Quản lý Đơn vị tính** | `/DonViTinhs/*` (CRUD) | `GET`, `POST` | **Admin**, **NhanVienKho** | Quản lý danh mục ĐVT: Chặn trùng tên đơn vị tính, chặn xóa vật lý nếu đã có mặt hàng sử dụng. |
 | 13 | **Trang từ chối quyền** | `/Home/AccessDenied` | `GET` | Mọi người dùng | Hiển thị thông báo HTTP 403 Forbidden thân thiện khi tài khoản không có quyền thao tác trên action yêu cầu. |
+| 14 | **Đặt lại mật khẩu mặc định nhanh** | `/TaiKhoans/ResetPasswordQuick` | `POST` | **Admin** | Đặt lại mật khẩu về mặc định (`123456@`) tức thì bằng AJAX, băm bảo mật qua `PasswordHasher<TaiKhoan>`, reset bộ đếm lockout và phản hồi tức thì không cần mở form Edit. |
+| 15 | **Bật/Tắt trạng thái tài khoản** | `/TaiKhoans/DoiTrangThai` | `POST` | **Admin** | Chuyển đổi trạng thái `TrangThai` (Hoạt động / Bị khóa) trực tiếp trên danh sách bằng Bootstrap Switch AJAX không reload trang; chặn Admin tự khóa chính mình hoặc khóa tài khoản Admin hoạt động duy nhất. |
 
 ---
 
