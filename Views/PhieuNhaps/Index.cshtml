@@ -7,6 +7,8 @@
 
 @{
     ViewData["Title"] = "Danh sách phiếu nhập kho";
+    var currentRole = Context.Session.GetString("VaiTro");
+    var isAdmin = User.IsInRole("Admin") || string.Equals(currentRole, "Admin", StringComparison.OrdinalIgnoreCase);
     int currentPage = ViewBag.CurrentPage ?? 1;
     int totalPages = ViewBag.TotalPages ?? 0;
     var routeFor = new Func<int, Dictionary<string, string?>>(page => new Dictionary<string, string?>
@@ -185,6 +187,15 @@
                                         </a>
                                         @if (item.TrangThai == TrangThaiPhieuNhap.Nhap || item.TrangThai == TrangThaiPhieuNhap.ChoXacNhan)
                                         {
+                                            @if (isAdmin)
+                                            {
+                                                <form asp-action="HoanTat" asp-route-id="@item.MaPhieuNhap" method="post" class="d-inline" onsubmit="return confirm('Xác nhận duyệt hoàn tất phiếu nhập này?');">
+                                                    @Html.AntiForgeryToken()
+                                                    <button type="submit" class="btn btn-outline-success btn-sm text-nowrap" title="Duyệt hoàn tất">
+                                                        <i class="bi bi-check-circle me-1"></i> Duyệt hoàn tất
+                                                    </button>
+                                                </form>
+                                            }
                                             <a asp-action="Edit" asp-route-id="@item.MaPhieuNhap" class="btn btn-outline-primary btn-sm text-nowrap" title="Sửa thông tin phiếu">
                                                 <i class="bi bi-pencil-square me-1"></i> Sửa
                                             </a>

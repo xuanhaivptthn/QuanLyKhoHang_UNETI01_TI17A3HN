@@ -14,7 +14,7 @@
 
     var chiTiets = Model.ChiTietPhieuNhaps?.ToList() ?? new List<QuanLyKhoHang_UNETI01_TI17A3HN.Models.ChiTietPhieuNhap>();
     decimal tongTien = Model.TongTienNhap > 0 ? Model.TongTienNhap : chiTiets.Sum(c => (decimal)c.SoLuongNhap * c.DonGiaNhap);
-    var canEdit = canManage && (Model.TrangThai == TrangThaiPhieuNhap.Nhap || Model.TrangThai == TrangThaiPhieuNhap.ChoXacNhan);
+    var canEdit = (canManage && (Model.TrangThai == TrangThaiPhieuNhap.Nhap || Model.TrangThai == TrangThaiPhieuNhap.ChoXacNhan)) || (isAdmin && Model.TrangThai != TrangThaiPhieuNhap.DaHoanTat && Model.TrangThai != TrangThaiPhieuNhap.DaHuy);
 }
 
 <div class="page-header no-print">
@@ -22,7 +22,7 @@
         <h2 class="page-title"><i class="bi bi-receipt text-success"></i> Hóa Đơn Nhập Kho</h2>
         <p class="page-subtitle">Chi tiết chứng từ nhập hàng vào kho và danh mục sản phẩm</p>
     </div>
-    <div class="d-flex flex-wrap gap-2">
+    <div class="d-flex flex-wrap gap-2 align-items-center">
         <button type="button" class="btn btn-outline-secondary" onclick="window.print()">
             <i class="bi bi-printer"></i> In phiếu
         </button>
@@ -37,7 +37,7 @@
             </a>
         }
 
-        @if (canManage && (Model.TrangThai == TrangThaiPhieuNhap.Nhap || Model.TrangThai == TrangThaiPhieuNhap.ChoXacNhan))
+        @if (isAdmin && (Model.TrangThai == TrangThaiPhieuNhap.Nhap || Model.TrangThai == TrangThaiPhieuNhap.ChoXacNhan))
         {
             <form asp-action="HoanTat" asp-route-id="@Model.MaPhieuNhap" method="post" class="d-inline" onsubmit="return confirm('Xác nhận hoàn tất phiếu nhập này? Số lượng tồn kho sẽ được cộng dồn.');">
                 @Html.AntiForgeryToken()
@@ -45,7 +45,14 @@
                     <i class="bi bi-check-circle"></i> Hoàn tất nhập kho
                 </button>
             </form>
+        }
+        else if (isWarehouseStaff && (Model.TrangThai == TrangThaiPhieuNhap.Nhap || Model.TrangThai == TrangThaiPhieuNhap.ChoXacNhan))
+        {
+            <span class="text-muted small align-self-center">Phiếu đang chờ Admin duyệt hoàn tất.</span>
+        }
 
+        @if (canManage && (Model.TrangThai == TrangThaiPhieuNhap.Nhap || Model.TrangThai == TrangThaiPhieuNhap.ChoXacNhan))
+        {
             <form asp-action="HuyPhieu" asp-route-id="@Model.MaPhieuNhap" method="post" class="d-inline" onsubmit="return confirm('Bạn có chắc chắn muốn hủy phiếu nhập này?');">
                 @Html.AntiForgeryToken()
                 <button type="submit" class="btn btn-outline-danger">
@@ -97,27 +104,25 @@
         </div>
     </div>
 
-    <!-- Thông tin Nhà Cung Cấp & Kho Nhập -->
-    <div class="row mb-4 g-4">
-        <div class="col-md-6">
-            <div class="p-3 bg-light rounded-2 h-100 border">
-                <h6 class="fw-bold text-secondary text-uppercase small mb-2">
-                    <i class="bi bi-truck text-primary me-1"></i> Đơn vị cung cấp
-                </h6>
-                <div class="fw-bold text-dark fs-6">@(Model.NhaCungCap?.TenNhaCungCap ?? "Chưa rõ")</div>
-                <div class="text-muted small mt-1">Điện thoại: @(Model.NhaCungCap?.SoDienThoai ?? "---")</div>
-                <div class="text-muted small">Email: @(Model.NhaCungCap?.Email ?? "---")</div>
-                <div class="text-muted small">Địa chỉ: @(Model.NhaCungCap?.DiaChi ?? "---")</div>
+    <!-- Thông tin Meta Hóa Đơn -->
+    <div class="row g-4 mb-4">
+        <div class="col-sm-6">
+            <div class="p-3 bg-light rounded-2 border">
+                <h6 class="text-uppercase text-secondary fw-bold small mb-2"><i class="bi bi-truck me-1"></i> Thông Tin Nhà Cung Cấp</h6>
+                <div class="fw-bold text-dark fs-6">@(Model.NhaCungCap?.TenNhaCungCap ?? "Chưa chỉ định NCC")</div>
+                <div class="text-muted small mt-1">
+                    <i class="bi bi-geo-alt me-1"></i> @(string.IsNullOrEmpty(Model.NhaCungCap?.DiaChi) ? "Chưa cập nhật địa chỉ" : Model.NhaCungCap.DiaChi)
+                </div>
+                <div class="text-muted small">
+                    <i class="bi bi-telephone me-1"></i> @(string.IsNullOrEmpty(Model.NhaCungCap?.SoDienThoai) ? "Chưa có SĐT" : Model.NhaCungCap.SoDienThoai)
+                </div>
             </div>
         </div>
-        <div class="col-md-6">
-            <div class="p-3 bg-light rounded-2 h-100 border">
-                <h6 class="fw-bold text-secondary text-uppercase small mb-2">
-                    <i class="bi bi-building text-info me-1"></i> Thông tin tiếp nhận
-                </h6>
-                <div class="fw-bold text-dark fs-6">Kho nhập: @(Model.Kho?.TenKho ?? "Chưa chỉ định")</div>
-                <div class="text-muted small mt-1">Địa điểm: @(Model.Kho?.DiaDiem ?? "---")</div>
-                <div class="text-muted small">Người lập phiếu: <strong>@Model.NguoiLap</strong></div>
+        <div class="col-sm-6">
+            <div class="p-3 bg-light rounded-2 border">
+                <h6 class="text-uppercase text-secondary fw-bold small mb-2"><i class="bi bi-building me-1"></i> Thông Tin Kho Lưu Trữ</h6>
+                <div class="fw-bold text-dark fs-6">@(Model.Kho?.TenKho ?? "Chưa gán kho")</div>
+                <div class="text-muted small mt-1">Người lập phiếu: <strong>@Model.NguoiLap</strong></div>
                 <div class="text-muted small">Ngày lập: <strong>@Model.NgayNhap.ToString("dd/MM/yyyy")</strong></div>
             </div>
         </div>
