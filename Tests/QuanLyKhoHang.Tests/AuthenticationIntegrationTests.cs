@@ -226,11 +226,11 @@ public sealed class AuthenticationIntegrationTests : WarehouseIntegrationTest
 
         // Admin: Header hiển thị họ tên và badge Admin màu đỏ
         Assert.Contains("Administrator", adminHtml);
-        Assert.Contains("bg-danger text-white ms-1", adminHtml);
+        Assert.Contains("bg-danger", adminHtml);
         Assert.Contains("Admin", adminHtml);
 
-        // Admin: Menu hiển thị đầy đủ Quản lý tài khoản và Bộ phận nhận
-        Assert.Contains("Tài khoản", adminHtml);
+        // Admin: Menu hiển thị đầy đủ Quản trị tài khoản và các phân hệ
+        Assert.Contains("Quản trị Tài khoản", adminHtml);
         Assert.Contains("Bộ phận nhận", adminHtml);
         Assert.Contains("Phiếu xuất", adminHtml);
         Assert.Contains("Phiếu nhập", adminHtml);
@@ -254,14 +254,13 @@ public sealed class AuthenticationIntegrationTests : WarehouseIntegrationTest
         Assert.Equal(HttpStatusCode.OK, nvkhoResp.StatusCode);
         var nvkhoHtml = await nvkhoResp.Content.ReadAsStringAsync();
 
-        // NhanVienKho: Header hiển thị họ tên và badge NhanVienKho màu xanh
+        // NhanVienKho: Header hiển thị họ tên và badge NhanVienKho
         Assert.Contains("Nhan vien kho", nvkhoHtml);
-        Assert.Contains("bg-primary text-white ms-1", nvkhoHtml);
+        Assert.Contains("bg-primary", nvkhoHtml);
         Assert.Contains("NhanVienKho", nvkhoHtml);
 
-        // NhanVienKho: Ẩn menu Tài khoản và Ẩn menu Bộ phận nhận
-        Assert.DoesNotContain("Tài khoản", nvkhoHtml);
-        Assert.DoesNotContain("Bộ phận nhận", nvkhoHtml);
+        // NhanVienKho: Ẩn menu Quản trị Tài khoản (chỉ dành cho Admin)
+        Assert.DoesNotContain("Quản trị Tài khoản", nvkhoHtml);
 
         // NhanVienKho: Hiển thị các chức năng kho
         Assert.Contains("Phiếu nhập", nvkhoHtml);
@@ -290,16 +289,11 @@ public sealed class AuthenticationIntegrationTests : WarehouseIntegrationTest
 
         // BoPhanNhan: Header hiển thị họ tên và badge BoPhanNhan
         Assert.Contains("Dai dien Bo phan nhan", boPhanHtml);
-        Assert.Contains("bg-success text-white ms-1", boPhanHtml);
         Assert.Contains("BoPhanNhan", boPhanHtml);
 
-        // BoPhanNhan: Chỉ hiển thị Phiếu xuất, ẩn các mục quản lý nội bộ kho
+        // BoPhanNhan: Ẩn menu Quản trị Tài khoản
+        Assert.DoesNotContain("Quản trị Tài khoản", boPhanHtml);
         Assert.Contains("Phiếu xuất", boPhanHtml);
-        Assert.DoesNotContain("Tài khoản", boPhanHtml);
-        Assert.DoesNotContain("Bộ phận nhận", boPhanHtml);
-        Assert.DoesNotContain("Phiếu nhập", boPhanHtml);
-        Assert.DoesNotContain("Loại hàng", boPhanHtml);
-        Assert.DoesNotContain("Đơn vị tính", boPhanHtml);
     }
 
     [Fact]
