@@ -8,6 +8,10 @@
 @{
     ViewData["Title"] = "Quản lý hàng hóa";
     var tongTonDict = (Dictionary<int, int>?)ViewBag.TongTon ?? new Dictionary<int, int>();
+    var currentRole = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value ?? Context.Session.GetString("VaiTro");
+    var canManageGoods = User.IsInRole("Admin") || User.IsInRole("NhanVienKho")
+        || string.Equals(currentRole, "Admin", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(currentRole, "NhanVienKho", StringComparison.OrdinalIgnoreCase);
 }
 
 <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
@@ -20,12 +24,15 @@
         </nav>
         <h3 class="fw-bold mb-0 text-dark">Quản Lý Danh Mục Hàng Hóa</h3>
     </div>
-    <div class="d-flex gap-2">
-        <a asp-action="Create" class="btn btn-primary d-inline-flex align-items-center gap-2">
-            <i class="bi bi-plus-lg"></i>
-            <span>Thêm hàng hóa mới</span>
-        </a>
-    </div>
+    @if (canManageGoods)
+    {
+        <div class="d-flex gap-2">
+            <a asp-action="Create" class="btn btn-primary d-inline-flex align-items-center gap-2">
+                <i class="bi bi-plus-lg"></i>
+                <span>Thêm hàng hóa mới</span>
+            </a>
+        </div>
+    }
 </div>
 
 <!-- Bộ lọc tìm kiếm & Phân loại nâng cao -->
@@ -205,17 +212,20 @@
                                         <a asp-action="Details" asp-route-id="@item.MaHang" class="btn btn-outline-info btn-sm text-nowrap" title="Xem phân bổ kho">
                                             <i class="bi bi-eye me-1"></i> Chi tiết
                                         </a>
-                                        <a asp-action="Edit" asp-route-id="@item.MaHang" class="btn btn-outline-primary btn-sm text-nowrap" title="Chỉnh sửa hàng">
-                                            <i class="bi bi-pencil-square me-1"></i> Sửa
-                                        </a>
-                                        <form asp-action="DoiTrangThai" asp-route-id="@item.MaHang" method="post" class="d-inline">
-                                            <button type="submit" class="btn btn-outline-secondary btn-sm text-nowrap" title="Đổi trạng thái hoạt động">
-                                                <i class="bi bi-arrow-repeat me-1"></i> @(item.TrangThai ? "Ngừng" : "Bật")
-                                            </button>
-                                        </form>
-                                        <a asp-action="Delete" asp-route-id="@item.MaHang" class="btn btn-outline-danger btn-sm text-nowrap" title="Xóa hàng">
-                                            <i class="bi bi-trash me-1"></i> Xóa
-                                        </a>
+                                        @if (canManageGoods)
+                                        {
+                                            <a asp-action="Edit" asp-route-id="@item.MaHang" class="btn btn-outline-primary btn-sm text-nowrap" title="Chỉnh sửa hàng">
+                                                <i class="bi bi-pencil-square me-1"></i> Sửa
+                                            </a>
+                                            <form asp-action="DoiTrangThai" asp-route-id="@item.MaHang" method="post" class="d-inline">
+                                                <button type="submit" class="btn btn-outline-secondary btn-sm text-nowrap" title="Đổi trạng thái hoạt động">
+                                                    <i class="bi bi-arrow-repeat me-1"></i> @(item.TrangThai ? "Ngừng" : "Bật")
+                                                </button>
+                                            </form>
+                                            <a asp-action="Delete" asp-route-id="@item.MaHang" class="btn btn-outline-danger btn-sm text-nowrap" title="Xóa hàng">
+                                                <i class="bi bi-trash me-1"></i> Xóa
+                                            </a>
+                                        }
                                     </div>
                                 </td>
                             </tr>
