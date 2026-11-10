@@ -1,4 +1,6 @@
 <Solution>
+  <Folder Name="/Tests/">
+    <Project Path="Tests/QuanLyKhoHang.Automation.csproj" />
+  </Folder>
   <Project Path="QuanLyKhoHang_UNETI01_TI17A3HN.csproj" />
-  <Project Path="Tests/QuanLyKhoHang.Tests/QuanLyKhoHang.Tests.csproj" />
 </Solution>

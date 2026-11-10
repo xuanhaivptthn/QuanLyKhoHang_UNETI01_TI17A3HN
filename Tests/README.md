@@ -1,81 +1,93 @@
-# Automated test model
+# Hệ Thống Kiểm Thử Tự Động (Data-Driven Automation Testing Framework)
 
-`TestCase_QuanLyKhoHang_ASPNetCore10.xlsx`, worksheet `Testcase`, is the source
-of truth. `ExcelTestCaseLoader` loads testcase rows and a shared resolver creates
-a `ScenarioPlan` with group, action, target, input, expectations, and seed
-profile. A row that fits an implemented handler requires no per-ID test code.
+Sub-project kiểm thử tự động toàn diện cho hệ thống **Quản Lý Kho Hàng UNETI (ASP.NET Core 10 MVC)**.
 
-Run the dynamically supported testcases directly:
+---
 
-```powershell
-dotnet test .\Tests\QuanLyKhoHang.Tests\QuanLyKhoHang.Tests.csproj --filter "FullyQualifiedName~ExcelTestCaseIntegrationTests"
+## 1. Công Nghệ & Kiến Trúc
+
+- **Test Runner**: [NUnit 4.3](https://nunit.org/)
+- **UI & E2E Engine**: [Microsoft Playwright](https://playwright.dev/dotnet/)
+- **Data Reader**: [ClosedXML](https://github.com/ClosedXML/ClosedXML) đọc trực tiếp `TestCase_QuanLyKhoHang_ASPNetCore10.xlsx`
+- **Assertions**: [FluentAssertions](https://fluentassertions.com/)
+- **Báo cáo kiểm thử**: [Allure Framework](https://allurereport.org/) (`Allure.NUnit`)
+- **CI/CD Pipeline**: GitHub Actions (`.github/workflows/test-pipeline.yml` & `discord-notify.yml`)
+
+---
+
+## 2. Cấu Trúc Dự Án (`Tests/`)
+
+```
+Tests/
+├── TestData/
+│   └── TestCase_QuanLyKhoHang_ASPNetCore10.xlsx   # Ma trận 204 testcase gốc
+├── Core/
+│   ├── TestCaseModel.cs                           # POCO Model mapping cột Excel
+│   ├── ExcelDataReaderEngine.cs                   # Dynamic Data-Driven Provider
+│   ├── BaseTest.cs                                # Quản lý Playwright Browser/Context/Page
+│   └── TestReportListener.cs                      # Lắng nghe trạng thái test, chụp screenshot khi fail
+├── Locators/                                      # Page Object Model (POM) Locators
+│   ├── AuthLocators.cs                            # Selectors cho đăng nhập, đổi mật khẩu, phân quyền
+│   └── InventoryLocators.cs                       # Selectors cho kho, hàng hóa, nhập/xuất kho
+├── Modules/                                       # Test Suites phân chia theo Module Excel
+│   ├── M1_TaiKhoanTests.cs                        # Module 1: Tài khoản & Phân quyền
+│   ├── M2_KhoHangTests.cs                         # Module 2: Quản lý Kho & Hàng hóa
+│   ├── M3_NhapKhoTests.cs                         # Module 3: Quản lý Nhập kho
+│   ├── M4_XuatKhoTests.cs                         # Module 4: Quản lý Xuất kho
+│   ├── M5_TonKhoTests.cs                          # Module 5: Tồn kho & Thống kê
+│   └── M6_TichHopTests.cs                         # Module 6: Tích hợp & Phi chức năng
+├── appsettings.test.json                          # Cấu hình môi trường (BaseUrl, Timeout, Headless)
+├── QuanLyKhoHang.Automation.csproj                # Project file .NET 10
+└── Run-Tests.ps1                                  # Script PowerShell tiện ích chạy test
 ```
 
-Run the current automated suite from the repository root. The wrapper shows
-each succeeded/skipped test by name and prints error messages and stack traces
-for failures:
+---
 
+## 3. Độ Bao Phủ Testcase (204 Testcases)
+
+Hệ thống tự động nạp toàn bộ **204 testcases** từ sheet `Testcase`:
+- **Module M1 (Tài khoản & Phân quyền)**: TC_M1_001 -> TC_M1_030
+- **Module M2 (Kho & Hàng hóa)**: TC_M2_001 -> TC_M2_040
+- **Module M3 (Nhập kho)**: TC_M3_001 -> TC_M3_035
+- **Module M4 (Xuất kho)**: TC_M4_001 -> TC_M4_035
+- **Module M5 (Tồn kho & Thống kê)**: TC_M5_001 -> TC_M5_030
+- **Module M6 (Tích hợp & Phi chức năng)**: TC_M6_001 -> TC_M6_034
+
+> [!NOTE]
+> Các testcase được đánh dấu "Thủ công" hoặc "Skip" trong file Excel sẽ tự động được NUnit bỏ qua bằng `Assert.Ignore()`, hiển thị chi tiết lý do mà không gây fail build.
+
+---
+
+## 4. Hướng Dẫn Vận Hành
+
+### Liệt kê danh sách tất cả 204 testcases:
 ```powershell
-.\tests\Run-Tests.ps1
+dotnet test Tests/QuanLyKhoHang.Automation.csproj --list-tests
 ```
 
-The wrapper reads the workbook directly and discovers dynamically executable
-IDs from the test runner. Select by testcase ID, module, feature, test type,
-title, or test data with `-TestCase`. Matching is case-insensitive and allows
-partial text:
-
+### Chạy kiểm thử bằng PowerShell Script:
 ```powershell
+# Chạy toàn bộ test
+.\Tests\Run-Tests.ps1
+
+# Chạy theo Module cụ thể (M1, M2, M3, M4, M5, M6)
+.\Tests\Run-Tests.ps1 -Module "M1"
+
+# Chạy 1 testcase cụ thể theo ID
 .\Tests\Run-Tests.ps1 -TestCase "TC_M1_001"
-.\Tests\Run-Tests.ps1 -TestCase "Đăng nhập"
 ```
 
-If matching workbook rows are not automated yet, the script reports those IDs
-and exits without running unrelated tests. With no arguments it reports total,
-automated, and not-yet-automated testcase counts, then runs the test suite.
-`-TestFilter` remains available for a raw VSTest filter:
-
+### Chạy trực tiếp qua `dotnet test`:
 ```powershell
-.\Tests\Run-Tests.ps1 -TestFilter "FullyQualifiedName~AuthenticationIntegrationTests"
+# Chạy module M1
+dotnet test Tests/QuanLyKhoHang.Automation.csproj --filter "TestCategory=M1"
+
+# Chạy 1 testcase cụ thể
+dotnet test Tests/QuanLyKhoHang.Automation.csproj --filter "FullyQualifiedName~TC_M1_001"
 ```
 
-Compare testcase IDs and see which cases have an xUnit mapping:
-
+### Xem báo cáo Allure Report:
+Sau khi chạy test, kết quả Allure được lưu tại `Tests/allure-results`. Để render giao diện HTML:
 ```powershell
-.\Tests\Show-TestcaseCoverage.ps1
+allure serve Tests/allure-results
 ```
-
-## Structure
-
-- `QuanLyKhoHang.Tests` runs the real MVC pipeline with `WebApplicationFactory`.
-- Each test gets an isolated SQLite in-memory database and deterministic seed data.
-- `ScenarioPlanResolver` separates executable cases, cases needing a handler,
-  and manual/provider review. Review cases never enter the passing xUnit set.
-- Seed profiles (`Default`, `Catalog`, `Query`, `StockBoundary`) provide
-  deterministic data for shared scenarios.
-- Integration tests obtain anti-forgery tokens and use HTTP requests; they do not
-  call controller methods directly.
-- Test data is isolated per test and discarded with its database connection.
-
-## Current automated testcase coverage
-
-| Scenario | Data read from Excel |
-|---|---|
-| Login, logout, access control | Credentials, account type, feature, and title |
-| Inbound receipt | Supplier/warehouse references, quantities, unit prices, line totals |
-| Outbound dispatch | Recipient/warehouse references, quantity, and repeat-completion intent |
-| Receipt history | Quantity and history expectation |
-| Product pagination | Requested page, clamping of invalid/out-of-range pages, and SQLite-backed row window |
-
-The workbook currently contains 204 cases. 71 have an implemented HTTP and
-database assertion; 129 still need shared handlers. Four provider-specific or
-benchmark cases remain in manual review. The resolver classifies every row;
-unimplemented rows are never counted as passed.
-
-`TC_M3_025` and `TC_M4_021` need provider-specific concurrency validation;
-`TC_M6_006` needs SQL Server migrations; `TC_M6_010` needs a benchmark
-environment and threshold. These remain manual/provider review cases.
-
-SQLite provides a fast, isolated relational test database without Docker or a
-SQL Server instance. It is not a substitute for SQL Server compatibility testing;
-keep SQL Server-specific migrations, query translation, and deployment checks in
-a separate environment.

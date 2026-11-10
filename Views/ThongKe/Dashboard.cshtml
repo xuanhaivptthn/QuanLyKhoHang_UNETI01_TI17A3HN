@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 @*
     Họ và tên: Nguyễn Văn Cường
     Mã sinh viên: 23103100132
@@ -91,10 +92,205 @@
                 <a asp-controller="TonKho" asp-action="CanhBao" class="btn btn-danger btn-sm text-nowrap">
                     Xem chi tiết <i class="bi bi-arrow-right"></i>
                 </a>
+=======
+@model QuanLyKhoHang_UNETI01_TI17A3HN.ViewModels.DashboardViewModel
+
+@{
+    ViewData["Title"] = "Dashboard Tổng quan";
+    var tongGiaTriTon = ViewBag.TongGiaTriTonKho != null ? (decimal)ViewBag.TongGiaTriTonKho : 0m;
+}
+
+<style>
+    .dashboard-card {
+        transition: transform 0.25s ease, box-shadow 0.25s ease;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+    .dashboard-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.15) !important;
+    }
+    .kpi-value {
+        font-size: 2.2rem;
+        font-weight: 700;
+        letter-spacing: -0.5px;
+    }
+    .chart-container-card {
+        border-radius: 12px;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    }
+    .card-header-custom {
+        background-color: #f8fafc;
+        border-bottom: 1px solid #e2e8f0;
+        font-weight: 600;
+        padding: 0.85rem 1.25rem;
+    }
+</style>
+
+<div class="container-fluid mt-3 pb-5">
+    <!-- Executive Header -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-2 border-bottom">
+        <div>
+            <h2 class="fw-bold mb-1 text-primary">
+                <i class="fas fa-chart-line text-primary me-2"></i>Bảng Điều Khiển Trung Tâm (Dashboard)
+            </h2>
+            <p class="text-muted mb-0">Hệ thống Giám sát & Quản lý Kho Vật tư - Cập nhật ngày: <strong>@DateTime.Today.ToString("dd/MM/yyyy")</strong></p>
+        </div>
+        <div class="d-flex gap-2 mt-2 mt-md-0">
+            <a href="/ThongKe/BaoCaoNhapXuat" class="btn btn-outline-primary btn-sm">
+                <i class="fas fa-file-invoice me-1"></i> Báo Cáo Nhập Xuất
+            </a>
+            <a href="/TonKho/LichSu" class="btn btn-outline-secondary btn-sm">
+                <i class="fas fa-history me-1"></i> Lịch Sử Biến Động
+            </a>
+            <a href="/ThongKe/Dashboard" class="btn btn-primary btn-sm">
+                <i class="fas fa-sync-alt me-1"></i> Làm Mới Dữ Liệu
+            </a>
+        </div>
+    </div>
+
+    <!-- 5 Thẻ Chỉ số KPIs Chiến Lược -->
+    <div class="row g-3 mb-4">
+        <!-- Box 1: Tổng Hàng Hóa -->
+        <div class="col-xl col-md-4 col-sm-6">
+            <a href="/HangHoas/Index" class="text-decoration-none">
+                <div class="card text-white bg-primary h-100 dashboard-card shadow-sm border-0">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="text-uppercase fw-semibold" style="font-size: 0.8rem; opacity: 0.9;">Tổng Hàng Hóa</span>
+                                <div class="kpi-value my-1">@Model.TongSoHangHoa</div>
+                            </div>
+                            <div class="p-3 bg-white bg-opacity-25 rounded-circle">
+                                <i class="fas fa-boxes-stacked fa-2x"></i>
+                            </div>
+                        </div>
+                        <p class="mb-0 mt-2 text-white-50" style="font-size: 0.85rem;">Xem toàn bộ mặt hàng <i class="fas fa-arrow-right ms-1"></i></p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Box 2: Kho Đang Hoạt Động -->
+        <div class="col-xl col-md-4 col-sm-6">
+            <a href="/Khoes/Index" class="text-decoration-none">
+                <div class="card text-white bg-success h-100 dashboard-card shadow-sm border-0">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="text-uppercase fw-semibold" style="font-size: 0.8rem; opacity: 0.9;">Kho Hoạt Động</span>
+                                <div class="kpi-value my-1">@Model.TongSoKho</div>
+                            </div>
+                            <div class="p-3 bg-white bg-opacity-25 rounded-circle">
+                                <i class="fas fa-warehouse fa-2x"></i>
+                            </div>
+                        </div>
+                        <p class="mb-0 mt-2 text-white-50" style="font-size: 0.85rem;">Xem chi tiết kho bãi <i class="fas fa-arrow-right ms-1"></i></p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Box 3: Số Phiếu Nhập Hôm Nay -->
+        <div class="col-xl col-md-4 col-sm-6">
+            <a href="/PhieuNhaps/Index" class="text-decoration-none">
+                <div class="card text-white bg-info h-100 dashboard-card shadow-sm border-0">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="text-uppercase fw-semibold" style="font-size: 0.8rem; opacity: 0.9;">Phiếu Nhập (Hôm Nay)</span>
+                                <div class="kpi-value my-1">@Model.SoPhieuNhapTrongNgay</div>
+                            </div>
+                            <div class="p-3 bg-white bg-opacity-25 rounded-circle">
+                                <i class="fas fa-file-import fa-2x"></i>
+                            </div>
+                        </div>
+                        <p class="mb-0 mt-2 text-white-50" style="font-size: 0.85rem;">Đến chứng từ nhập <i class="fas fa-arrow-right ms-1"></i></p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Box 4: Số Phiếu Xuất Hôm Nay -->
+        <div class="col-xl col-md-6 col-sm-6">
+            <a href="/PhieuXuats/Index" class="text-decoration-none">
+                <div class="card text-white bg-warning h-100 dashboard-card shadow-sm border-0">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center text-dark">
+                            <div>
+                                <span class="text-uppercase fw-semibold" style="font-size: 0.8rem; opacity: 0.9;">Phiếu Xuất (Hôm Nay)</span>
+                                <div class="kpi-value my-1">@Model.SoPhieuXuatTrongNgay</div>
+                            </div>
+                            <div class="p-3 bg-dark bg-opacity-10 rounded-circle">
+                                <i class="fas fa-file-export fa-2x"></i>
+                            </div>
+                        </div>
+                        <p class="mb-0 mt-2 text-dark" style="font-size: 0.85rem; opacity: 0.8;">Đến chứng từ xuất <i class="fas fa-arrow-right ms-1"></i></p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Box 5: Tổng Giá Trị Tồn Kho Ước Tính (VIP Card) -->
+        <div class="col-xl-3 col-md-6 col-sm-12">
+            <a href="/TonKho/CanhBao" class="text-decoration-none">
+                <div class="card text-white bg-dark h-100 dashboard-card shadow-sm border-0" style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="text-uppercase fw-semibold text-warning" style="font-size: 0.8rem; letter-spacing: 0.5px;">
+                                    <i class="fas fa-coins me-1"></i>Giá Trị Tồn Kho
+                                </span>
+                                <div class="kpi-value my-1 text-warning" style="font-size: 1.65rem;">
+                                    @tongGiaTriTon.ToString("N0") <span style="font-size: 0.9rem;">đ</span>
+                                </div>
+                            </div>
+                            <div class="p-3 bg-warning bg-opacity-25 rounded-circle text-warning">
+                                <i class="fas fa-wallet fa-2x"></i>
+                            </div>
+                        </div>
+                        <p class="mb-0 mt-2 text-white-50" style="font-size: 0.85rem;">Kiểm toán vốn lưu kho <i class="fas fa-arrow-right ms-1"></i></p>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- Hàng Biểu Đồ Trực Quan Hóa (Chart.js) -->
+    <div class="row g-4 mb-4">
+        <!-- Biểu đồ 1: Cơ cấu loại hàng (Doughnut Chart) -->
+        <div class="col-lg-5">
+            <div class="card h-100 chart-container-card border-0">
+                <div class="card-header card-header-custom d-flex justify-content-between align-items-center">
+                    <span><i class="fas fa-chart-pie text-primary me-2"></i>Cơ Cấu Hàng Hóa Theo Loại Hàng</span>
+                    <a href="/LoaiHangs" class="btn btn-sm btn-link p-0 text-decoration-none">Quản lý</a>
+                </div>
+                <div class="card-body d-flex flex-column justify-content-center align-items-center" style="min-height: 320px;">
+                    <div style="position: relative; height: 260px; width: 100%;">
+                        <canvas id="chartLoaiHang"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Biểu đồ 2: So sánh Nhập - Xuất 7 ngày gần nhất (Bar Chart) -->
+        <div class="col-lg-7">
+            <div class="card h-100 chart-container-card border-0">
+                <div class="card-header card-header-custom d-flex justify-content-between align-items-center">
+                    <span><i class="fas fa-chart-column text-success me-2"></i>Biến Động Nhập - Xuất (7 Ngày Gần Nhất)</span>
+                    <span class="badge bg-light text-dark border">Đơn vị: Số phiếu</span>
+                </div>
+                <div class="card-body" style="min-height: 320px;">
+                    <div style="position: relative; height: 260px; width: 100%;">
+                        <canvas id="chartNhapXuat"></canvas>
+                    </div>
+                </div>
+>>>>>>> Stashed changes
             </div>
         </div>
     </div>
 
+<<<<<<< Updated upstream
     <div class="col-md-6">
         <div class="card border-0 shadow-sm rounded-2 border-start border-warning border-4">
             <div class="card-body p-4 d-flex justify-content-between align-items-center">
@@ -144,12 +340,45 @@
             <div class="card-body p-4">
                 <div style="position: relative; height: 320px; width: 100%;">
                     <canvas id="pieChartLoaiHang"></canvas>
+=======
+    <!-- Hàng Khung Cảnh Báo An Toàn Kho -->
+    <div class="row g-3">
+        <!-- Cảnh báo Hàng Hết -->
+        <div class="col-md-6">
+            <div class="alert alert-danger shadow-sm border-0 d-flex align-items-start p-3 mb-0" style="border-radius: 10px;">
+                <div class="me-3 mt-1">
+                    <i class="fas fa-triangle-exclamation fa-2x text-danger"></i>
+                </div>
+                <div class="flex-grow-1">
+                    <h5 class="alert-heading fw-bold mb-1">Cảnh Báo Hết Sạch Hàng (Hạn mức = 0)</h5>
+                    <p class="mb-2">Hiện tại hệ thống ghi nhận có <span class="badge bg-danger fs-6">@Model.SoHangHet</span> mặt hàng đã hết tồn kho, cần liên hệ Nhà cung cấp lập phiếu nhập gấp.</p>
+                    <a href="/TonKho/CanhBao" class="btn btn-sm btn-danger">
+                        <i class="fas fa-list-check me-1"></i> Xem danh sách hết hàng
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cảnh báo Hàng Sắp Hết -->
+        <div class="col-md-6">
+            <div class="alert alert-warning shadow-sm border-0 d-flex align-items-start p-3 mb-0" style="border-radius: 10px;">
+                <div class="me-3 mt-1">
+                    <i class="fas fa-circle-exclamation fa-2x text-warning"></i>
+                </div>
+                <div class="flex-grow-1">
+                    <h5 class="alert-heading fw-bold mb-1">Cảnh Báo Chạm Ngưỡng Tồn Tối Thiểu</h5>
+                    <p class="mb-2">Hiện tại có <span class="badge bg-warning text-dark fs-6">@Model.SoHangSapHet</span> mặt hàng đã chạm mức tồn an toàn tối thiểu quy định.</p>
+                    <a href="/TonKho/CanhBao" class="btn btn-sm btn-warning text-dark">
+                        <i class="fas fa-list-check me-1"></i> Xem danh sách sắp hết
+                    </a>
+>>>>>>> Stashed changes
                 </div>
             </div>
         </div>
     </div>
 </div>
 
+<<<<<<< Updated upstream
 <!-- Thống kê Giá Trị Kho Hàng -->
 <div class="card border-0 shadow-sm rounded-2 mb-4 bg-light">
     <div class="card-body p-4 d-flex align-items-center justify-content-between flex-wrap gap-3">
@@ -297,3 +526,115 @@
         });
     </script>
 }
+=======
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // 1. BIỂU ĐỒ CƠ CẤU LOẠI HÀNG (DOUGHNUT CHART)
+            const loaiHangLabels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ViewBag.LoaiHangLabels ?? new List<string>()));
+            const loaiHangData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ViewBag.LoaiHangData ?? new List<int>()));
+
+            const ctxLoaiHang = document.getElementById('chartLoaiHang');
+            if (ctxLoaiHang && loaiHangLabels.length > 0) {
+                new Chart(ctxLoaiHang, {
+                    type: 'doughnut',
+                    data: {
+                        labels: loaiHangLabels,
+                        datasets: [{
+                            data: loaiHangData,
+                            backgroundColor: [
+                                '#3b82f6', '#10b981', '#f59e0b', '#ef4444', 
+                                '#8b5cf6', '#ec4899', '#06b6d4', '#64748b'
+                            ],
+                            borderWidth: 2,
+                            borderColor: '#ffffff',
+                            hoverOffset: 6
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    boxWidth: 12,
+                                    padding: 12,
+                                    font: { size: 12 }
+                                }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        const label = context.label || '';
+                                        const value = context.parsed || 0;
+                                        return ` ${label}: ${value} sản phẩm`;
+                                    }
+                                }
+                            }
+                        },
+                        cutout: '65%'
+                    }
+                });
+            } else if (ctxLoaiHang) {
+                ctxLoaiHang.parentElement.innerHTML = '<div class="text-center text-muted my-auto"><i class="fas fa-inbox fa-3x mb-2 text-black-50"></i><p>Chưa có dữ liệu loại hàng</p></div>';
+            }
+
+            // 2. BIỂU ĐỒ NHẬP - XUẤT 7 NGÀY GẦN NHẤT (BAR CHART)
+            const daysLabels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ViewBag.ChartDaysLabels ?? new List<string>()));
+            const nhapData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ViewBag.ChartNhapData ?? new List<int>()));
+            const xuatData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ViewBag.ChartXuatData ?? new List<int>()));
+
+            const ctxNhapXuat = document.getElementById('chartNhapXuat');
+            if (ctxNhapXuat) {
+                new Chart(ctxNhapXuat, {
+                    type: 'bar',
+                    data: {
+                        labels: daysLabels,
+                        datasets: [
+                            {
+                                label: 'Phiếu Nhập',
+                                data: nhapData,
+                                backgroundColor: 'rgba(16, 185, 129, 0.85)',
+                                borderColor: '#10b981',
+                                borderWidth: 1,
+                                borderRadius: 6
+                            },
+                            {
+                                label: 'Phiếu Xuất',
+                                data: xuatData,
+                                backgroundColor: 'rgba(239, 68, 68, 0.85)',
+                                borderColor: '#ef4444',
+                                borderWidth: 1,
+                                borderRadius: 6
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                                labels: {
+                                    boxWidth: 14,
+                                    font: { size: 12 }
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                grid: { display: false }
+                            },
+                            y: {
+                                beginAtZero: true,
+                                ticks: { stepSize: 1 }
+                            }
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+}
+>>>>>>> Stashed changes

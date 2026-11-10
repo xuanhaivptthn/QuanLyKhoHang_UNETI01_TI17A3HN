@@ -53,9 +53,9 @@ jobs:
         id: build_step
         run: dotnet build --no-restore --configuration Release
 
-      - name: Run xUnit integration tests
+      - name: Run Automation tests
         id: test_step
-        run: dotnet test Tests/QuanLyKhoHang.Tests/QuanLyKhoHang.Tests.csproj --no-build --no-restore --configuration Release --logger "trx;LogFileName=test-results.trx"
+        run: dotnet test Tests/QuanLyKhoHang.Automation.csproj --no-build --no-restore --configuration Release --logger "trx;LogFileName=test-results.trx"
 
       - name: Report Build Status to Discord
         if: always()
