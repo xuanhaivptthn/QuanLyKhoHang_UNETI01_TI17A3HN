@@ -7,69 +7,136 @@
 
 @{
     ViewData["Title"] = "Cảnh báo hạn mức tồn kho";
-    var hetHangCount = Model?.Count(t => t.SoLuongTon == 0) ?? 0;
-    var sapHetCount = Model?.Count(t => t.SoLuongTon > 0 && t.HangHoa != null && t.SoLuongTon <= t.HangHoa.MucTonToiThieu) ?? 0;
+    var danhSachKho = ViewBag.DanhSachKho as List<QuanLyKhoHang_UNETI01_TI17A3HN.Models.Kho> ?? new();
+    string loaiCanhBao = (string?)ViewBag.LoaiCanhBao ?? "";
+    int hetHangCount = ViewBag.HetHangCount ?? 0;
+    int sapHetCount = ViewBag.SapHetCount ?? 0;
+    int tatCaCount = ViewBag.TatCaCount ?? 0;
+    int? maKhoChon = ViewBag.MaKho as int?;
+    string timKiem = (string?)ViewBag.TimKiem ?? "";
 }
 
-<div class="page-header">
+<div class="page-header d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
     <div>
-        <h2 class="page-title"><i class="bi bi-exclamation-triangle-fill text-danger"></i> Cảnh Báo Hạn Mức Tồn Kho</h2>
-        <p class="page-subtitle">Danh sách các mặt hàng đã hết hoặc chạm ngưỡng định mức tối thiểu cần nhập bổ sung</p>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-1">
+                <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" class="text-decoration-none">Trang chủ</a></li>
+                <li class="breadcrumb-item"><a asp-controller="ThongKe" asp-action="Dashboard" class="text-decoration-none">Thống kê</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Cảnh báo hạn mức</li>
+            </ol>
+        </nav>
+        <h2 class="page-title fw-bold mb-0 text-dark">
+            <i class="bi bi-exclamation-triangle-fill text-danger me-2"></i>Cảnh Báo Hạn Mức Tồn Kho
+        </h2>
+        <p class="text-muted small mb-0 mt-1">
+            Theo dõi, phân loại và lọc nhanh các mặt hàng đã hết (Tồn = 0) hoặc sắp hết (chạm ngưỡng định mức tối thiểu)
+        </p>
     </div>
     <div class="d-flex gap-2">
-        <a asp-controller="PhieuNhaps" asp-action="Create" class="btn btn-success shadow-sm">
-            <i class="bi bi-plus-circle-fill"></i> Tạo phiếu nhập ngay
+        <a asp-controller="PhieuNhaps" asp-action="Create" class="btn btn-success shadow-sm d-inline-flex align-items-center gap-2">
+            <i class="bi bi-plus-circle-fill"></i> <span>Tạo phiếu nhập ngay</span>
         </a>
-        <a asp-controller="ThongKe" asp-action="Dashboard" class="btn btn-outline-secondary">
-            <i class="bi bi-speedometer2"></i> Dashboard
+        <a asp-controller="ThongKe" asp-action="Dashboard" class="btn btn-outline-primary d-inline-flex align-items-center gap-2">
+            <i class="bi bi-speedometer2"></i> <span>Dashboard</span>
         </a>
     </div>
 </div>
 
-<!-- Thẻ Tóm Tắt Tình Hình Cảnh Báo -->
-<div class="row g-3 mb-4">
-    <div class="col-md-6">
-        <div class="card border-0 shadow-sm rounded-2 border-start border-4 border-danger">
-            <div class="card-body p-4 d-flex align-items-center justify-content-between">
-                <div>
-                    <span class="text-danger small fw-bold text-uppercase">Hàng đã hết (Tồn = 0)</span>
-                    <h3 class="fw-bold text-danger mb-0 mt-1">@hetHangCount sản phẩm</h3>
-                    <small class="text-muted">Cần ưu tiên đặt hàng ngay lập tức</small>
+<!-- Bộ Lọc Cảnh Báo & Tìm Kiếm -->
+<div class="card border-0 shadow-sm rounded-2 mb-4">
+    <div class="card-body p-3">
+        <form asp-action="CanhBao" method="get">
+            <div class="row g-3 align-items-center">
+                <!-- Nút chuyển đổi nhanh loại cảnh báo -->
+                <div class="col-lg-5 col-xl-4">
+                    <label class="form-label small fw-semibold text-secondary d-block mb-1">
+                        <i class="bi bi-funnel me-1"></i>Mức độ cảnh báo
+                    </label>
+                    <div class="btn-group w-100" role="group">
+                        <a asp-action="CanhBao" asp-route-loaiCanhBao="" asp-route-maKho="@maKhoChon" asp-route-timKiem="@timKiem" 
+                           class="btn btn-sm @(string.IsNullOrEmpty(loaiCanhBao) ? "btn-primary active" : "btn-outline-secondary")">
+                            Tất cả (@tatCaCount)
+                        </a>
+                        <a asp-action="CanhBao" asp-route-loaiCanhBao="hethang" asp-route-maKho="@maKhoChon" asp-route-timKiem="@timKiem" 
+                           class="btn btn-sm @(loaiCanhBao == "hethang" ? "btn-danger active" : "btn-outline-danger")">
+                            <i class="bi bi-x-circle me-1"></i>Hàng đã hết (@hetHangCount)
+                        </a>
+                        <a asp-action="CanhBao" asp-route-loaiCanhBao="saphet" asp-route-maKho="@maKhoChon" asp-route-timKiem="@timKiem" 
+                           class="btn btn-sm @(loaiCanhBao == "saphet" ? "btn-warning active text-dark" : "btn-outline-warning text-dark")">
+                            <i class="bi bi-exclamation-triangle me-1"></i>Hàng sắp hết (@sapHetCount)
+                        </a>
+                    </div>
+                    <input type="hidden" name="loaiCanhBao" value="@loaiCanhBao" />
                 </div>
-                <i class="bi bi-x-circle-fill text-danger fs-1"></i>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-6">
-        <div class="card border-0 shadow-sm rounded-2 border-start border-4 border-warning">
-            <div class="card-body p-4 d-flex align-items-center justify-content-between">
-                <div>
-                    <span class="text-warning small fw-bold text-uppercase">Hàng sắp hết (Tồn &le; Mức tối thiểu)</span>
-                    <h3 class="fw-bold text-warning mb-0 mt-1">@sapHetCount sản phẩm</h3>
-                    <small class="text-muted">Đang dưới ngưỡng an toàn lưu kho</small>
+
+                <!-- Lọc theo kho -->
+                <div class="col-md-6 col-lg-3">
+                    <label for="canhBaoKho" class="form-label small fw-semibold text-secondary mb-1">
+                        <i class="bi bi-building me-1"></i>Điểm kho bãi
+                    </label>
+                    <select id="canhBaoKho" name="maKho" class="form-select form-select-sm" onchange="this.form.submit()">
+                        <option value="">-- Tất cả các kho --</option>
+                        @foreach (var k in danhSachKho)
+                        {
+                            <option value="@k.MaKho" selected="@(maKhoChon == k.MaKho)">@k.TenKho</option>
+                        }
+                    </select>
                 </div>
-                <i class="bi bi-exclamation-triangle-fill text-warning fs-1"></i>
+
+                <!-- Tìm kiếm theo tên / mã hàng -->
+                <div class="col-md-6 col-lg-4">
+                    <label for="canhBaoTimKiem" class="form-label small fw-semibold text-secondary mb-1">
+                        <i class="bi bi-search me-1"></i>Tìm hàng hóa
+                    </label>
+                    <div class="input-group input-group-sm">
+                        <input type="text" id="canhBaoTimKiem" name="timKiem" value="@timKiem" 
+                               class="form-control" placeholder="Tìm theo tên hoặc mã hàng..." />
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-funnel-fill"></i> Lọc
+                        </button>
+                        @if (!string.IsNullOrEmpty(loaiCanhBao) || maKhoChon.HasValue || !string.IsNullOrEmpty(timKiem))
+                        {
+                            <a asp-action="CanhBao" class="btn btn-outline-secondary" title="Đặt lại bộ lọc">
+                                <i class="bi bi-arrow-counterclockwise"></i>
+                            </a>
+                        }
+                    </div>
+                </div>
             </div>
-        </div>
+        </form>
     </div>
 </div>
 
 <!-- Bảng Cảnh Báo Chi Tiết -->
 <div class="card border-0 shadow-sm rounded-2">
-    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+    <div class="card-header bg-white py-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
         <span class="fw-semibold text-secondary">
-            <i class="bi bi-list-check me-1"></i> Danh sách mặt hàng cần chú ý (@(Model?.Count() ?? 0) mặt hàng)
+            <i class="bi bi-list-check me-1"></i> Danh sách mặt hàng: 
+            <strong class="text-dark">@(Model?.Count() ?? 0)</strong> bản ghi
+            @if (loaiCanhBao == "hethang")
+            {
+                <span class="badge bg-danger-subtle text-danger border border-danger-subtle ms-1">Đang lọc: Hàng đã hết</span>
+            }
+            else if (loaiCanhBao == "saphet")
+            {
+                <span class="badge bg-warning-subtle text-warning border border-warning-subtle ms-1">Đang lọc: Hàng sắp hết</span>
+            }
+        </span>
+
+        <span class="small text-muted">
+            <i class="bi bi-sort-numeric-down me-1"></i>Ưu tiên hàng hết (Tồn = 0) lên đầu
         </span>
     </div>
     <div class="card-body p-0">
         <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">
-                <thead>
+                <thead class="table-light">
                     <tr>
                         <th class="ps-4">Kho lưu trữ</th>
                         <th>Mã hàng</th>
                         <th>Tên hàng hóa</th>
-                        <th class="text-center">Định mức tối thiểu</th>
+                        <th>Loại / ĐVT</th>
+                        <th class="text-center">Định mức TT</th>
                         <th class="text-center">Tồn kho thực tế</th>
                         <th class="text-center">Mức độ cảnh báo</th>
                         <th class="text-end pe-4">Hành động nhanh</th>
@@ -92,6 +159,10 @@
                                 <td>
                                     <span class="fw-bold text-dark d-block">@(item.HangHoa?.TenHang ?? "Mặt hàng #" + item.MaHang)</span>
                                 </td>
+                                <td>
+                                    <span class="badge bg-light text-secondary border">@(item.HangHoa?.LoaiHang?.TenLoaiHang ?? "Chung")</span>
+                                    <small class="text-muted d-block">@(item.HangHoa?.DonViTinh?.TenDonViTinh ?? "")</small>
+                                </td>
                                 <td class="text-center font-monospace text-muted">
                                     @(item.HangHoa?.MucTonToiThieu ?? 0)
                                 </td>
@@ -101,20 +172,20 @@
                                 <td class="text-center">
                                     @if (isHet)
                                     {
-                                        <span class="badge bg-danger shadow-sm">
+                                        <span class="badge bg-danger shadow-sm px-2 py-1">
                                             <i class="bi bi-slash-circle-fill me-1"></i> HẾT HÀNG
                                         </span>
                                     }
                                     else
                                     {
-                                        <span class="badge bg-warning text-dark shadow-sm">
+                                        <span class="badge bg-warning text-dark shadow-sm px-2 py-1">
                                             <i class="bi bi-exclamation-triangle-fill me-1"></i> SẮP HẾT
                                         </span>
                                     }
                                 </td>
                                 <td class="text-end pe-4">
                                     <a asp-controller="PhieuNhaps" asp-action="Create" class="btn btn-sm btn-success shadow-sm">
-                                        <i class="bi bi-cart-plus-fill"></i> Tạo phiếu nhập ngay
+                                        <i class="bi bi-cart-plus-fill"></i> Tạo phiếu nhập
                                     </a>
                                 </td>
                             </tr>
@@ -123,9 +194,22 @@
                     else
                     {
                         <tr>
-                            <td colspan="7" class="text-center text-success py-5">
-                                <i class="bi bi-check-circle-fill fs-1 d-block mb-2 text-success opacity-75"></i>
-                                Tuyệt vời! Hiện tại không có mặt hàng nào bị hết hoặc chạm ngưỡng cảnh báo.
+                            <td colspan="8" class="text-center text-muted py-5">
+                                @if (loaiCanhBao == "hethang")
+                                {
+                                    <i class="bi bi-check-circle-fill fs-2 d-block mb-2 text-success opacity-75"></i>
+                                    <span>Tuyệt vời! Hiện không có sản phẩm nào bị hết hàng (Tồn = 0).</span>
+                                }
+                                else if (loaiCanhBao == "saphet")
+                                {
+                                    <i class="bi bi-check-circle-fill fs-2 d-block mb-2 text-success opacity-75"></i>
+                                    <span>Tuyệt vời! Không có sản phẩm nào chạm ngưỡng sắp hết hàng.</span>
+                                }
+                                else
+                                {
+                                    <i class="bi bi-check-circle-fill fs-2 d-block mb-2 text-success opacity-75"></i>
+                                    <span>Hiện tại không có mặt hàng nào bị hết hoặc chạm ngưỡng cảnh báo.</span>
+                                }
                             </td>
                         </tr>
                     }

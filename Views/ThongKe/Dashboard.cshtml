@@ -1,17 +1,19 @@
-<<<<<<< Updated upstream
 @*
     Họ và tên: Nguyễn Văn Cường
     Mã sinh viên: 23103100132
-    Phụ trách Module 5: Cảnh báo hàng tồn & Lịch sử biến động kho
+    Nội dung thực hiện: Tồn kho, cảnh báo tồn, lịch sử nhập xuất, Dashboard và thống kê LINQ.
 *@
 @model QuanLyKhoHang_UNETI01_TI17A3HN.ViewModels.DashboardViewModel
-@using System.Text.Json
 
 @{
-    ViewData["Title"] = "Dashboard Thống kê Kho Hàng";
-    decimal tongGiaTri = ViewBag.TongGiaTriTonKho != null ? (decimal)ViewBag.TongGiaTriTonKho : 0;
+    ViewData["Title"] = "Dashboard & Báo Cáo Thống Kê Kho";
+    var baoCao = Model.BaoCao;
+    var danhSachKho = ViewBag.DanhSachKho as List<QuanLyKhoHang_UNETI01_TI17A3HN.Models.Kho> ?? new();
+    int chenhLechSL = baoCao.TongSoLuongNhap - baoCao.TongSoLuongXuat;
+    decimal chenhLechGiaTri = baoCao.TongGiaTriNhap - baoCao.TongGiaTriXuat;
 }
 
+<!-- Tiêu đề trang & Thanh điều hướng -->
 <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
     <div>
         <nav aria-label="breadcrumb">
@@ -20,17 +22,27 @@
                 <li class="breadcrumb-item active" aria-current="page">Dashboard</li>
             </ol>
         </nav>
-        <h3 class="fw-bold mb-0 text-dark">Trung Tâm Điều Hành &amp; Thống Kê Kho</h3>
+        <h3 class="fw-bold mb-0 text-dark">
+            <i class="bi bi-speedometer2 text-primary me-2"></i>Trung Tâm Điều Hành &amp; Báo Cáo Thống Kê Toàn Diện Bằng LINQ
+        </h3>
+        <p class="text-muted small mb-0 mt-1">
+            Tổng hợp dữ liệu điều hành hàng ngày và phân tích thống kê Nhập - Xuất - Tồn bằng LINQ
+        </p>
     </div>
-    <div class="d-flex gap-2">
-        <a asp-action="BaoCaoNhapXuat" class="btn btn-outline-primary d-inline-flex align-items-center gap-2">
-            <i class="bi bi-file-earmark-bar-graph"></i>
-            <span>Báo cáo tổng hợp Nhập - Xuất</span>
+    <div class="d-flex gap-2 no-print">
+        <button type="button" class="btn btn-outline-secondary d-inline-flex align-items-center gap-2" onclick="window.print()">
+            <i class="bi bi-printer"></i> <span>In báo cáo</span>
+        </button>
+        <a asp-controller="TonKho" asp-action="CanhBao" class="btn btn-outline-warning d-inline-flex align-items-center gap-2">
+            <i class="bi bi-exclamation-triangle"></i> <span>Cảnh báo tồn</span>
+        </a>
+        <a asp-controller="TonKho" asp-action="LichSu" class="btn btn-outline-info d-inline-flex align-items-center gap-2">
+            <i class="bi bi-clock-history"></i> <span>Lịch sử kho</span>
         </a>
     </div>
 </div>
 
-<!-- Khối 4 Thẻ KPI Chỉ số chính -->
+<!-- Khối 4 Thẻ KPI Chỉ số chính Hệ thống Hôm Nay -->
 <div class="row g-3 mb-4">
     <div class="col-sm-6 col-xl-3">
         <a asp-controller="HangHoas" asp-action="Index" class="text-decoration-none">
@@ -81,223 +93,28 @@
 <div class="row g-3 mb-4">
     <div class="col-md-6">
         <div class="card border-0 shadow-sm rounded-2 border-start border-danger border-4">
-            <div class="card-body p-4 d-flex justify-content-between align-items-center">
+            <div class="card-body p-3 d-flex justify-content-between align-items-center">
                 <div>
                     <div class="d-flex align-items-center gap-2 mb-1">
-                        <i class="bi bi-x-octagon-fill text-danger fs-4"></i>
-                        <h5 class="fw-bold mb-0 text-dark">Cảnh Báo Hết Hàng</h5>
+                        <i class="bi bi-x-octagon-fill text-danger fs-5"></i>
+                        <h6 class="fw-bold mb-0 text-dark">Cảnh Báo Hết Hàng</h6>
                     </div>
                     <p class="text-muted small mb-0">Hiện có <strong>@Model.SoHangHet</strong> sản phẩm có lượng tồn bằng 0.</p>
                 </div>
                 <a asp-controller="TonKho" asp-action="CanhBao" class="btn btn-danger btn-sm text-nowrap">
                     Xem chi tiết <i class="bi bi-arrow-right"></i>
                 </a>
-=======
-@model QuanLyKhoHang_UNETI01_TI17A3HN.ViewModels.DashboardViewModel
-
-@{
-    ViewData["Title"] = "Dashboard Tổng quan";
-    var tongGiaTriTon = ViewBag.TongGiaTriTonKho != null ? (decimal)ViewBag.TongGiaTriTonKho : 0m;
-}
-
-<style>
-    .dashboard-card {
-        transition: transform 0.25s ease, box-shadow 0.25s ease;
-        border-radius: 12px;
-        overflow: hidden;
-    }
-    .dashboard-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 8px 20px rgba(0,0,0,0.15) !important;
-    }
-    .kpi-value {
-        font-size: 2.2rem;
-        font-weight: 700;
-        letter-spacing: -0.5px;
-    }
-    .chart-container-card {
-        border-radius: 12px;
-        box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-    }
-    .card-header-custom {
-        background-color: #f8fafc;
-        border-bottom: 1px solid #e2e8f0;
-        font-weight: 600;
-        padding: 0.85rem 1.25rem;
-    }
-</style>
-
-<div class="container-fluid mt-3 pb-5">
-    <!-- Executive Header -->
-    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-2 border-bottom">
-        <div>
-            <h2 class="fw-bold mb-1 text-primary">
-                <i class="fas fa-chart-line text-primary me-2"></i>Bảng Điều Khiển Trung Tâm (Dashboard)
-            </h2>
-            <p class="text-muted mb-0">Hệ thống Giám sát & Quản lý Kho Vật tư - Cập nhật ngày: <strong>@DateTime.Today.ToString("dd/MM/yyyy")</strong></p>
-        </div>
-        <div class="d-flex gap-2 mt-2 mt-md-0">
-            <a href="/ThongKe/BaoCaoNhapXuat" class="btn btn-outline-primary btn-sm">
-                <i class="fas fa-file-invoice me-1"></i> Báo Cáo Nhập Xuất
-            </a>
-            <a href="/TonKho/LichSu" class="btn btn-outline-secondary btn-sm">
-                <i class="fas fa-history me-1"></i> Lịch Sử Biến Động
-            </a>
-            <a href="/ThongKe/Dashboard" class="btn btn-primary btn-sm">
-                <i class="fas fa-sync-alt me-1"></i> Làm Mới Dữ Liệu
-            </a>
-        </div>
-    </div>
-
-    <!-- 5 Thẻ Chỉ số KPIs Chiến Lược -->
-    <div class="row g-3 mb-4">
-        <!-- Box 1: Tổng Hàng Hóa -->
-        <div class="col-xl col-md-4 col-sm-6">
-            <a href="/HangHoas/Index" class="text-decoration-none">
-                <div class="card text-white bg-primary h-100 dashboard-card shadow-sm border-0">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <span class="text-uppercase fw-semibold" style="font-size: 0.8rem; opacity: 0.9;">Tổng Hàng Hóa</span>
-                                <div class="kpi-value my-1">@Model.TongSoHangHoa</div>
-                            </div>
-                            <div class="p-3 bg-white bg-opacity-25 rounded-circle">
-                                <i class="fas fa-boxes-stacked fa-2x"></i>
-                            </div>
-                        </div>
-                        <p class="mb-0 mt-2 text-white-50" style="font-size: 0.85rem;">Xem toàn bộ mặt hàng <i class="fas fa-arrow-right ms-1"></i></p>
-                    </div>
-                </div>
-            </a>
-        </div>
-
-        <!-- Box 2: Kho Đang Hoạt Động -->
-        <div class="col-xl col-md-4 col-sm-6">
-            <a href="/Khoes/Index" class="text-decoration-none">
-                <div class="card text-white bg-success h-100 dashboard-card shadow-sm border-0">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <span class="text-uppercase fw-semibold" style="font-size: 0.8rem; opacity: 0.9;">Kho Hoạt Động</span>
-                                <div class="kpi-value my-1">@Model.TongSoKho</div>
-                            </div>
-                            <div class="p-3 bg-white bg-opacity-25 rounded-circle">
-                                <i class="fas fa-warehouse fa-2x"></i>
-                            </div>
-                        </div>
-                        <p class="mb-0 mt-2 text-white-50" style="font-size: 0.85rem;">Xem chi tiết kho bãi <i class="fas fa-arrow-right ms-1"></i></p>
-                    </div>
-                </div>
-            </a>
-        </div>
-
-        <!-- Box 3: Số Phiếu Nhập Hôm Nay -->
-        <div class="col-xl col-md-4 col-sm-6">
-            <a href="/PhieuNhaps/Index" class="text-decoration-none">
-                <div class="card text-white bg-info h-100 dashboard-card shadow-sm border-0">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <span class="text-uppercase fw-semibold" style="font-size: 0.8rem; opacity: 0.9;">Phiếu Nhập (Hôm Nay)</span>
-                                <div class="kpi-value my-1">@Model.SoPhieuNhapTrongNgay</div>
-                            </div>
-                            <div class="p-3 bg-white bg-opacity-25 rounded-circle">
-                                <i class="fas fa-file-import fa-2x"></i>
-                            </div>
-                        </div>
-                        <p class="mb-0 mt-2 text-white-50" style="font-size: 0.85rem;">Đến chứng từ nhập <i class="fas fa-arrow-right ms-1"></i></p>
-                    </div>
-                </div>
-            </a>
-        </div>
-
-        <!-- Box 4: Số Phiếu Xuất Hôm Nay -->
-        <div class="col-xl col-md-6 col-sm-6">
-            <a href="/PhieuXuats/Index" class="text-decoration-none">
-                <div class="card text-white bg-warning h-100 dashboard-card shadow-sm border-0">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center text-dark">
-                            <div>
-                                <span class="text-uppercase fw-semibold" style="font-size: 0.8rem; opacity: 0.9;">Phiếu Xuất (Hôm Nay)</span>
-                                <div class="kpi-value my-1">@Model.SoPhieuXuatTrongNgay</div>
-                            </div>
-                            <div class="p-3 bg-dark bg-opacity-10 rounded-circle">
-                                <i class="fas fa-file-export fa-2x"></i>
-                            </div>
-                        </div>
-                        <p class="mb-0 mt-2 text-dark" style="font-size: 0.85rem; opacity: 0.8;">Đến chứng từ xuất <i class="fas fa-arrow-right ms-1"></i></p>
-                    </div>
-                </div>
-            </a>
-        </div>
-
-        <!-- Box 5: Tổng Giá Trị Tồn Kho Ước Tính (VIP Card) -->
-        <div class="col-xl-3 col-md-6 col-sm-12">
-            <a href="/TonKho/CanhBao" class="text-decoration-none">
-                <div class="card text-white bg-dark h-100 dashboard-card shadow-sm border-0" style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <span class="text-uppercase fw-semibold text-warning" style="font-size: 0.8rem; letter-spacing: 0.5px;">
-                                    <i class="fas fa-coins me-1"></i>Giá Trị Tồn Kho
-                                </span>
-                                <div class="kpi-value my-1 text-warning" style="font-size: 1.65rem;">
-                                    @tongGiaTriTon.ToString("N0") <span style="font-size: 0.9rem;">đ</span>
-                                </div>
-                            </div>
-                            <div class="p-3 bg-warning bg-opacity-25 rounded-circle text-warning">
-                                <i class="fas fa-wallet fa-2x"></i>
-                            </div>
-                        </div>
-                        <p class="mb-0 mt-2 text-white-50" style="font-size: 0.85rem;">Kiểm toán vốn lưu kho <i class="fas fa-arrow-right ms-1"></i></p>
-                    </div>
-                </div>
-            </a>
-        </div>
-    </div>
-
-    <!-- Hàng Biểu Đồ Trực Quan Hóa (Chart.js) -->
-    <div class="row g-4 mb-4">
-        <!-- Biểu đồ 1: Cơ cấu loại hàng (Doughnut Chart) -->
-        <div class="col-lg-5">
-            <div class="card h-100 chart-container-card border-0">
-                <div class="card-header card-header-custom d-flex justify-content-between align-items-center">
-                    <span><i class="fas fa-chart-pie text-primary me-2"></i>Cơ Cấu Hàng Hóa Theo Loại Hàng</span>
-                    <a href="/LoaiHangs" class="btn btn-sm btn-link p-0 text-decoration-none">Quản lý</a>
-                </div>
-                <div class="card-body d-flex flex-column justify-content-center align-items-center" style="min-height: 320px;">
-                    <div style="position: relative; height: 260px; width: 100%;">
-                        <canvas id="chartLoaiHang"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Biểu đồ 2: So sánh Nhập - Xuất 7 ngày gần nhất (Bar Chart) -->
-        <div class="col-lg-7">
-            <div class="card h-100 chart-container-card border-0">
-                <div class="card-header card-header-custom d-flex justify-content-between align-items-center">
-                    <span><i class="fas fa-chart-column text-success me-2"></i>Biến Động Nhập - Xuất (7 Ngày Gần Nhất)</span>
-                    <span class="badge bg-light text-dark border">Đơn vị: Số phiếu</span>
-                </div>
-                <div class="card-body" style="min-height: 320px;">
-                    <div style="position: relative; height: 260px; width: 100%;">
-                        <canvas id="chartNhapXuat"></canvas>
-                    </div>
-                </div>
->>>>>>> Stashed changes
             </div>
         </div>
     </div>
 
-<<<<<<< Updated upstream
     <div class="col-md-6">
         <div class="card border-0 shadow-sm rounded-2 border-start border-warning border-4">
-            <div class="card-body p-4 d-flex justify-content-between align-items-center">
+            <div class="card-body p-3 d-flex justify-content-between align-items-center">
                 <div>
                     <div class="d-flex align-items-center gap-2 mb-1">
-                        <i class="bi bi-exclamation-triangle-fill text-warning fs-4"></i>
-                        <h5 class="fw-bold mb-0 text-dark">Cảnh Báo Sắp Hết Hàng</h5>
+                        <i class="bi bi-exclamation-triangle-fill text-warning fs-5"></i>
+                        <h6 class="fw-bold mb-0 text-dark">Cảnh Báo Sắp Hết Hàng</h6>
                     </div>
                     <p class="text-muted small mb-0">Hiện có <strong>@Model.SoHangSapHet</strong> sản phẩm chạm hoặc dưới mức tối thiểu.</p>
                 </div>
@@ -309,332 +126,977 @@
     </div>
 </div>
 
-<!-- Hàng Biểu Đồ Trực Quan -->
-<div class="row g-4 mb-4">
-    <!-- Biểu đồ cột: So sánh Nhập - Xuất 7 ngày gần nhất -->
-    <div class="col-lg-8">
-        <div class="card border-0 shadow-sm rounded-2 h-100">
-            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
-                <h5 class="fw-bold mb-0 text-dark">
-                    <i class="bi bi-bar-chart-line-fill text-primary me-2"></i> Xu Hướng Nhập &amp; Xuất (7 Ngày Gần Nhất)
-                </h5>
-                <span class="badge bg-light text-secondary border">Chứng từ</span>
+<!-- ========================================================================= -->
+<!-- BÁO CÁO THỐNG KÊ TOÀN DIỆN BẰNG LINQ -->
+<!-- ========================================================================= -->
+
+<!-- Bộ Lọc Thời Gian & Kho Hàng (LINQ Filtering) -->
+<div class="card border-0 shadow-sm rounded-2 mb-4 no-print">
+    <div class="card-header bg-white py-3">
+        <h5 class="fw-bold mb-0 text-primary">
+            <i class="bi bi-funnel-fill me-2"></i>Bộ Lọc Báo Cáo Thống Kê LINQ
+        </h5>
+    </div>
+    <div class="card-body p-4">
+        <form asp-action="Dashboard" method="get" id="filterForm">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-3">
+                    <label for="baoCaoTuNgay" class="form-label small fw-semibold text-secondary">
+                        <i class="bi bi-calendar-event me-1"></i>Từ ngày
+                    </label>
+                    <input type="date" id="baoCaoTuNgay" name="tuNgay" value="@ViewBag.TuNgay" class="form-control" />
+                </div>
+
+                <div class="col-md-3">
+                    <label for="baoCaoDenNgay" class="form-label small fw-semibold text-secondary">
+                        <i class="bi bi-calendar-check me-1"></i>Đến ngày
+                    </label>
+                    <input type="date" id="baoCaoDenNgay" name="denNgay" value="@ViewBag.DenNgay" class="form-control" />
+                </div>
+
+                <div class="col-md-3">
+                    <label for="baoCaoKho" class="form-label small fw-semibold text-secondary">
+                        <i class="bi bi-building me-1"></i>Kho hàng
+                    </label>
+                    <select id="baoCaoKho" name="maKho" class="form-select">
+                        <option value="">-- Tất cả các kho --</option>
+                        @foreach (var k in danhSachKho)
+                        {
+                            <option value="@k.MaKho" selected="@(baoCao.MaKho == k.MaKho)">@k.TenKho</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="col-md-3 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary w-100 d-inline-flex align-items-center justify-content-center gap-2">
+                        <i class="bi bi-funnel-fill"></i> <span>Tổng hợp số liệu LINQ</span>
+                    </button>
+                </div>
             </div>
-            <div class="card-body p-4">
-                <div style="position: relative; height: 320px; width: 100%;">
-                    <canvas id="barChartNhapXuat"></canvas>
+
+            <!-- Các nút chọn nhanh khoảng thời gian -->
+            <div class="d-flex flex-wrap align-items-center gap-2 mt-3 pt-3 border-top">
+                <span class="small text-muted fw-semibold me-1"><i class="bi bi-lightning-charge me-1"></i>Lọc nhanh:</span>
+                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="setQuickDate('thisMonth')">Tháng này</button>
+                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="setQuickDate('last3Months')">3 tháng gần đây</button>
+                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="setQuickDate('thisYear')">Năm nay</button>
+                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="setQuickDate('allTime')">Toàn bộ dữ liệu</button>
+                @if (baoCao.MaKho.HasValue)
+                {
+                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle ms-auto">
+                        <i class="bi bi-funnel me-1"></i>Đang lọc theo kho: @baoCao.TenKhoChon
+                    </span>
+                }
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Khối 4 Thẻ KPI Tóm Tắt Tình Hình Nhập - Xuất - Tồn Trong Kỳ -->
+<div class="row g-3 mb-4">
+    <!-- KPI Nhập -->
+    <div class="col-sm-6 col-xl-3">
+        <div class="card border-0 shadow-sm rounded-2 h-100 border-start border-4 border-success">
+            <div class="card-body p-3">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <span class="text-success small fw-bold text-uppercase">Tổng Nhập Trong Kỳ</span>
+                        <h4 class="fw-bold text-success mb-1 mt-1 font-monospace">+@baoCao.TongSoLuongNhap.ToString("#,##0")</h4>
+                        <div class="text-muted small">@baoCao.TongGiaTriNhap.ToString("#,##0") VNĐ</div>
+                    </div>
+                    <span class="badge bg-success-subtle text-success p-2 rounded-circle">
+                        <i class="bi bi-box-arrow-in-down fs-5"></i>
+                    </span>
+                </div>
+                <small class="text-muted d-block mt-2">
+                    <i class="bi bi-receipt me-1"></i>@baoCao.TongSoPhieuNhap phiếu nhập phát sinh
+                </small>
+            </div>
+        </div>
+    </div>
+
+    <!-- KPI Xuất -->
+    <div class="col-sm-6 col-xl-3">
+        <div class="card border-0 shadow-sm rounded-2 h-100 border-start border-4 border-danger">
+            <div class="card-body p-3">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <span class="text-danger small fw-bold text-uppercase">Tổng Xuất Trong Kỳ</span>
+                        <h4 class="fw-bold text-danger mb-1 mt-1 font-monospace">-@baoCao.TongSoLuongXuat.ToString("#,##0")</h4>
+                        <div class="text-muted small">@baoCao.TongGiaTriXuat.ToString("#,##0") VNĐ</div>
+                    </div>
+                    <span class="badge bg-danger-subtle text-danger p-2 rounded-circle">
+                        <i class="bi bi-box-arrow-up-right fs-5"></i>
+                    </span>
+                </div>
+                <small class="text-muted d-block mt-2">
+                    <i class="bi bi-receipt-cutoff me-1"></i>@baoCao.TongSoPhieuXuat phiếu xuất phát sinh
+                </small>
+            </div>
+        </div>
+    </div>
+
+    <!-- KPI Cân đối biến động -->
+    <div class="col-sm-6 col-xl-3">
+        <div class="card border-0 shadow-sm rounded-2 h-100 border-start border-4 border-info">
+            <div class="card-body p-3">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <span class="text-info small fw-bold text-uppercase">Cân Đối Biến Động</span>
+                        <h4 class="fw-bold @(chenhLechSL >= 0 ? "text-primary" : "text-warning") mb-1 mt-1 font-monospace">
+                            @(chenhLechSL >= 0 ? "+" : "")@chenhLechSL.ToString("#,##0")
+                        </h4>
+                        <div class="text-muted small">@(chenhLechGiaTri >= 0 ? "+" : "")@chenhLechGiaTri.ToString("#,##0") VNĐ</div>
+                    </div>
+                    <span class="badge bg-info-subtle text-info p-2 rounded-circle">
+                        <i class="bi bi-arrow-left-right fs-5"></i>
+                    </span>
+                </div>
+                <small class="text-muted d-block mt-2">
+                    <i class="bi bi-graph-up-arrow me-1"></i>Nhập trừ Xuất trong kỳ
+                </small>
+            </div>
+        </div>
+    </div>
+
+    <!-- KPI Tồn hiện tại -->
+    <div class="col-sm-6 col-xl-3">
+        <div class="card border-0 shadow-sm rounded-2 h-100 border-start border-4 border-primary">
+            <div class="card-body p-3">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <span class="text-primary small fw-bold text-uppercase">Tổng Tồn Hiện Tại</span>
+                        <h4 class="fw-bold text-primary mb-1 mt-1 font-monospace">@baoCao.TongSoLuongTon.ToString("#,##0")</h4>
+                        <div class="text-muted small">@baoCao.TongGiaTriTon.ToString("#,##0") VNĐ</div>
+                    </div>
+                    <span class="badge bg-primary-subtle text-primary p-2 rounded-circle">
+                        <i class="bi bi-boxes fs-5"></i>
+                    </span>
+                </div>
+                <small class="text-muted d-block mt-2">
+                    <i class="bi bi-database me-1"></i>@baoCao.DanhSachTonHienTai.Count mặt hàng lưu kho
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ========================================================================= -->
+<!-- 5 TAB THỐNG KÊ CHI TIẾT BẰNG LINQ -->
+<!-- ========================================================================= -->
+<ul class="nav nav-pills mb-3 gap-2 no-print" id="pills-tab" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="pills-top-tab" data-bs-toggle="pill" data-bs-target="#pills-top" type="button" role="tab" aria-selected="true">
+            <i class="bi bi-trophy me-1"></i> Xếp Hạng Top &amp; Đối Tác
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="pills-nhap-tab" data-bs-toggle="pill" data-bs-target="#pills-nhap" type="button" role="tab" aria-selected="false">
+            <i class="bi bi-box-arrow-in-down me-1"></i> Tổng Nhập (Hàng / Kho / Tháng)
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="pills-xuat-tab" data-bs-toggle="pill" data-bs-target="#pills-xuat" type="button" role="tab" aria-selected="false">
+            <i class="bi bi-box-arrow-up-right me-1"></i> Tổng Xuất (Hàng / Kho / Tháng)
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="pills-ton-tab" data-bs-toggle="pill" data-bs-target="#pills-ton" type="button" role="tab" aria-selected="false">
+            <i class="bi bi-boxes me-1"></i> Tồn Kho Hiện Tại
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="pills-status-tab" data-bs-toggle="pill" data-bs-target="#pills-status" type="button" role="tab" aria-selected="false">
+            <i class="bi bi-pie-chart me-1"></i> Số Phiếu Theo Trạng Thái
+        </button>
+    </li>
+</ul>
+
+<div class="tab-content" id="pills-tabContent">
+
+    <!-- TAB 1: XẾP HẠNG TOP & ĐỐI TÁC -->
+    <div class="tab-pane fade show active" id="pills-top" role="tabpanel">
+        <div class="row g-4 mb-4">
+            <!-- Top Hàng Nhập Nhiều Nhất -->
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm rounded-2 h-100">
+                    <div class="card-header bg-white py-3 d-flex align-items-center justify-content-between">
+                        <h6 class="fw-bold mb-0 text-success">
+                            <i class="bi bi-trophy-fill me-2"></i> Hàng Nhập Nhiều Nhất (Top 10)
+                        </h6>
+                        <span class="badge bg-success-subtle text-success border border-success-subtle">LINQ OrderByDescending</span>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="ps-3" style="width: 50px;">Top</th>
+                                        <th>Tên hàng hóa</th>
+                                        <th>Loại / ĐVT</th>
+                                        <th class="text-end pe-3">Số lượng nhập</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (baoCao.TopHangNhap.Any())
+                                    {
+                                        int stt = 1;
+                                        foreach (var item in baoCao.TopHangNhap)
+                                        {
+                                            <tr>
+                                                <td class="ps-3 font-monospace">
+                                                    @if (stt == 1) { <span class="badge bg-warning text-dark"><i class="bi bi-trophy-fill me-1"></i>#1</span> }
+                                                    else if (stt == 2) { <span class="badge bg-secondary text-white">#2</span> }
+                                                    else if (stt == 3) { <span class="badge bg-dark-subtle text-dark">#3</span> }
+                                                    else { <span class="text-muted">#@stt</span> }
+                                                </td>
+                                                <td>
+                                                    <span class="fw-semibold text-dark">@item.TenHang</span>
+                                                    <div class="small text-muted">@item.TongGiaTri.ToString("#,##0") VNĐ</div>
+                                                </td>
+                                                <td>
+                                                    <span class="badge bg-light text-secondary border">@item.LoaiHang</span>
+                                                    <small class="text-muted d-block">ĐVT: @item.DonViTinh</small>
+                                                </td>
+                                                <td class="text-end pe-3 font-monospace fw-bold text-success fs-6">
+                                                    +@item.TongSoLuong.ToString("#,##0")
+                                                </td>
+                                            </tr>
+                                            stt++;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <tr><td colspan="4" class="text-center text-muted py-4">Chưa có giao dịch nhập nào hoàn tất trong kỳ.</td></tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Top Hàng Xuất Nhiều Nhất -->
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm rounded-2 h-100">
+                    <div class="card-header bg-white py-3 d-flex align-items-center justify-content-between">
+                        <h6 class="fw-bold mb-0 text-danger">
+                            <i class="bi bi-fire me-2"></i> Hàng Xuất Nhiều Nhất (Top 10)
+                        </h6>
+                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle">LINQ OrderByDescending</span>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="ps-3" style="width: 50px;">Top</th>
+                                        <th>Tên hàng hóa</th>
+                                        <th>Loại / ĐVT</th>
+                                        <th class="text-end pe-3">Số lượng xuất</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (baoCao.TopHangXuat.Any())
+                                    {
+                                        int stt = 1;
+                                        foreach (var item in baoCao.TopHangXuat)
+                                        {
+                                            <tr>
+                                                <td class="ps-3 font-monospace">
+                                                    @if (stt == 1) { <span class="badge bg-danger text-white"><i class="bi bi-fire me-1"></i>#1</span> }
+                                                    else if (stt == 2) { <span class="badge bg-warning text-dark">#2</span> }
+                                                    else if (stt == 3) { <span class="badge bg-secondary text-white">#3</span> }
+                                                    else { <span class="text-muted">#@stt</span> }
+                                                </td>
+                                                <td>
+                                                    <span class="fw-semibold text-dark">@item.TenHang</span>
+                                                    <div class="small text-muted">@item.TongGiaTri.ToString("#,##0") VNĐ</div>
+                                                </td>
+                                                <td>
+                                                    <span class="badge bg-light text-secondary border">@item.LoaiHang</span>
+                                                    <small class="text-muted d-block">ĐVT: @item.DonViTinh</small>
+                                                </td>
+                                                <td class="text-end pe-3 font-monospace fw-bold text-danger fs-6">
+                                                    -@item.TongSoLuong.ToString("#,##0")
+                                                </td>
+                                            </tr>
+                                            stt++;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <tr><td colspan="4" class="text-center text-muted py-4">Chưa có giao dịch xuất nào hoàn tất trong kỳ.</td></tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Hàng 2: Nhà Cung Cấp Lớn & Bộ Phận Nhận Nhiều -->
+        <div class="row g-4">
+            <!-- Nhà cung cấp có giá trị nhập lớn -->
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm rounded-2 h-100">
+                    <div class="card-header bg-white py-3 d-flex align-items-center justify-content-between">
+                        <h6 class="fw-bold mb-0 text-primary">
+                            <i class="bi bi-truck me-2"></i> Nhà Cung Cấp Có Giá Trị Nhập Lớn
+                        </h6>
+                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle">Theo tổng giá trị</span>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="ps-3">Nhà cung cấp</th>
+                                        <th>Liên hệ / Địa chỉ</th>
+                                        <th class="text-center">Số phiếu</th>
+                                        <th class="text-end pe-3">Tổng giá trị nhập</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (baoCao.TopNhaCungCap.Any())
+                                    {
+                                        foreach (var ncc in baoCao.TopNhaCungCap)
+                                        {
+                                            <tr>
+                                                <td class="ps-3">
+                                                    <span class="fw-bold text-dark">@ncc.TenNhaCungCap</span>
+                                                    <div class="small text-muted font-monospace">Mã NCC: #@ncc.MaNhaCungCap</div>
+                                                </td>
+                                                <td>
+                                                    <div class="small"><i class="bi bi-telephone text-muted me-1"></i>@ncc.SoDienThoai</div>
+                                                    <div class="small text-muted text-truncate" style="max-width: 180px;">@ncc.DiaChi</div>
+                                                </td>
+                                                <td class="text-center font-monospace">
+                                                    <span class="badge bg-light text-dark border">@ncc.SoPhieuNhap phiếu</span>
+                                                </td>
+                                                <td class="text-end pe-3 font-monospace fw-bold text-primary">
+                                                    @ncc.TongGiaTriNhap.ToString("#,##0") VNĐ
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <tr><td colspan="4" class="text-center text-muted py-4">Chưa có phát sinh nhập hàng từ nhà cung cấp trong kỳ.</td></tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bộ phận nhận nhiều hàng -->
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm rounded-2 h-100">
+                    <div class="card-header bg-white py-3 d-flex align-items-center justify-content-between">
+                        <h6 class="fw-bold mb-0 text-info">
+                            <i class="bi bi-shop me-2"></i> Bộ Phận Nhận Nhiều Hàng Nhất
+                        </h6>
+                        <span class="badge bg-info-subtle text-info border border-info-subtle">Theo số lượng nhận</span>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="ps-3">Bộ phận nhận</th>
+                                        <th>Người đại diện / SĐT</th>
+                                        <th class="text-center">Số phiếu</th>
+                                        <th class="text-end pe-3">Số lượng nhận</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (baoCao.TopBoPhanNhan.Any())
+                                    {
+                                        foreach (var bp in baoCao.TopBoPhanNhan)
+                                        {
+                                            <tr>
+                                                <td class="ps-3">
+                                                    <span class="fw-bold text-dark">@bp.TenBoPhan</span>
+                                                    <div class="small text-muted">Trị giá: @bp.TongGiaTriXuat.ToString("#,##0") VNĐ</div>
+                                                </td>
+                                                <td>
+                                                    <div class="small fw-semibold text-secondary">@bp.NguoiDaiDien</div>
+                                                    <div class="small text-muted"><i class="bi bi-telephone me-1"></i>@bp.SoDienThoai</div>
+                                                </td>
+                                                <td class="text-center font-monospace">
+                                                    <span class="badge bg-light text-dark border">@bp.SoPhieuXuat phiếu</span>
+                                                </td>
+                                                <td class="text-end pe-3 font-monospace fw-bold text-danger">
+                                                    @bp.TongSoLuongNhan.ToString("#,##0")
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <tr><td colspan="4" class="text-center text-muted py-4">Chưa có phát sinh xuất hàng cho bộ phận nào trong kỳ.</td></tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Biểu đồ tròn: Cơ cấu theo loại hàng -->
-    <div class="col-lg-4">
-        <div class="card border-0 shadow-sm rounded-2 h-100">
-            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
-                <h5 class="fw-bold mb-0 text-dark">
-                    <i class="bi bi-pie-chart-fill text-success me-2"></i> Cơ Cấu Theo Loại Hàng
-                </h5>
-                <span class="badge bg-light text-secondary border">Danh mục</span>
-            </div>
-            <div class="card-body p-4">
-                <div style="position: relative; height: 320px; width: 100%;">
-                    <canvas id="pieChartLoaiHang"></canvas>
-=======
-    <!-- Hàng Khung Cảnh Báo An Toàn Kho -->
-    <div class="row g-3">
-        <!-- Cảnh báo Hàng Hết -->
-        <div class="col-md-6">
-            <div class="alert alert-danger shadow-sm border-0 d-flex align-items-start p-3 mb-0" style="border-radius: 10px;">
-                <div class="me-3 mt-1">
-                    <i class="fas fa-triangle-exclamation fa-2x text-danger"></i>
+    <!-- TAB 2: TỔNG NHẬP THEO HÀNG / KHO / THÁNG -->
+    <div class="tab-pane fade" id="pills-nhap" role="tabpanel">
+        <div class="row g-4 mb-4">
+            <!-- Tổng nhập theo Kho -->
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm rounded-2 h-100">
+                    <div class="card-header bg-white py-3">
+                        <h6 class="fw-bold mb-0 text-success">
+                            <i class="bi bi-building me-2"></i> Tổng Nhập Theo Kho Hàng
+                        </h6>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="ps-3">Kho hàng</th>
+                                        <th class="text-center">Số phiếu</th>
+                                        <th class="text-end">Số lượng nhập</th>
+                                        <th class="text-end pe-3">Tổng giá trị</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (baoCao.TongNhapTheoKho.Any())
+                                    {
+                                        foreach (var k in baoCao.TongNhapTheoKho)
+                                        {
+                                            <tr>
+                                                <td class="ps-3">
+                                                    <span class="fw-bold text-dark">@k.TenKho</span>
+                                                    <div class="small text-muted">@k.DiaDiem</div>
+                                                </td>
+                                                <td class="text-center font-monospace">@k.SoPhieu</td>
+                                                <td class="text-end font-monospace fw-bold text-success">+@k.TongSoLuong.ToString("#,##0")</td>
+                                                <td class="text-end pe-3 font-monospace">@k.TongGiaTri.ToString("#,##0") VNĐ</td>
+                                            </tr>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <tr><td colspan="4" class="text-center text-muted py-3">Không có số liệu.</td></tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
-                <div class="flex-grow-1">
-                    <h5 class="alert-heading fw-bold mb-1">Cảnh Báo Hết Sạch Hàng (Hạn mức = 0)</h5>
-                    <p class="mb-2">Hiện tại hệ thống ghi nhận có <span class="badge bg-danger fs-6">@Model.SoHangHet</span> mặt hàng đã hết tồn kho, cần liên hệ Nhà cung cấp lập phiếu nhập gấp.</p>
-                    <a href="/TonKho/CanhBao" class="btn btn-sm btn-danger">
-                        <i class="fas fa-list-check me-1"></i> Xem danh sách hết hàng
-                    </a>
+            </div>
+
+            <!-- Tổng nhập theo Tháng -->
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm rounded-2 h-100">
+                    <div class="card-header bg-white py-3">
+                        <h6 class="fw-bold mb-0 text-success">
+                            <i class="bi bi-calendar3 me-2"></i> Tổng Nhập Theo Tháng
+                        </h6>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="ps-3">Kỳ báo cáo</th>
+                                        <th class="text-center">Số phiếu</th>
+                                        <th class="text-end">Số lượng nhập</th>
+                                        <th class="text-end pe-3">Tổng thành tiền</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (baoCao.TongNhapTheoThang.Any())
+                                    {
+                                        foreach (var m in baoCao.TongNhapTheoThang)
+                                        {
+                                            <tr>
+                                                <td class="ps-3 fw-bold text-dark">@m.ThangNam</td>
+                                                <td class="text-center font-monospace">@m.SoPhieu</td>
+                                                <td class="text-end font-monospace fw-bold text-success">+@m.TongSoLuong.ToString("#,##0")</td>
+                                                <td class="text-end pe-3 font-monospace">@m.TongGiaTri.ToString("#,##0") VNĐ</td>
+                                            </tr>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <tr><td colspan="4" class="text-center text-muted py-3">Không có số liệu.</td></tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Cảnh báo Hàng Sắp Hết -->
-        <div class="col-md-6">
-            <div class="alert alert-warning shadow-sm border-0 d-flex align-items-start p-3 mb-0" style="border-radius: 10px;">
-                <div class="me-3 mt-1">
-                    <i class="fas fa-circle-exclamation fa-2x text-warning"></i>
+        <!-- Chi tiết tổng nhập theo hàng -->
+        <div class="card border-0 shadow-sm rounded-2">
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                <h6 class="fw-bold mb-0 text-success">
+                    <i class="bi bi-box-seam me-2"></i> Chi Tiết Tổng Nhập Theo Từng Mặt Hàng
+                </h6>
+                <span class="badge bg-light text-secondary border">@baoCao.TongNhapTheoHang.Count mặt hàng</span>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="ps-3">Mã hàng</th>
+                                <th>Tên hàng hóa</th>
+                                <th>Loại hàng</th>
+                                <th>Đơn vị tính</th>
+                                <th class="text-center">Số lần nhập</th>
+                                <th class="text-end">Tổng số lượng</th>
+                                <th class="text-end pe-3">Tổng thành tiền</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (baoCao.TongNhapTheoHang.Any())
+                            {
+                                foreach (var h in baoCao.TongNhapTheoHang)
+                                {
+                                    <tr>
+                                        <td class="ps-3 font-monospace text-muted">#@h.MaHang</td>
+                                        <td class="fw-semibold text-dark">@h.TenHang</td>
+                                        <td><span class="badge bg-light text-secondary border">@h.LoaiHang</span></td>
+                                        <td>@h.DonViTinh</td>
+                                        <td class="text-center font-monospace">@h.SoLanGiaoDich</td>
+                                        <td class="text-end font-monospace fw-bold text-success">+@h.TongSoLuong.ToString("#,##0")</td>
+                                        <td class="text-end pe-3 font-monospace">@h.TongGiaTri.ToString("#,##0") VNĐ</td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr><td colspan="7" class="text-center text-muted py-4">Không có bản ghi nhập hàng nào trong kỳ.</td></tr>
+                            }
+                        </tbody>
+                    </table>
                 </div>
-                <div class="flex-grow-1">
-                    <h5 class="alert-heading fw-bold mb-1">Cảnh Báo Chạm Ngưỡng Tồn Tối Thiểu</h5>
-                    <p class="mb-2">Hiện tại có <span class="badge bg-warning text-dark fs-6">@Model.SoHangSapHet</span> mặt hàng đã chạm mức tồn an toàn tối thiểu quy định.</p>
-                    <a href="/TonKho/CanhBao" class="btn btn-sm btn-warning text-dark">
-                        <i class="fas fa-list-check me-1"></i> Xem danh sách sắp hết
-                    </a>
->>>>>>> Stashed changes
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB 3: TỔNG XUẤT THEO HÀNG / KHO / THÁNG -->
+    <div class="tab-pane fade" id="pills-xuat" role="tabpanel">
+        <div class="row g-4 mb-4">
+            <!-- Tổng xuất theo Kho -->
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm rounded-2 h-100">
+                    <div class="card-header bg-white py-3">
+                        <h6 class="fw-bold mb-0 text-danger">
+                            <i class="bi bi-building me-2"></i> Tổng Xuất Theo Kho Hàng
+                        </h6>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="ps-3">Kho hàng</th>
+                                        <th class="text-center">Số phiếu</th>
+                                        <th class="text-end">Số lượng xuất</th>
+                                        <th class="text-end pe-3">Tổng giá trị</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (baoCao.TongXuatTheoKho.Any())
+                                    {
+                                        foreach (var k in baoCao.TongXuatTheoKho)
+                                        {
+                                            <tr>
+                                                <td class="ps-3">
+                                                    <span class="fw-bold text-dark">@k.TenKho</span>
+                                                    <div class="small text-muted">@k.DiaDiem</div>
+                                                </td>
+                                                <td class="text-center font-monospace">@k.SoPhieu</td>
+                                                <td class="text-end font-monospace fw-bold text-danger">-@k.TongSoLuong.ToString("#,##0")</td>
+                                                <td class="text-end pe-3 font-monospace">@k.TongGiaTri.ToString("#,##0") VNĐ</td>
+                                            </tr>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <tr><td colspan="4" class="text-center text-muted py-3">Không có số liệu.</td></tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tổng xuất theo Tháng -->
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm rounded-2 h-100">
+                    <div class="card-header bg-white py-3">
+                        <h6 class="fw-bold mb-0 text-danger">
+                            <i class="bi bi-calendar3 me-2"></i> Tổng Xuất Theo Tháng
+                        </h6>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="ps-3">Kỳ báo cáo</th>
+                                        <th class="text-center">Số phiếu</th>
+                                        <th class="text-end">Số lượng xuất</th>
+                                        <th class="text-end pe-3">Tổng thành tiền</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (baoCao.TongXuatTheoThang.Any())
+                                    {
+                                        foreach (var m in baoCao.TongXuatTheoThang)
+                                        {
+                                            <tr>
+                                                <td class="ps-3 fw-bold text-dark">@m.ThangNam</td>
+                                                <td class="text-center font-monospace">@m.SoPhieu</td>
+                                                <td class="text-end font-monospace fw-bold text-danger">-@m.TongSoLuong.ToString("#,##0")</td>
+                                                <td class="text-end pe-3 font-monospace">@m.TongGiaTri.ToString("#,##0") VNĐ</td>
+                                            </tr>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <tr><td colspan="4" class="text-center text-muted py-3">Không có số liệu.</td></tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chi tiết tổng xuất theo hàng -->
+        <div class="card border-0 shadow-sm rounded-2">
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                <h6 class="fw-bold mb-0 text-danger">
+                    <i class="bi bi-box-seam me-2"></i> Chi Tiết Tổng Xuất Theo Từng Mặt Hàng
+                </h6>
+                <span class="badge bg-light text-secondary border">@baoCao.TongXuatTheoHang.Count mặt hàng</span>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="ps-3">Mã hàng</th>
+                                <th>Tên hàng hóa</th>
+                                <th>Loại hàng</th>
+                                <th>Đơn vị tính</th>
+                                <th class="text-center">Số lần xuất</th>
+                                <th class="text-end">Tổng số lượng</th>
+                                <th class="text-end pe-3">Tổng thành tiền</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (baoCao.TongXuatTheoHang.Any())
+                            {
+                                foreach (var h in baoCao.TongXuatTheoHang)
+                                {
+                                    <tr>
+                                        <td class="ps-3 font-monospace text-muted">#@h.MaHang</td>
+                                        <td class="fw-semibold text-dark">@h.TenHang</td>
+                                        <td><span class="badge bg-light text-secondary border">@h.LoaiHang</span></td>
+                                        <td>@h.DonViTinh</td>
+                                        <td class="text-center font-monospace">@h.SoLanGiaoDich</td>
+                                        <td class="text-end font-monospace fw-bold text-danger">-@h.TongSoLuong.ToString("#,##0")</td>
+                                        <td class="text-end pe-3 font-monospace">@h.TongGiaTri.ToString("#,##0") VNĐ</td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr><td colspan="7" class="text-center text-muted py-4">Không có bản ghi xuất hàng nào trong kỳ.</td></tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB 4: TỒN HIỆN TẠI -->
+    <div class="tab-pane fade" id="pills-ton" role="tabpanel">
+        <!-- Tổng hợp Tồn theo Kho -->
+        <div class="card border-0 shadow-sm rounded-2 mb-4">
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                <h6 class="fw-bold mb-0 text-primary">
+                    <i class="bi bi-building-check me-2"></i> Tổng Hợp Tồn Kho Theo Từng Kho Bãi
+                </h6>
+                <span class="badge bg-primary-subtle text-primary border border-primary-subtle">
+                    Tổng trị giá tồn: @baoCao.TongGiaTriTon.ToString("#,##0") VNĐ
+                </span>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="ps-3">Kho hàng</th>
+                                <th>Địa điểm</th>
+                                <th class="text-center">Số mặt hàng</th>
+                                <th class="text-end">Tổng số lượng tồn</th>
+                                <th class="text-end">Tổng giá trị tồn</th>
+                                <th class="text-center pe-3">Cảnh báo hạn mức</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (baoCao.DanhSachTonTheoKho.Any())
+                            {
+                                foreach (var tk in baoCao.DanhSachTonTheoKho)
+                                {
+                                    <tr>
+                                        <td class="ps-3 fw-bold text-dark">@tk.TenKho</td>
+                                        <td class="text-muted small">@tk.DiaDiem</td>
+                                        <td class="text-center font-monospace">@tk.SoMatHang</td>
+                                        <td class="text-end font-monospace fw-bold text-primary">@tk.TongSoLuongTon.ToString("#,##0")</td>
+                                        <td class="text-end font-monospace">@tk.TongGiaTriTon.ToString("#,##0") VNĐ</td>
+                                        <td class="text-center pe-3">
+                                            @if (tk.SoHangHet > 0)
+                                            {
+                                                <span class="badge bg-danger me-1">@tk.SoHangHet hết</span>
+                                            }
+                                            @if (tk.SoHangSapHet > 0)
+                                            {
+                                                <span class="badge bg-warning text-dark">@tk.SoHangSapHet sắp hết</span>
+                                            }
+                                            @if (tk.SoHangHet == 0 && tk.SoHangSapHet == 0)
+                                            {
+                                                <span class="badge bg-success">An toàn</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr><td colspan="6" class="text-center text-muted py-3">Không có số liệu tồn kho.</td></tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chi tiết tồn theo từng sản phẩm -->
+        <div class="card border-0 shadow-sm rounded-2">
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                <h6 class="fw-bold mb-0 text-dark">
+                    <i class="bi bi-list-check me-2"></i> Danh Sách Chi Tiết Tồn Hiện Tại Từng Sản Phẩm
+                </h6>
+                <a asp-controller="TonKho" asp-action="CanhBao" class="btn btn-sm btn-outline-warning">
+                    <i class="bi bi-exclamation-triangle"></i> Xem cảnh báo hạn mức
+                </a>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="ps-3">Kho</th>
+                                <th>Mã hàng</th>
+                                <th>Tên hàng hóa</th>
+                                <th>Loại / ĐVT</th>
+                                <th class="text-end">Số lượng tồn</th>
+                                <th class="text-center">Định mức TT</th>
+                                <th class="text-end">Đơn giá tham khảo</th>
+                                <th class="text-end">Giá trị tồn</th>
+                                <th class="text-center pe-3">Trạng thái</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (baoCao.DanhSachTonHienTai.Any())
+                            {
+                                foreach (var t in baoCao.DanhSachTonHienTai)
+                                {
+                                    <tr>
+                                        <td class="ps-3 fw-semibold small text-secondary">@t.TenKho</td>
+                                        <td class="font-monospace text-muted small">#@t.MaHang</td>
+                                        <td class="fw-bold text-dark">@t.TenHang</td>
+                                        <td>
+                                            <span class="badge bg-light text-secondary border">@t.LoaiHang</span>
+                                            <small class="text-muted d-block">@t.DonViTinh</small>
+                                        </td>
+                                        <td class="text-end font-monospace fw-bold @(t.SoLuongTon == 0 ? "text-danger" : "text-dark")">
+                                            @t.SoLuongTon.ToString("#,##0")
+                                        </td>
+                                        <td class="text-center font-monospace text-muted small">@t.MucTonToiThieu</td>
+                                        <td class="text-end font-monospace small">@t.DonGiaThamKhao.ToString("#,##0")</td>
+                                        <td class="text-end font-monospace fw-semibold text-primary">@t.GiaTriTonKho.ToString("#,##0") VNĐ</td>
+                                        <td class="text-center pe-3">
+                                            <span class="badge @t.BadgeClass">@t.TrangThaiTon</span>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr><td colspan="9" class="text-center text-muted py-4">Không có mặt hàng nào.</td></tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB 5: SỐ PHIẾU THEO TRẠNG THÁI -->
+    <div class="tab-pane fade" id="pills-status" role="tabpanel">
+        <div class="row g-4">
+            <!-- Phiếu Nhập theo trạng thái -->
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm rounded-2 h-100">
+                    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                        <h6 class="fw-bold mb-0 text-success">
+                            <i class="bi bi-box-arrow-in-down me-2"></i> Phiếu Nhập Theo Trạng Thái
+                        </h6>
+                        <span class="badge bg-light text-dark border">Tổng cộng: @baoCao.TongSoPhieuNhap phiếu</span>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="table-responsive mb-4">
+                            <table class="table align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Trạng thái chứng từ</th>
+                                        <th class="text-center">Số lượng</th>
+                                        <th class="text-end">Tỷ lệ</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var st in baoCao.SoPhieuNhapTheoTrangThai)
+                                    {
+                                        <tr>
+                                            <td><span class="badge @st.BadgeClass px-2 py-1">@st.TenTrangThai</span></td>
+                                            <td class="text-center font-monospace fw-bold">@st.SoLuong</td>
+                                            <td class="text-end font-monospace text-muted">@st.TiLePhanTram%</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Progress Bar trực quan -->
+                        <div class="progress-stacked" style="height: 22px;">
+                            @foreach (var st in baoCao.SoPhieuNhapTheoTrangThai.Where(x => x.SoLuong > 0))
+                            {
+                                string bgClass = st.TrangThaiId switch {
+                                    0 => "bg-secondary",
+                                    1 => "bg-warning",
+                                    2 => "bg-success",
+                                    3 => "bg-danger",
+                                    _ => "bg-primary"
+                                };
+                                <div class="progress" role="progressbar" style="width: @st.TiLePhanTram%" aria-valuenow="@st.TiLePhanTram" aria-valuemin="0" aria-valuemax="100" title="@st.TenTrangThai: @st.SoLuong (@st.TiLePhanTram%)">
+                                    <div class="progress-bar @bgClass">@st.TiLePhanTram%</div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Phiếu Xuất theo trạng thái -->
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm rounded-2 h-100">
+                    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                        <h6 class="fw-bold mb-0 text-danger">
+                            <i class="bi bi-box-arrow-up-right me-2"></i> Phiếu Xuất Theo Trạng Thái
+                        </h6>
+                        <span class="badge bg-light text-dark border">Tổng cộng: @baoCao.TongSoPhieuXuat phiếu</span>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="table-responsive mb-4">
+                            <table class="table align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Trạng thái chứng từ</th>
+                                        <th class="text-center">Số lượng</th>
+                                        <th class="text-end">Tỷ lệ</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var st in baoCao.SoPhieuXuatTheoTrangThai)
+                                    {
+                                        <tr>
+                                            <td><span class="badge @st.BadgeClass px-2 py-1">@st.TenTrangThai</span></td>
+                                            <td class="text-center font-monospace fw-bold">@st.SoLuong</td>
+                                            <td class="text-end font-monospace text-muted">@st.TiLePhanTram%</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Progress Bar trực quan -->
+                        <div class="progress-stacked" style="height: 22px;">
+                            @foreach (var st in baoCao.SoPhieuXuatTheoTrangThai.Where(x => x.SoLuong > 0))
+                            {
+                                string bgClass = st.TrangThaiId switch {
+                                    0 => "bg-secondary",
+                                    1 => "bg-warning",
+                                    2 => "bg-success",
+                                    3 => "bg-danger",
+                                    _ => "bg-primary"
+                                };
+                                <div class="progress" role="progressbar" style="width: @st.TiLePhanTram%" aria-valuenow="@st.TiLePhanTram" aria-valuemin="0" aria-valuemax="100" title="@st.TenTrangThai: @st.SoLuong (@st.TiLePhanTram%)">
+                                    <div class="progress-bar @bgClass">@st.TiLePhanTram%</div>
+                                </div>
+                            }
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<<<<<<< Updated upstream
-<!-- Thống kê Giá Trị Kho Hàng -->
-<div class="card border-0 shadow-sm rounded-2 mb-4 bg-light">
-    <div class="card-body p-4 d-flex align-items-center justify-content-between flex-wrap gap-3">
-        <div class="d-flex align-items-center gap-3">
-            <i class="bi bi-cash-stack fs-1 text-primary"></i>
-            <div>
-                <h5 class="fw-bold mb-1 text-dark">Tổng Trị Giá Hàng Hóa Tồn Kho Ước Tính</h5>
-                <small class="text-muted">Tính theo công thức: &Sigma; (Số lượng tồn &times; Giá nhập tham khảo)</small>
-            </div>
-        </div>
-        <div class="text-end">
-            <div class="fs-3 fw-bold text-primary font-monospace">@tongGiaTri.ToString("#,##0") VNĐ</div>
-            <span class="badge bg-success-subtle text-success border border-success-subtle">
-                <i class="bi bi-shield-check me-1"></i> Đối soát tài chính kho
-            </span>
-        </div>
-    </div>
-</div>
-
-@section Scripts {
-    <script src="~/lib/chartjs/chart.umd.min.js"></script>
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            // Dữ liệu từ controller
-            const daysLabels = @Html.Raw(JsonSerializer.Serialize(ViewBag.ChartDaysLabels ?? new List<string>()));
-            const nhapData = @Html.Raw(JsonSerializer.Serialize(ViewBag.ChartNhapData ?? new List<int>()));
-            const xuatData = @Html.Raw(JsonSerializer.Serialize(ViewBag.ChartXuatData ?? new List<int>()));
-
-            const loaiLabels = @Html.Raw(JsonSerializer.Serialize(ViewBag.LoaiHangLabels ?? new List<string>()));
-            const loaiData = @Html.Raw(JsonSerializer.Serialize(ViewBag.LoaiHangData ?? new List<int>()));
-
-            function getThemeConfig() {
-                const isDark = (document.documentElement.getAttribute("data-theme") || "") === "dark";
-                return {
-                    textColor: isDark ? "#c1bce2" : "#46406e",
-                    gridColor: isDark ? "rgba(255, 255, 255, 0.08)" : "rgba(80, 70, 140, 0.08)",
-                    doughnutBorder: isDark ? "#1e2130" : "#ffffff"
-                };
-            }
-
-            let barChartInstance = null;
-            let pieChartInstance = null;
-
-            function initCharts() {
-                const cfg = getThemeConfig();
-
-                // 1. Biểu đồ Bar Nhập - Xuất
-                const ctxBar = document.getElementById("barChartNhapXuat");
-                if (ctxBar) {
-                    if (barChartInstance) barChartInstance.destroy();
-                    barChartInstance = new Chart(ctxBar, {
-                        type: 'bar',
-                        data: {
-                            labels: daysLabels.length ? daysLabels : ['Hôm nay'],
-                            datasets: [
-                                {
-                                    label: 'Phiếu Nhập',
-                                    data: nhapData.length ? nhapData : [0],
-                                    backgroundColor: 'rgba(91, 142, 230, 0.85)',
-                                    borderColor: '#4a76c9',
-                                    borderWidth: 1,
-                                    borderRadius: 6
-                                },
-                                {
-                                    label: 'Phiếu Xuất',
-                                    data: xuatData.length ? xuatData : [0],
-                                    backgroundColor: 'rgba(224, 108, 130, 0.85)',
-                                    borderColor: '#c14f67',
-                                    borderWidth: 1,
-                                    borderRadius: 6
-                                }
-                            ]
-                        },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            plugins: {
-                                legend: {
-                                    position: 'top',
-                                    labels: {
-                                        color: cfg.textColor,
-                                        font: { family: "Inter, system-ui, sans-serif", weight: '500' }
-                                    }
-                                }
-                            },
-                            scales: {
-                                x: {
-                                    ticks: { color: cfg.textColor },
-                                    grid: { color: cfg.gridColor }
-                                },
-                                y: {
-                                    beginAtZero: true,
-                                    ticks: {
-                                        color: cfg.textColor,
-                                        stepSize: 1
-                                    },
-                                    grid: { color: cfg.gridColor }
-                                }
-                            }
-                        }
-                    });
-                }
-
-                // 2. Biểu đồ Doughnut / Pie Loại Hàng
-                const ctxPie = document.getElementById("pieChartLoaiHang");
-                if (ctxPie) {
-                    if (pieChartInstance) pieChartInstance.destroy();
-                    const backgroundColors = [
-                        '#5b8ee6', '#4cb584', '#e3a24a', '#9272d1', '#e06c82', '#4bb3bd', '#8884ab'
-                    ];
-                    pieChartInstance = new Chart(ctxPie, {
-                        type: 'doughnut',
-                        data: {
-                            labels: loaiLabels.length ? loaiLabels : ['Chưa có loại'],
-                            datasets: [{
-                                data: loaiData.length ? loaiData : [1],
-                                backgroundColor: backgroundColors.slice(0, loaiLabels.length || 1),
-                                borderWidth: 2,
-                                borderColor: cfg.doughnutBorder
-                            }]
-                        },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            plugins: {
-                                legend: {
-                                    position: 'bottom',
-                                    labels: {
-                                        color: cfg.textColor,
-                                        font: { family: "Inter, system-ui, sans-serif", weight: '500' }
-                                    }
-                                }
-                            }
-                        }
-                    });
-                }
-            }
-
-            initCharts();
-
-            // Re-render charts when theme changes
-            window.addEventListener("themechange", function () {
-                initCharts();
-            });
-        });
-    </script>
-}
-=======
 @section Scripts {
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            // 1. BIỂU ĐỒ CƠ CẤU LOẠI HÀNG (DOUGHNUT CHART)
-            const loaiHangLabels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ViewBag.LoaiHangLabels ?? new List<string>()));
-            const loaiHangData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ViewBag.LoaiHangData ?? new List<int>()));
-
-            const ctxLoaiHang = document.getElementById('chartLoaiHang');
-            if (ctxLoaiHang && loaiHangLabels.length > 0) {
-                new Chart(ctxLoaiHang, {
-                    type: 'doughnut',
-                    data: {
-                        labels: loaiHangLabels,
-                        datasets: [{
-                            data: loaiHangData,
-                            backgroundColor: [
-                                '#3b82f6', '#10b981', '#f59e0b', '#ef4444', 
-                                '#8b5cf6', '#ec4899', '#06b6d4', '#64748b'
-                            ],
-                            borderWidth: 2,
-                            borderColor: '#ffffff',
-                            hoverOffset: 6
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                position: 'bottom',
-                                labels: {
-                                    boxWidth: 12,
-                                    padding: 12,
-                                    font: { size: 12 }
-                                }
-                            },
-                            tooltip: {
-                                callbacks: {
-                                    label: function(context) {
-                                        const label = context.label || '';
-                                        const value = context.parsed || 0;
-                                        return ` ${label}: ${value} sản phẩm`;
-                                    }
-                                }
-                            }
-                        },
-                        cutout: '65%'
-                    }
-                });
-            } else if (ctxLoaiHang) {
-                ctxLoaiHang.parentElement.innerHTML = '<div class="text-center text-muted my-auto"><i class="fas fa-inbox fa-3x mb-2 text-black-50"></i><p>Chưa có dữ liệu loại hàng</p></div>';
+        function setQuickDate(type) {
+            const today = new Date();
+            const tuInput = document.getElementById('baoCaoTuNgay');
+            const denInput = document.getElementById('baoCaoDenNgay');
+            
+            function formatDate(d) {
+                const year = d.getFullYear();
+                const month = String(d.getMonth() + 1).padStart(2, '0');
+                const day = String(d.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
             }
 
-            // 2. BIỂU ĐỒ NHẬP - XUẤT 7 NGÀY GẦN NHẤT (BAR CHART)
-            const daysLabels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ViewBag.ChartDaysLabels ?? new List<string>()));
-            const nhapData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ViewBag.ChartNhapData ?? new List<int>()));
-            const xuatData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ViewBag.ChartXuatData ?? new List<int>()));
+            denInput.value = formatDate(today);
 
-            const ctxNhapXuat = document.getElementById('chartNhapXuat');
-            if (ctxNhapXuat) {
-                new Chart(ctxNhapXuat, {
-                    type: 'bar',
-                    data: {
-                        labels: daysLabels,
-                        datasets: [
-                            {
-                                label: 'Phiếu Nhập',
-                                data: nhapData,
-                                backgroundColor: 'rgba(16, 185, 129, 0.85)',
-                                borderColor: '#10b981',
-                                borderWidth: 1,
-                                borderRadius: 6
-                            },
-                            {
-                                label: 'Phiếu Xuất',
-                                data: xuatData,
-                                backgroundColor: 'rgba(239, 68, 68, 0.85)',
-                                borderColor: '#ef4444',
-                                borderWidth: 1,
-                                borderRadius: 6
-                            }
-                        ]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                position: 'top',
-                                labels: {
-                                    boxWidth: 14,
-                                    font: { size: 12 }
-                                }
-                            }
-                        },
-                        scales: {
-                            x: {
-                                grid: { display: false }
-                            },
-                            y: {
-                                beginAtZero: true,
-                                ticks: { stepSize: 1 }
-                            }
-                        }
-                    }
-                });
+            if (type === 'thisMonth') {
+                const startMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+                tuInput.value = formatDate(startMonth);
+            } else if (type === 'last3Months') {
+                const threeMonthsAgo = new Date(today.getFullYear(), today.getMonth() - 3, 1);
+                tuInput.value = formatDate(threeMonthsAgo);
+            } else if (type === 'thisYear') {
+                const startYear = new Date(today.getFullYear(), 0, 1);
+                tuInput.value = formatDate(startYear);
+            } else if (type === 'allTime') {
+                tuInput.value = '2020-01-01';
             }
-        });
+
+            document.getElementById('filterForm').submit();
+        }
     </script>
 }
->>>>>>> Stashed changes

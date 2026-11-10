@@ -22,7 +22,7 @@
     bool groupHangHoa = IsController("HangHoas", "Khoes", "LoaiHangs", "DonViTinhs");
     bool groupNhapKho = IsController("PhieuNhaps", "NhaCungCaps");
     bool groupXuatKho = IsController("PhieuXuats", "BoPhanNhans");
-    bool groupTonKho = IsController("TonKho") || IsAction("ThongKe", "BaoCaoNhapXuat");
+    bool groupTonKho = IsController("TonKho");
 }
 <!DOCTYPE html>
 <html lang="vi">
@@ -226,11 +226,6 @@
                                 <li>
                                     <a class="nav-sublink @(IsAction("TonKho", "LichSu") ? "active" : "")" asp-controller="TonKho" asp-action="LichSu">
                                         <i class="bi bi-clock-history"></i> Lịch sử biến động kho
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="nav-sublink @(IsAction("ThongKe", "BaoCaoNhapXuat") ? "active" : "")" asp-controller="ThongKe" asp-action="BaoCaoNhapXuat">
-                                        <i class="bi bi-file-earmark-bar-graph"></i> Báo cáo tổng hợp Nhập - Xuất
                                     </a>
                                 </li>
                             </ul>
