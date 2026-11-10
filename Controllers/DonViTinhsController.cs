@@ -95,6 +95,16 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
                 return NotFound();
             }
 
+            donViTinh.TenDonViTinh = (donViTinh.TenDonViTinh ?? string.Empty).Trim();
+            if (string.IsNullOrWhiteSpace(donViTinh.TenDonViTinh))
+            {
+                ModelState.AddModelError(nameof(donViTinh.TenDonViTinh), "Tên đơn vị tính không được để trống.");
+            }
+            else if (await _context.DonViTinhs.AnyAsync(d => d.TenDonViTinh == donViTinh.TenDonViTinh && d.MaDonViTinh != donViTinh.MaDonViTinh))
+            {
+                ModelState.AddModelError(nameof(donViTinh.TenDonViTinh), "Tên đơn vị tính đã tồn tại.");
+            }
+
             if (ModelState.IsValid)
             {
                 try
