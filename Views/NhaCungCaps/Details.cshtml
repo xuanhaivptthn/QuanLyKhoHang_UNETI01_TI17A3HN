@@ -54,9 +54,12 @@
                 </dl>
             </div>
             <div class="card-footer bg-light p-3 d-flex justify-content-end gap-2">
-                <a asp-action="Edit" asp-route-id="@Model.MaNhaCungCap" class="btn btn-primary">
-                    <i class="bi bi-pencil-square"></i> Chỉnh sửa
-                </a>
+                @if (User.IsInRole("Admin") || string.Equals(User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value ?? Context.Session.GetString("VaiTro"), "Admin", StringComparison.OrdinalIgnoreCase))
+                {
+                    <a asp-action="Edit" asp-route-id="@Model.MaNhaCungCap" class="btn btn-primary">
+                        <i class="bi bi-pencil-square"></i> Chỉnh sửa
+                    </a>
+                }
                 <a asp-action="Index" class="btn btn-outline-secondary">
                     Quay lại
                 </a>

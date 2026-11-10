@@ -88,6 +88,7 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
         }
 
         // GET: NhaCungCaps/Create
+        [AuthorizeRole("Admin")]
         public IActionResult Create()
         {
             return View();
@@ -96,6 +97,7 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
         // POST: NhaCungCaps/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [AuthorizeRole("Admin")]
         public async Task<IActionResult> Create([Bind("MaNhaCungCap,TenNhaCungCap,SoDienThoai,Email,DiaChi,TrangThai")] NhaCungCap nhaCungCap)
         {
             if (!string.IsNullOrEmpty(nhaCungCap.Email) && await _context.NhaCungCap.AnyAsync(n => n.Email == nhaCungCap.Email))
@@ -121,6 +123,7 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
         }
 
         // GET: NhaCungCaps/Edit/5
+        [AuthorizeRole("Admin")]
         public async Task<IActionResult> Edit(int? id, int? manhacungcap)
         {
             var targetId = id ?? manhacungcap;
@@ -140,6 +143,7 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
         // POST: NhaCungCaps/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [AuthorizeRole("Admin")]
         public async Task<IActionResult> Edit(int? id, int? manhacungcap, [Bind("MaNhaCungCap,TenNhaCungCap,SoDienThoai,Email,DiaChi,TrangThai")] NhaCungCap nhaCungCap)
         {
             var targetId = id ?? manhacungcap ?? nhaCungCap.MaNhaCungCap;
@@ -175,6 +179,7 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
         // POST: NhaCungCaps/DoiTrangThai/5
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [AuthorizeRole("Admin")]
         public async Task<IActionResult> DoiTrangThai(int id)
         {
             var nhaCungCap = await _context.NhaCungCap.FindAsync(id);
