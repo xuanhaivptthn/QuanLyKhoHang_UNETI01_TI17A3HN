@@ -187,7 +187,7 @@
                                         </a>
                                         @if (item.TrangThai == TrangThaiPhieuNhap.Nhap || item.TrangThai == TrangThaiPhieuNhap.ChoXacNhan)
                                         {
-                                            @if (isAdmin)
+                                            @if (isAdmin && item.TrangThai == TrangThaiPhieuNhap.ChoXacNhan)
                                             {
                                                 <form asp-action="HoanTat" asp-route-id="@item.MaPhieuNhap" method="post" class="d-inline" onsubmit="return confirm('Xác nhận duyệt hoàn tất phiếu nhập này?');">
                                                     @Html.AntiForgeryToken()
@@ -195,13 +195,22 @@
                                                         <i class="bi bi-check-circle me-1"></i> Duyệt hoàn tất
                                                     </button>
                                                 </form>
+                                                <form asp-action="TuChoi" asp-route-id="@item.MaPhieuNhap" method="post" class="d-inline" onsubmit="return confirm('Xác nhận từ chối phiếu nhập này?');">
+                                                    @Html.AntiForgeryToken()
+                                                    <button type="submit" class="btn btn-outline-danger btn-sm text-nowrap" title="Từ chối phiếu">
+                                                        <i class="bi bi-x-circle me-1"></i> Từ chối
+                                                    </button>
+                                                </form>
                                             }
                                             <a asp-action="Edit" asp-route-id="@item.MaPhieuNhap" class="btn btn-outline-primary btn-sm text-nowrap" title="Sửa thông tin phiếu">
                                                 <i class="bi bi-pencil-square me-1"></i> Sửa
                                             </a>
-                                            <a asp-action="Delete" asp-route-id="@item.MaPhieuNhap" class="btn btn-outline-danger btn-sm text-nowrap" title="Xóa phiếu nhập">
-                                                <i class="bi bi-trash me-1"></i> Xóa
-                                            </a>
+                                            @if (item.TrangThai == TrangThaiPhieuNhap.Nhap)
+                                            {
+                                                <a asp-action="Delete" asp-route-id="@item.MaPhieuNhap" class="btn btn-outline-danger btn-sm text-nowrap" title="Xóa phiếu nhập">
+                                                    <i class="bi bi-trash me-1"></i> Xóa
+                                                </a>
+                                            }
                                         }
                                     </div>
                                 </td>

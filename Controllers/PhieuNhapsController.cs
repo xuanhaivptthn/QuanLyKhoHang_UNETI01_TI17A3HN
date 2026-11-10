@@ -473,9 +473,9 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
                 return NotFound();
             }
 
-            if (phFull.TrangThai == TrangThaiPhieuNhap.DaHoanTat)
+            if (phFull.TrangThai != TrangThaiPhieuNhap.ChoXacNhan)
             {
-                TempData["Error"] = "Phiếu nhập này đã ở trạng thái Hoàn tất, không thể duyệt lại.";
+                TempData["Error"] = "Chỉ phiếu đang Chờ xác nhận mới được Admin duyệt hoàn tất.";
                 return RedirectToAction(nameof(Details), new { id });
             }
 
@@ -553,15 +553,38 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
             var phieu = await _context.PhieuNhap.FindAsync(id);
             if (phieu == null) return NotFound();
 
-            if (phieu.TrangThai == TrangThaiPhieuNhap.DaHoanTat)
+            if (phieu.TrangThai != TrangThaiPhieuNhap.Nhap)
             {
-                TempData["Error"] = "Không thể hủy phiếu đã hoàn tất nhập kho.";
+                TempData["Error"] = "Chỉ phiếu Nháp mới có thể hủy. Phiếu Chờ xác nhận phải do Admin duyệt hoặc từ chối.";
                 return RedirectToAction(nameof(Details), new { id });
             }
 
             phieu.TrangThai = TrangThaiPhieuNhap.DaHuy;
             await _context.SaveChangesAsync();
             TempData["Success"] = "Đã hủy phiếu nhập thành công.";
+            return RedirectToAction(nameof(Details), new { id });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [AuthorizeRole("Admin")]
+        public async Task<IActionResult> TuChoi(int id)
+        {
+            var phieu = await _context.PhieuNhap.FindAsync(id);
+            if (phieu == null)
+            {
+                return NotFound();
+            }
+
+            if (phieu.TrangThai != TrangThaiPhieuNhap.ChoXacNhan)
+            {
+                TempData["Error"] = "Chỉ phiếu Chờ xác nhận mới có thể bị Admin từ chối.";
+                return RedirectToAction(nameof(Details), new { id });
+            }
+
+            phieu.TrangThai = TrangThaiPhieuNhap.DaHuy;
+            await _context.SaveChangesAsync();
+            TempData["Success"] = "Admin đã từ chối phiếu nhập.";
             return RedirectToAction(nameof(Details), new { id });
         }
 
@@ -605,9 +628,9 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
             var phieuNhap = await _context.PhieuNhap.FindAsync(targetId);
             if (phieuNhap != null)
             {
-                if (phieuNhap.TrangThai == TrangThaiPhieuNhap.DaHoanTat)
+                if (phieuNhap.TrangThai != TrangThaiPhieuNhap.Nhap)
                 {
-                    TempData["Error"] = "Không thể xóa phiếu đã hoàn tất nhập kho.";
+                    TempData["Error"] = "Chỉ phiếu Nháp mới có thể xóa. Phiếu Chờ xác nhận phải do Admin duyệt hoặc từ chối.";
                     return RedirectToAction(nameof(Index));
                 }
 

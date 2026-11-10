@@ -37,7 +37,7 @@
             </a>
         }
 
-        @if (isAdmin && (Model.TrangThai == TrangThaiPhieuNhap.Nhap || Model.TrangThai == TrangThaiPhieuNhap.ChoXacNhan))
+        @if (isAdmin && Model.TrangThai == TrangThaiPhieuNhap.ChoXacNhan)
         {
             <form asp-action="HoanTat" asp-route-id="@Model.MaPhieuNhap" method="post" class="d-inline" onsubmit="return confirm('Xác nhận hoàn tất phiếu nhập này? Số lượng tồn kho sẽ được cộng dồn.');">
                 @Html.AntiForgeryToken()
@@ -45,13 +45,19 @@
                     <i class="bi bi-check-circle"></i> Hoàn tất nhập kho
                 </button>
             </form>
+            <form asp-action="TuChoi" asp-route-id="@Model.MaPhieuNhap" method="post" class="d-inline" onsubmit="return confirm('Xác nhận từ chối phiếu nhập này?');">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-outline-danger">
+                    <i class="bi bi-x-circle"></i> Từ chối phiếu
+                </button>
+            </form>
         }
-        else if (isWarehouseStaff && (Model.TrangThai == TrangThaiPhieuNhap.Nhap || Model.TrangThai == TrangThaiPhieuNhap.ChoXacNhan))
+        else if (isWarehouseStaff && Model.TrangThai == TrangThaiPhieuNhap.ChoXacNhan)
         {
             <span class="text-muted small align-self-center">Phiếu đang chờ Admin duyệt hoàn tất.</span>
         }
 
-        @if (canManage && (Model.TrangThai == TrangThaiPhieuNhap.Nhap || Model.TrangThai == TrangThaiPhieuNhap.ChoXacNhan))
+        @if (canManage && Model.TrangThai == TrangThaiPhieuNhap.Nhap)
         {
             <form asp-action="HuyPhieu" asp-route-id="@Model.MaPhieuNhap" method="post" class="d-inline" onsubmit="return confirm('Bạn có chắc chắn muốn hủy phiếu nhập này?');">
                 @Html.AntiForgeryToken()
