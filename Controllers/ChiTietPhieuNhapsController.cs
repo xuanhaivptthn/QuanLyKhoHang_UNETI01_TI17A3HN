@@ -30,10 +30,21 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
         }
 
         // GET: ChiTietPhieuNhaps
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int? maPhieuNhap)
         {
-            var appDbContext = _context.ChiTietPhieuNhap.Include(c => c.HangHoa).Include(c => c.PhieuNhap);
-            return View(await appDbContext.ToListAsync());
+            var query = _context.ChiTietPhieuNhap
+                .Include(c => c.HangHoa)
+                .Include(c => c.PhieuNhap)
+                .AsQueryable();
+
+            if (maPhieuNhap.HasValue)
+            {
+                query = query.Where(c => c.MaPhieuNhap == maPhieuNhap.Value);
+                ViewBag.PhieuNhap = await _context.PhieuNhap.FindAsync(maPhieuNhap.Value);
+            }
+
+            ViewBag.MaPhieuNhap = maPhieuNhap;
+            return View(await query.OrderBy(c => c.MaChiTietNhap).ToListAsync());
         }
 
         // GET: ChiTietPhieuNhaps/Details/5
