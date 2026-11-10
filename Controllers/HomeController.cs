@@ -46,20 +46,20 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
                 }
                 catch { }
             }
-            return View(taiKhoans);
+            return View("Index", taiKhoans);
         }
 
         [AllowAnonymous]
         public IActionResult AccessDenied()
         {
-            return View();
+            return View("AccessDenied");
         }
 
         [AllowAnonymous]
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            return View("Error", new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
     }
 }

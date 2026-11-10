@@ -205,9 +205,14 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
         public async Task<IActionResult> Create(
             [Bind("MaHang,TenHang,MaLoaiHang,MaDonViTinh,GiaNhapThamKhao,MucTonToiThieu,MoTa,TrangThai")] HangHoa hangHoa)
         {
+            hangHoa.TenHang = (hangHoa.TenHang ?? string.Empty).Trim();
             if (string.IsNullOrWhiteSpace(hangHoa.TenHang))
             {
                 ModelState.AddModelError("TenHang", "Tên hàng không được để trống.");
+            }
+            else if (await _context.HangHoa.AnyAsync(h => h.TenHang == hangHoa.TenHang))
+            {
+                ModelState.AddModelError("TenHang", "Tên hàng đã tồn tại.");
             }
 
             if (hangHoa.GiaNhapThamKhao < 0)
@@ -278,9 +283,14 @@ namespace QuanLyKhoHang_UNETI01_TI17A3HN.Controllers
                 return NotFound();
             }
 
+            hangHoa.TenHang = (hangHoa.TenHang ?? string.Empty).Trim();
             if (string.IsNullOrWhiteSpace(hangHoa.TenHang))
             {
                 ModelState.AddModelError("TenHang", "Tên hàng không được để trống.");
+            }
+            else if (await _context.HangHoa.AnyAsync(h => h.TenHang == hangHoa.TenHang && h.MaHang != hangHoa.MaHang))
+            {
+                ModelState.AddModelError("TenHang", "Tên hàng đã tồn tại.");
             }
 
             if (hangHoa.GiaNhapThamKhao < 0)

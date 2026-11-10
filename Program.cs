@@ -9,7 +9,18 @@ using QuanLyKhoHang_UNETI01_TI17A3HN.Data;
 using QuanLyKhoHang_UNETI01_TI17A3HN.Models;
 using QuanLyKhoHang_UNETI01_TI17A3HN.Services;
 
-var builder = WebApplication.CreateBuilder(args);
+// Tự động phát hiện thư mục gốc chứa Views & wwwroot kể cả khi chạy từ bin/Debug hoặc dotnet run
+var projectRoot = Directory.Exists(Path.Combine(AppContext.BaseDirectory, "Views"))
+    ? AppContext.BaseDirectory
+    : (Directory.Exists(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "Views"))
+        ? Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", ".."))
+        : Directory.GetCurrentDirectory());
+
+var builder = WebApplication.CreateBuilder(new WebApplicationOptions
+{
+    Args = args,
+    ContentRootPath = projectRoot
+});
 
 // CẤU HÌNH CƠ SỞ DỮ LIỆU & QUẢN LÝ KẾT NỐI ĐỘNG (FAILOVER & HEALTH CHECK)
 // Đăng ký thông tin CSDL (DatabaseInfo) dạng Singleton hiển thị trạng thái lên giao diện

@@ -12,6 +12,11 @@
 
 
   <ItemGroup>
+    <Compile Remove="QuanLyKhoHang.Tests\**" />
+    <None Remove="QuanLyKhoHang.Tests\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Allure.NUnit" Version="2.12.1" />
     <PackageReference Include="Allure.Net.Commons" Version="2.12.1" />
     <PackageReference Include="ClosedXML" Version="0.105.1" />
