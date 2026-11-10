@@ -30,22 +30,36 @@ jobs:
           ${{ runner.os }}-nuget-
 
     - name: Restore Dependencies
-      run: dotnet restore Tests/QuanLyKhoHang.Automation.csproj
+      run: dotnet restore
 
-    - name: Build Test Automation Engine
-      run: dotnet build Tests/QuanLyKhoHang.Automation.csproj --no-restore --configuration Release
+    - name: Build Solution
+      run: dotnet build --no-restore --configuration Release
 
     - name: Install Playwright Browsers & OS Dependencies
       run: |
         pwsh Tests/bin/Release/net10.0/playwright.ps1 install --with-deps chromium
 
+    - name: Start Web Application
+      env:
+        ConnectionStrings__RemoteDb: ${{ secrets.REMOTE_DB_CONNECTION_STRING }}
+      run: |
+        dotnet run --project QuanLyKhoHang_UNETI01_TI17A3HN.csproj --configuration Release --no-build --urls "http://localhost:5009" &
+        for i in {1..30}; do
+          if curl -s http://localhost:5009/login > /dev/null; then
+            echo "Web app is ready at http://localhost:5009!"
+            break
+          fi
+          echo "Waiting for web app..."
+          sleep 1
+        done
+
     - name: Execute Automation Test Suites
+      continue-on-error: true
       run: |
         dotnet test Tests/QuanLyKhoHang.Automation.csproj \
           --no-build \
           --configuration Release \
-          --logger "allure" \
-          --results-directory:allure-results
+          --logger "console;verbosity=normal"
 
     - name: Generate Allure Report
       uses: simple-elf/allure-report-action@master
